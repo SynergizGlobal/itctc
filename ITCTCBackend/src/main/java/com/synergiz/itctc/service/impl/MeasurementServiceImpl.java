@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.synergiz.itctc.dto.request.MeasurementDetailRequest;
 import com.synergiz.itctc.dto.request.MeasurementRequest;
+import com.synergiz.itctc.dto.request.MeasurementUpdateRequest;
 import com.synergiz.itctc.dto.response.MeasurementDetailResponse;
 import com.synergiz.itctc.dto.response.MeasurementResponse;
 import com.synergiz.itctc.entity.MeasurementDetail;
@@ -100,21 +101,166 @@ public class MeasurementServiceImpl implements MeasurementService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<MeasurementResponse> getAllMeasurements() {
-        
-        return new ArrayList<>();
+
+        List<MeasurementHeader> headers = measurementHeaderRepository.findByIsActiveTrue();
+
+        List<MeasurementResponse> responses = new ArrayList<>();
+
+        for (MeasurementHeader header : headers) {
+
+            MeasurementResponse response = new MeasurementResponse();
+
+            response.setMeasurementId(header.getMeasurementId());
+            response.setProjectId(header.getProjectId());
+            response.setChainageKm(header.getChainageKm());
+            response.setChainageM(header.getChainageM());
+
+            response.setStructureTypeId(header.getStructureType().getStructureTypeId());
+            response.setStructureTypeName(header.getStructureType().getStructureName());
+
+            response.setTrackTypeId(header.getTrackType().getTrackTypeId());
+            response.setTrackTypeName(header.getTrackType().getTrackTypeName());
+
+            response.setIsCurve(header.getIsCurve());
+            response.setCurveRadius(header.getCurveRadius());
+            response.setAppliedCantValueMm(header.getAppliedCantValueMm());
+            response.setRemarks(header.getRemarks());
+            response.setCreatedDate(header.getCreatedDate());
+
+            List<MeasurementDetailResponse> detailResponses = new ArrayList<>();
+
+            for (MeasurementDetail detail : header.getDetails()) {
+
+                MeasurementDetailResponse detailResponse = new MeasurementDetailResponse();
+
+                detailResponse.setMeasurementDetailId(detail.getMeasurementDetailId());
+
+                detailResponse.setaMeasured(detail.getAMeasured());
+                detailResponse.setX1Calculated(detail.getX1Calculated());
+                detailResponse.setaStandard(detail.getaStandard());
+                detailResponse.setaMeasuredTotal(detail.getAMeasuredTotal());
+
+                detailResponse.setbMeasured(detail.getBMeasured());
+                detailResponse.setbPrimeMeasured(detail.getBPrimeMeasured());
+                detailResponse.setbStandard(detail.getBStandard());
+                detailResponse.setbTotalMeasured(detail.getBTotalMeasured());
+
+                detailResponse.setcMeasured(detail.getCMeasured());
+                detailResponse.setX2Calculated(detail.getX2Calculated());
+                detailResponse.setcStandard(detail.getCStandard());
+                detailResponse.setcTotalMeasured(detail.getCTotalMeasured());
+
+                detailResponse.setdStandard(detail.getDStandard());
+                detailResponse.setdMeasured(detail.getDMeasured());
+
+                detailResponses.add(detailResponse);
+            }
+
+            response.setDetails(detailResponses);
+
+            responses.add(response);
+        }
+
+        return responses;
     }
 
     @Override
-    public Long updateMeasurement(Long measurementId, MeasurementRequest request) {
-        
-        return null;
+    @Transactional
+    public Long updateMeasurement(Long measurementId, MeasurementUpdateRequest request) {
+
+        MeasurementHeader header = measurementHeaderRepository.findById(measurementId)
+                .orElseThrow(() ->
+                        new RuntimeException("Measurement not found with Id : " + measurementId));
+
+        StructureType structureType = structureTypeRepository
+                .findById(request.getStructureTypeId())
+                .orElseThrow(() ->
+                        new RuntimeException("Invalid Structure Type Id"));
+
+        TrackType trackType = trackTypeRepository
+                .findById(request.getTrackTypeId())
+                .orElseThrow(() ->
+                        new RuntimeException("Invalid Track Type Id"));
+
+        // Update Header
+        header.setProjectId(request.getProjectId());
+        header.setChainageKm(request.getChainageKm());
+        header.setChainageM(request.getChainageM());
+        header.setStructureType(structureType);
+        header.setTrackType(trackType);
+        header.setIsCurve(request.getIsCurve());
+        header.setCurveRadius(request.getCurveRadius());
+        header.setAppliedCantValueMm(request.getAppliedCantValueMm());
+        header.setRemarks(request.getRemarks());
+        header.setUpdatedBy(request.getUpdatedBy());
+        header.setUpdatedDate(LocalDateTime.now());
+
+        // Clear existing details (orphanRemoval=true will delete them)
+        header.getDetails().clear();
+
+        // Add new details
+        if (request.getDetails() != null && !request.getDetails().isEmpty()) {
+
+            for (MeasurementDetailRequest dto : request.getDetails()) {
+
+                MeasurementDetail detail = new MeasurementDetail();
+
+                detail.setAMeasured(dto.getaMeasured());
+                detail.setX1Calculated(dto.getX1Calculated());
+                detail.setaStandard(dto.getaStandard());
+                detail.setAMeasuredTotal(dto.getaMeasuredTotal());
+
+                detail.setBMeasured(dto.getbMeasured());
+                detail.setBPrimeMeasured(dto.getbPrimeMeasured());
+                detail.setBStandard(dto.getbStandard());
+                detail.setBTotalMeasured(dto.getbTotalMeasured());
+
+                detail.setCMeasured(dto.getcMeasured());
+                detail.setX2Calculated(dto.getX2Calculated());
+                detail.setCStandard(dto.getcStandard());
+                detail.setCTotalMeasured(dto.getcTotalMeasured());
+
+                detail.setDMeasured(dto.getdMeasured());
+                detail.setDStandard(dto.getdStandard());
+
+                detail.setMeasurementHeader(header);
+                detail.setCreatedDate(LocalDateTime.now());
+                detail.setIsActive(true);
+
+                // Add directly to the managed collection
+                header.getDetails().add(detail);
+            }
+        }
+
+        MeasurementHeader updatedHeader = measurementHeaderRepository.save(header);
+
+        return updatedHeader.getMeasurementId();
     }
 
     @Override
-    public void deleteMeasurement(Long measurementId) {
-        
+    @Transactional
+    public Long deleteMeasurement(Long measurementId) {
+
+        MeasurementHeader header = measurementHeaderRepository.findById(measurementId)
+                .orElseThrow(() ->
+                        new RuntimeException("Measurement not found with Id : " + measurementId));
+
+        header.setIsActive(false);
+        header.setUpdatedDate(LocalDateTime.now());
+
+        if (header.getDetails() != null) {
+            for (MeasurementDetail detail : header.getDetails()) {
+                detail.setIsActive(false);
+            }
+        }
+
+        measurementHeaderRepository.save(header);
+
+        return header.getMeasurementId();
     }
+    
     @Override
     public Long saveMeasurement(MeasurementRequest request) {
 
