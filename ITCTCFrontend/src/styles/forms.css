@@ -2,9 +2,7 @@ body {
   background: #f8f9fa;
 }
 
-.form-table {
-  min-width: 1200px;
-}
+
 
 .form-table th,
 .form-table td {
@@ -14,8 +12,8 @@ body {
   white-space: nowrap;
 }
 
-.form-table tr:nth-child(-n+3) > th,
-.form-table tr:nth-child(-n+3) > td {
+.form-table thead tr:nth-child(-n+3) > th,
+.form-table thead tr:nth-child(-n+3) > td {
   background-color: #cfe2ff !important;
   font-weight: 600;
 }
@@ -27,13 +25,6 @@ body {
   max-height: calc(100vh - 96px);
   overflow: auto;
   position: relative;
-}
-
-.export-table .sticky-header-cell {
-  position: sticky;
-  top: var(--sticky-top, 0px);
-  z-index: 3;
-  background-color: #cfe2ff !important;
 }
 
 .panel-heading {
@@ -97,6 +88,43 @@ body {
 .title-main {
   font-size: 20px;
   font-weight: 600;
+}
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 10mm;
+  }
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .container-fluid {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+  .form-table {
+    font-size: 9px !important;
+    width: 100% !important;
+  }
+  .form-table th,
+  .form-table td {
+    padding: 2px !important;
+  }
+  .table-input {
+    font-size: 9px !important;
+    min-width: auto !important;
+    padding: 1px 2px !important;
+  }
+  .panel-heading {
+    padding: 6px 10px !important;
+  }
+  .title-main {
+    font-size: 14px !important;
+  }
+  .btn {
+    display: none !important;
+  }
 }
 
 @media (max-width: 576px) {

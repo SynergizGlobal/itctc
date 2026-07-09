@@ -21,12 +21,41 @@ export default function FormC7() {
     <div className="container-fluid py-3">
       <div className="panel-heading d-flex align-items-center justify-content-between mb-3">
         <h1 className="h6 mb-0">Form C-7</h1>
-        <button type="button" className="btn btn-primary btn-sm" onClick={() => downloadExcel('Form_C-7.xls')}>
-          <i className="fa-solid fa-download"></i>
+        <span className="title-main text-center flex-grow-1 mx-3">Measurement record of height of noise barrier (Earth work, Viaduct and Bridge section)</span>
+        <button type="button" className="btn btn-sm ms-1 p-1" style={{ background: 'none', border: '1px solid #ccc', lineHeight: 1 }} onClick={() => downloadExcel('Form_C-7.xls')}>
+          <i className="fa fa-download" aria-hidden="true" style={{ fontSize: 12 }}></i>
         </button>
       </div>
-      <div className="table-responsive">
-        <table className="table table-bordered table-striped table-sm align-middle form-table export-table mb-0" width="1636" border="1">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+        <div style={{ width: '400px', height: '100px', border: '2px dashed #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999', fontSize: '12px' }}>Image</div>
+        <div>
+          <table border="1" style={{ borderCollapse: 'collapse', fontSize: '11px', border: '1px solid #000', tableLayout: 'fixed', width: '260px' }}>
+            <tbody>
+              <tr>
+                <td rowSpan="3" style={{ textAlign: 'center', verticalAlign: 'middle', fontWeight: 600, border: '1px solid #000', padding: '4px', width: '33.33%' }}>Witness</td>
+                <td style={{ textAlign: 'center', border: '1px solid #000', padding: '4px', width: '33.33%' }}>NHSRCL</td>
+                <td style={{ border: '1px solid #000', padding: '4px', width: '33.33%' }}>&nbsp;</td>
+              </tr>
+              <tr>
+                <td style={{ textAlign: 'center', border: '1px solid #000', padding: '4px' }}>The Engineer</td>
+                <td style={{ border: '1px solid #000', padding: '4px' }}>&nbsp;</td>
+              </tr>
+              <tr>
+                <td style={{ textAlign: 'center', border: '1px solid #000', padding: '4px' }}>The Contractor</td>
+                <td style={{ border: '1px solid #000', padding: '4px' }}>&nbsp;</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style={{ fontSize: '9px', marginTop: '4px', lineHeight: 1.8, textAlign: 'left' }}>
+            <span style={{ display: 'inline-block', width: '205px' }}>A: Height of noise barrier of Down line</span>Measurement points:<br />
+            <span style={{ display: 'inline-block', width: '205px' }}>B: Height of noise barrier of Up line</span>Every <span style={{ color: 'red' }}>50 m</span> in straight section<br />
+            <span style={{ display: 'inline-block', width: '205px' }}>h1, h2, h3, h4: Each rail level</span>Every <span style={{ color: 'red' }}>20 m</span> in curve section<br />
+            <span style={{ display: 'inline-block', width: '205px' }}>h5, h6: Measured level at the top of noise barrier</span>Start and end points of each type
+          </div>
+        </div>
+      </div>
+      <div style={{ overflow: 'auto' }}>
+        <table className="table table-bordered table-striped table-sm align-middle form-table export-table mb-0" border="1">
           <thead>
             <tr>
               <th colSpan="3" rowSpan="2">Chainage</th>
@@ -73,6 +102,10 @@ export default function FormC7() {
           </tbody>
         </table>
       </div>
+      <div style={{ marginTop: '8px', fontSize: '12px' }}>Record the structure type of main line in the note column</div>
     </div>
   );
 }
+
+
+

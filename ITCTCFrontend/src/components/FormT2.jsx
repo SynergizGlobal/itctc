@@ -11,20 +11,24 @@ export default function FormT2() {
     <div className="container-fluid py-3">
       <div className="panel-heading d-flex align-items-center justify-content-between mb-3">
         <h1 className="h6 mb-0">Form T-2</h1>
-        <button type="button" className="btn btn-primary btn-sm" onClick={() => downloadExcel('Form_T-2.xls')}>
-          <i className="fa-solid fa-download"></i>
+        <span className="title-main text-center flex-grow-1 mx-3">Measurement record of Finished state of track Irregularity</span>
+        <span>No. <input type="text" className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
+        <span className="ms-2">Date: <input type="text" className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
+        <button type="button" className="btn btn-sm ms-1 p-1" style={{ background: 'none', border: '1px solid #ccc', lineHeight: 1 }} onClick={() => downloadExcel('Form_T-2.xls')}>
+          <i className="fa fa-download" aria-hidden="true" style={{ fontSize: 12 }}></i>
         </button>
       </div>
 
-      <div className="table-responsive mb-3">
-        <table className="table table-bordered table-striped table-sm align-middle form-table tolerance-table export-table mb-0" style={{ marginLeft: '128px' }} width="1323" border="1">
+      <div style={{ overflow: 'auto', marginBottom: '1rem' }}>
+        <table className="table table-bordered table-striped table-sm align-middle form-table tolerance-table export-table mb-0" style={{ marginLeft: '128px' }} border="1">
           <thead>
             <tr>
               <th width="105" rowSpan="2">Tolerances</th>
               <th width="88" rowSpan="2">Slab Track</th>
               <td>Gauge</td>
               <td>Cross Level</td>
-              <td colSpan="2">Longitudinal alignment</td>
+              <td>Longitudinal alignment</td>
+              <td>Lateral alignment</td>
               <th width="147" rowSpan="2">Ballasted Track</th>
               <td>Gauge</td>
               <td width="107">Cross Level</td>
@@ -32,21 +36,21 @@ export default function FormT2() {
               <td>Lateral alignment</td>
             </tr>
             <tr>
-              <td className="tolerance-value" width="73">&plusmn; 1</td>
-              <td className="tolerance-value" width="123">&plusmn; 1</td>
-              <td className="tolerance-value" width="67">&plusmn; 2/10 m-chord</td>
-              <td className="tolerance-value" width="100">&plusmn; 2/10 m-chord</td>
-              <td className="tolerance-value" width="73">&plusmn; 2</td>
-              <td className="tolerance-value">&plusmn; 2</td>
-              <td className="tolerance-value" width="202">&plusmn; 3/10 m-chord</td>
-              <td className="tolerance-value" width="168">&plusmn; 3/10 m-chord</td>
+              <td className="tolerance-value" width="73" style={{ color: 'red' }}>&plusmn; 1</td>
+              <td className="tolerance-value" width="123" style={{ color: 'red' }}>&plusmn; 1</td>
+              <td className="tolerance-value" width="67" style={{ color: 'red' }}>&plusmn; 2/10 m-chord</td>
+              <td className="tolerance-value" width="100" style={{ color: 'red' }}>&plusmn; 2/10 m-chord</td>
+              <td className="tolerance-value" width="73" style={{ color: 'red' }}>&plusmn; 2</td>
+              <td className="tolerance-value" style={{ color: 'red' }}>&plusmn; 2</td>
+              <td className="tolerance-value" width="202" style={{ color: 'red' }}>&plusmn; 3/10 m-chord</td>
+              <td className="tolerance-value" width="168" style={{ color: 'red' }}>&plusmn; 3/10 m-chord</td>
             </tr>
           </thead>
         </table>
       </div>
 
-      <div className="table-responsive">
-        <table className="table table-striped table-bordered table-sm align-middle form-table measurement-table export-table mb-0" width="2544" border="1">
+      <div style={{ overflow: 'auto' }}>
+        <table className="table table-striped table-bordered table-sm align-middle form-table measurement-table export-table mb-0" border="1">
           <thead>
             <tr>
               <th className="vertical-text diagram-text" width="57" rowSpan="3">Vertical curve diagram</th>
@@ -110,9 +114,15 @@ export default function FormT2() {
           <tbody>
             {Array.from({ length: MEASUREMENT_ROWS }, (_, i) => (
               <tr key={i}>
-                {Array.from({ length: 39 }, (_, j) => (
-                  <td key={j}>&nbsp;</td>
-                ))}
+                {Array.from({ length: 39 }, (_, j) => {
+                  if (i === 0 && (j === 0 || j === 1 || j === 37 || j === 38)) {
+                    return <td key={j} rowSpan={MEASUREMENT_ROWS}>&nbsp;</td>;
+                  }
+                  if (i > 0 && (j === 0 || j === 1 || j === 37 || j === 38)) {
+                    return null;
+                  }
+                  return <td key={j}>&nbsp;</td>;
+                })}
               </tr>
             ))}
           </tbody>
@@ -121,3 +131,5 @@ export default function FormT2() {
     </div>
   );
 }
+
+
