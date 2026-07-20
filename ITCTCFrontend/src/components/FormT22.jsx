@@ -1,73 +1,13 @@
-import { useState } from 'react';
 import useStickyHeaders from '../hooks/useStickyHeaders';
-import useDownloadExcel from '../hooks/useDownloadExcel';
+import formT22Diagram from '../assets/images/Form_T-22.png';
 
-function ImageDropZone() {
-  const [image, setImage] = useState(null);
-  const [dragOver, setDragOver] = useState(false);
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setDragOver(false);
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (ev) => setImage(ev.target.result);
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setDragOver(true);
-  };
-
-  const handleDragLeave = () => setDragOver(false);
-
-  const handleClick = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (ev) => setImage(ev.target.result);
-        reader.readAsDataURL(file);
-      }
-    };
-    input.click();
-  };
-
-  return (
-    <div
-      onClick={handleClick}
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      style={{
-        width: '100%',
-        height: '170px',
-        border: `2px dashed ${dragOver ? '#0d6efd' : '#ccc'}`,
-        borderRadius: '8px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: 'pointer',
-        background: dragOver ? '#eaf4ff' : image ? `url(${image}) center/cover no-repeat` : '#fff',
-        color: '#999',
-        fontSize: '13px',
-        transition: 'all 0.2s',
-      }}
-    >
-      {!image && 'Drag & drop image here'}
-    </div>
-  );
-}
-
+const measurementRows = [
+  ['P1', 245, 4980, 980, 3370, 3870], ['P2', 248, 5010, 1010, 3410, 3905],
+  ['P3', 252, 4995, 995, 3395, 3890], ['P4', 250, 5005, 1005, 3405, 3895],
+  ['P5', 247, 4990, 990, 3385, 3880],
+];
 export default function FormT22() {
   useStickyHeaders();
-  const downloadExcel = useDownloadExcel();
 
   return (
     <div className="container-fluid py-3">
@@ -76,9 +16,6 @@ export default function FormT22() {
         <span className="title-main text-center flex-grow-1 mx-3">Measurement record of Buffer Stop (1st GRADE with GRAVEL FILL)</span>
         <span>No. <input type="text" className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
         <span className="ms-2">Date: <input type="text" className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
-        <button type="button" className="btn btn-sm ms-1 p-1" style={{ background: 'none', border: '1px solid #ccc', lineHeight: 1 }} onClick={() => downloadExcel('Form_T-22.xls')}>
-          <i className="fa fa-download" aria-hidden="true" style={{ fontSize: 12 }}></i>
-        </button>
       </div>
       <div className="mb-3">
         <span className="me-1">Line:</span>
@@ -86,7 +23,7 @@ export default function FormT22() {
       </div>
       <style>{'.compact-table td { padding: 2px 1px !important; font-size: 10px; line-height: 1.3; } .compact-table { font-size: 10px; } .compact-table thead tr:first-child th, .compact-table thead tr:first-child td { padding: 0 1px !important; } .compact-table th, .compact-table.form-table thead td { background: none !important; background-color: transparent !important; }'}</style>
       <div className="d-flex" style={{ background: '#fff', border: '1px solid #000', borderRadius: '8px', padding: '12px', alignItems: 'flex-start', gap: '16px' }}>
-        <div style={{ minWidth: 0, margin: 0, width: '50%', overflow: 'auto' }}>
+        <div style={{ minWidth: 0, margin: '60px 0 0', width: '50%', overflow: 'auto' }}>
           <table border="1" className="table table-bordered align-middle form-table export-table compact-table mb-0" style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'collapse' }}>
             <thead>
             <tr style={{ height: '50px' }}>
@@ -110,25 +47,18 @@ export default function FormT22() {
               </tr>
             </thead>
             <tbody>
-              {[
-                ['P1', '245', '4,980', '980', '3,370', '3,870'],
-                ['P2', '248', '5,010', '1,010', '3,410', '3,905'],
-                ['P3', '252', '4,995', '995', '3,395', '3,890'],
-                ['P4', '250', '5,005', '1,005', '3,405', '3,895'],
-                ['P5', '247', '4,990', '990', '3,385', '3,880'],
-              ].map((row, r) => (
+              {measurementRows.map((row, r) => (
                 <tr key={r} style={{ height: '50px' }}>
                   {row.map((val, c) => (
-                    <td key={c} style={{ height: '50px' }}>{val}</td>
+                    <td key={c} style={{ height: '50px' }}>{typeof val === 'number' ? val.toLocaleString() : val}</td>
                   ))}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <div className="d-flex flex-column gap-2" style={{ width: '50%' }}>
-          <ImageDropZone />
-          <ImageDropZone />
+        <div className="d-flex justify-content-center align-items-center" style={{ width: '50%' }}>
+          <img src={formT22Diagram} alt="Buffer stop side and plane view reference diagram" style={{ width: '100%', maxWidth: '507px', height: 'auto', objectFit: 'contain', background: '#fff' }} />
         </div>
       </div>
     </div>

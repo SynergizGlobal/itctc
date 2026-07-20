@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import useStickyHeaders from '../hooks/useStickyHeaders';
-import useDownloadExcel from '../hooks/useDownloadExcel';
 
 function ImageDropZone({ height = '55px' }) {
   const [image, setImage] = useState(null);
@@ -18,7 +17,6 @@ function ImageDropZone({ height = '55px' }) {
 
 export default function FormT72() {
   useStickyHeaders();
-  const downloadExcel = useDownloadExcel();
 
   return (
     <div className="container-fluid py-3">
@@ -28,9 +26,6 @@ export default function FormT72() {
         <span className="title-main text-center flex-grow-1 mx-3">Measurement record of CAM injected thickness</span>
         <span>No. <input type="text" className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
         <span className="ms-2">Date: <input type="text" className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
-        <button type="button" className="btn btn-sm ms-1 p-1" style={{ background: 'none', border: '1px solid #ccc', lineHeight: 1 }} onClick={() => downloadExcel('Form_T-2.xls')}>
-          <i className="fa fa-download" aria-hidden="true" style={{ fontSize: 12 }}></i>
-        </button>
       </div>
 
       <div style={{ overflow: 'visible', marginBottom: '1rem' }}>

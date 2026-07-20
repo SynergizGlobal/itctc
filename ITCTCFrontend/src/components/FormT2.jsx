@@ -1,22 +1,37 @@
 import useStickyHeaders from '../hooks/useStickyHeaders';
-import useDownloadExcel from '../hooks/useDownloadExcel';
 
 const MEASUREMENT_ROWS = 18;
 
+const variations = [0.2, -0.4, 0.6, -0.3, 0.5, -0.7, 0.1, 0.4, -0.2, 0.7, -0.5, 0.3, -0.6, 0.2, 0.5, -0.4, 0.1, -0.3];
+
+function measurementRow(index) {
+  if (index >= 10) return Array(39).fill('');
+  const down = variations[index];
+  const up = variations[(index + 5) % variations.length];
+  const chainageM = 250 + index * 10;
+  const triplet = (design, variation, digits = 1) => [design.toFixed(digits), (design + variation).toFixed(digits), variation.toFixed(digits)];
+
+  return [
+    '', '',
+    ...triplet(0, down * 0.8), ...triplet(0, down * 1.4), ...triplet(0, down * 1.2),
+    ...triplet(0, down), ...triplet(1435, down, 1), `D${index + 1}`,
+    '1', '+', chainageM.toFixed(0),
+    `U${index + 1}`, ...triplet(1435, up, 1), ...triplet(0, up),
+    ...triplet(0, up * 1.2), ...triplet(0, up * 1.4), ...triplet(0, up * 0.8),
+    '', '',
+  ];
+}
+
 export default function FormT2() {
   useStickyHeaders();
-  const downloadExcel = useDownloadExcel();
 
   return (
     <div className="container-fluid py-3">
       <div className="panel-heading d-flex align-items-center justify-content-between mb-3">
         <h1 className="h6 mb-0">Form T-2</h1>
         <span className="title-main text-center flex-grow-1 mx-3">Measurement record of Finished state of track Irregularity</span>
-        <span>No. <input type="text" className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
-        <span className="ms-2">Date: <input type="text" className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
-        <button type="button" className="btn btn-sm ms-1 p-1" style={{ background: 'none', border: '1px solid #ccc', lineHeight: 1 }} onClick={() => downloadExcel('Form_T-2.xls')}>
-          <i className="fa fa-download" aria-hidden="true" style={{ fontSize: 12 }}></i>
-        </button>
+        <span>No. <input type="text" defaultValue="T2-001" className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
+        <span className="ms-2">Date: <input type="text" defaultValue="17/07/2026" className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
       </div>
 
       <div style={{ overflow: 'auto', marginBottom: '1rem' }}>
@@ -115,13 +130,14 @@ export default function FormT2() {
             {Array.from({ length: MEASUREMENT_ROWS }, (_, i) => (
               <tr key={i}>
                 {Array.from({ length: 39 }, (_, j) => {
+                  const row = measurementRow(i);
                   if (i === 0 && (j === 0 || j === 1 || j === 37 || j === 38)) {
                     return <td key={j} rowSpan={MEASUREMENT_ROWS}>&nbsp;</td>;
                   }
                   if (i > 0 && (j === 0 || j === 1 || j === 37 || j === 38)) {
                     return null;
                   }
-                  return <td key={j}>&nbsp;</td>;
+                  return <td key={j}>{row[j] || '\u00a0'}</td>;
                 })}
               </tr>
             ))}

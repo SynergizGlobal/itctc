@@ -1,5 +1,5 @@
 import useStickyHeaders from '../hooks/useStickyHeaders';
-import useDownloadExcel from '../hooks/useDownloadExcel';
+import formC7Diagram from '../assets/images/Form_C-7.png';
 
 const fieldNames = [
   'chainageKm', 'chainageSeparator', 'chainageM',
@@ -15,19 +15,17 @@ const ROWS = 16;
 
 export default function FormC7() {
   useStickyHeaders();
-  const downloadExcel = useDownloadExcel();
 
   return (
     <div className="container-fluid py-3">
       <div className="panel-heading d-flex align-items-center justify-content-between mb-3">
         <h1 className="h6 mb-0">Form C-7</h1>
         <span className="title-main text-center flex-grow-1 mx-3">Measurement record of height of noise barrier (Earth work, Viaduct and Bridge section)</span>
-        <button type="button" className="btn btn-sm ms-1 p-1" style={{ background: 'none', border: '1px solid #ccc', lineHeight: 1 }} onClick={() => downloadExcel('Form_C-7.xls')}>
-          <i className="fa fa-download" aria-hidden="true" style={{ fontSize: 12 }}></i>
-        </button>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-        <div style={{ width: '400px', height: '100px', border: '2px dashed #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999', fontSize: '12px' }}>Image</div>
+        <div style={{ width: '650px', height: '200px', border: '1px solid #ccc', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
+          <img src={formC7Diagram} alt="Noise barrier height measurement reference diagram" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+        </div>
         <div>
           <table border="1" style={{ borderCollapse: 'collapse', fontSize: '11px', border: '1px solid #000', tableLayout: 'fixed', width: '260px' }}>
             <tbody>

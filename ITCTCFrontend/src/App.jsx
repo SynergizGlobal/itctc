@@ -1,4 +1,4 @@
-import { Routes, Route, NavLink, Navigate } from 'react-router-dom'
+import { Routes, Route, NavLink, Navigate, useLocation } from 'react-router-dom'
 import FormC1 from './components/FormC1'
 import FormC7 from './components/FormC7'
 import FormT2 from './components/FormT2'
@@ -10,6 +10,7 @@ import FormT10 from './components/FormT10'
 import FormT21 from './components/FormT21'
 import FormT22 from './components/FormT22'
 import FormT13 from './components/FormT13'
+import Dashboard from './dashboard/Dashboard'
 
 const navItems = [
   { path: '/form-c1', label: 'C-1' },
@@ -33,9 +34,11 @@ const compMap = {
 }
 
 export default function App() {
+  const { pathname } = useLocation()
+  const isDashboard = pathname === '/dashboard'
   return (
     <div>
-      <nav className="navbar navbar-expand navbar-dark bg-dark px-3">
+      {!isDashboard && <nav className="navbar navbar-expand navbar-dark bg-dark px-3">
         <span className="navbar-brand me-3 fw-bold">Forms</span>
         <div className="navbar-nav flex-row flex-wrap gap-1">
           {navItems.map(({ path, label }) => (
@@ -44,12 +47,13 @@ export default function App() {
             </NavLink>
           ))}
         </div>
-      </nav>
+      </nav>}
       <Routes>
         <Route path="/" element={<Navigate to="/form-c1" replace />} />
         {Object.entries(compMap).map(([path, Comp]) => (
           <Route key={path} path={path} element={<Comp />} />
         ))}
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </div>
   )

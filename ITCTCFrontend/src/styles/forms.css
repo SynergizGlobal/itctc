@@ -90,14 +90,41 @@ body {
   font-weight: 600;
 }
 
+.t22-chart-card { background: #fff; border: 1px solid #dbe3ee; border-radius: 10px; padding: 18px 20px 12px; box-shadow: 0 4px 14px rgba(15, 23, 42, .06); }
+.t22-chart-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.t22-chart-heading h2 { margin: 0; font-size: 17px; color: #172033; }
+.t22-chart-heading p { margin: 3px 0 0; color: #64748b; font-size: 12px; }
+.t22-chart-legend { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px 14px; max-width: 620px; }
+.t22-chart-legend span { display: inline-flex; align-items: center; gap: 5px; color: #475569; font-size: 11px; }
+.t22-chart-legend i { width: 18px; height: 3px; border-radius: 2px; }
+.t22-chart-scroll { overflow-x: auto; }
+.t22-chart { display: block; width: 100%; min-width: 680px; height: auto; margin-top: 8px; }
+.t22-chart text { fill: #64748b; font-size: 11px; font-family: inherit; }
+
 @media print {
   @page {
     size: landscape;
     margin: 10mm;
   }
   body {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+    background: #fff !important;
+    color: #000 !important;
+    -webkit-print-color-adjust: economy;
+    print-color-adjust: economy;
+  }
+  nav,
+  .navbar {
+    display: none !important;
+  }
+  .panel-heading,
+  .form-table th,
+  .form-table td,
+  .form-table thead tr > th,
+  .form-table thead tr > td,
+  .table-striped > tbody > tr:nth-of-type(odd) > * {
+    background: #fff !important;
+    color: #000 !important;
+    border-color: #000 !important;
   }
   .container-fluid {
     max-width: 100% !important;
@@ -125,10 +152,33 @@ body {
   .btn {
     display: none !important;
   }
+  .c1-chart-summary {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-top: 4px !important;
+    padding: 4px !important;
+  }
+  .c1-chart-summary h2 {
+    font-size: 10px !important;
+    margin-bottom: 4px !important;
+  }
+  .c1-chart-summary .gap-4 {
+    gap: 8px !important;
+  }
+  .c1-chart-summary .gap-2 {
+    gap: 3px !important;
+    font-size: 8px !important;
+  }
+  .c1-pie-chart {
+    width: 100px !important;
+    height: 100px !important;
+  }
 }
 
 @media (max-width: 576px) {
   .form-table {
     margin-left: 0 !important;
   }
+  .t22-chart-heading { display: block; }
+  .t22-chart-legend { justify-content: flex-start; margin-top: 10px; }
 }

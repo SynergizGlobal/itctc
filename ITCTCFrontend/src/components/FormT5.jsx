@@ -1,19 +1,8 @@
-import { useState } from 'react';
 import useStickyHeaders from '../hooks/useStickyHeaders';
-import useDownloadExcel from '../hooks/useDownloadExcel';
+import formT5Diagram from '../assets/images/Form_T-5.png';
 
-function ImageDropZone({ height = '80px' }) {
-  const [image, setImage] = useState(null);
-  const [dragOver, setDragOver] = useState(false);
-  const handleDrop = (e) => { e.preventDefault(); setDragOver(false); const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) { const reader = new FileReader(); reader.onload = (ev) => setImage(ev.target.result); reader.readAsDataURL(file); } };
-  const handleDragOver = (e) => { e.preventDefault(); setDragOver(true); };
-  const handleDragLeave = () => setDragOver(false);
-  const handleClick = () => { const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*'; input.onchange = (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => setImage(ev.target.result); reader.readAsDataURL(file); } }; input.click(); };
-  return (
-    <div onClick={handleClick} onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave} style={{ width: '100%', height, border: `2px dashed ${dragOver ? '#0d6efd' : '#ccc'}`, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: dragOver ? '#eaf4ff' : image ? `url(${image}) center/cover no-repeat` : 'transparent', color: '#999', fontSize: '12px', transition: 'all 0.2s' }}>
-      {!image && 'Drop image'}
-    </div>
-  );
+function StaticDiagram({ height = '80px', width = '100%', image }) {
+  return <div style={{ width, height, border: '1px solid #ccc', borderRadius: '4px', background: `#fff url(${image}) center/contain no-repeat` }} />;
 }
 
 const verticalTextStyle = {
@@ -35,7 +24,6 @@ const verticalTextStyle = {
 
 export default function FormT5() {
   useStickyHeaders();
-  const downloadExcel = useDownloadExcel();
 
   return (
     <div className="container-fluid py-3 form-t5">
@@ -45,9 +33,6 @@ export default function FormT5() {
         <span className="title-main text-center flex-grow-1 mx-3">Measurement record of Rail head shape (Per <span style={{ color: 'red' }}>1.0</span> m span)</span>
         <span>No. <input type="text" className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
         <span className="ms-2">Date: <input type="text" className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
-        <button type="button" className="btn btn-sm ms-1 p-1" style={{ background: 'none', border: '1px solid #ccc', lineHeight: 1 }} onClick={() => downloadExcel('Form_T-5.xls')}>
-          <i className="fa fa-download" aria-hidden="true" style={{ fontSize: 12 }}></i>
-        </button>
       </div>
 
       <div className="d-flex gap-3 align-items-start">
@@ -67,7 +52,7 @@ export default function FormT5() {
                     <span>Origin side</span>
                     <span>End side</span>
                   </div>
-                  <ImageDropZone height="70px" />
+                  <StaticDiagram width="180px" height="150px" image={formT5Diagram} />
                 </td>
                 <td width="122">
                   <p><span className="d-block text-start">(1)</span>
