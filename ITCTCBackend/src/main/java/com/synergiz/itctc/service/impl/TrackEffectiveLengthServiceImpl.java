@@ -6,6 +6,7 @@ import com.synergiz.itctc.dto.response.TrackEffectiveLengthDetailResponse;
 import com.synergiz.itctc.dto.response.TrackEffectiveLengthResponse;
 import com.synergiz.itctc.entity.TrackEffectiveLengthDetail;
 import com.synergiz.itctc.entity.TrackEffectiveLengthHeader;
+import com.synergiz.itctc.exception.ResourceNotFoundException;
 import com.synergiz.itctc.repository.TrackEffectiveLengthDetailRepository;
 import com.synergiz.itctc.repository.TrackEffectiveLengthHeaderRepository;
 import com.synergiz.itctc.service.TrackEffectiveLengthService;
@@ -20,377 +21,328 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class TrackEffectiveLengthServiceImpl
-        implements TrackEffectiveLengthService {
+public class TrackEffectiveLengthServiceImpl implements TrackEffectiveLengthService {
 
-    private final TrackEffectiveLengthHeaderRepository headerRepository;
+	private final TrackEffectiveLengthHeaderRepository headerRepository;
 
-    private final TrackEffectiveLengthDetailRepository detailRepository;
+	private final TrackEffectiveLengthDetailRepository detailRepository;
 
-    public TrackEffectiveLengthServiceImpl(
-            TrackEffectiveLengthHeaderRepository headerRepository,
-            TrackEffectiveLengthDetailRepository detailRepository) {
+	public TrackEffectiveLengthServiceImpl(TrackEffectiveLengthHeaderRepository headerRepository,
+			TrackEffectiveLengthDetailRepository detailRepository) {
 
-        this.headerRepository = headerRepository;
-        this.detailRepository = detailRepository;
-    }
-    
-    @Override
-    @Transactional
-    public Long saveTrackEffectiveLength(
-            TrackEffectiveLengthRequest request) {
+		this.headerRepository = headerRepository;
+		this.detailRepository = detailRepository;
+	}
 
-        TrackEffectiveLengthHeader header = new TrackEffectiveLengthHeader();
+	@Override
+	@Transactional
+	public Long saveTrackEffectiveLength(TrackEffectiveLengthRequest request) {
 
-        // Header
+		TrackEffectiveLengthHeader header = new TrackEffectiveLengthHeader();
 
-        header.setProjectId(request.getProjectId());
-        header.setFormNo(request.getFormNo());
-        header.setLocation(request.getLocation());
-        header.setInspectionDate(request.getInspectionDate());
+		// Header
 
-        header.setIsActive(true);
+		header.setProjectId(request.getProjectId());
+		header.setFormNo(request.getFormNo());
+		header.setLocation(request.getLocation());
+		header.setInspectionDate(request.getInspectionDate());
 
-        header.setCreatedBy(request.getCreatedBy());
-        header.setCreatedDate(LocalDateTime.now());
+		header.setIsActive(true);
 
-        // Details
+		header.setCreatedBy(request.getCreatedBy());
+		header.setCreatedDate(LocalDateTime.now());
 
-        if (request.getDetails() != null) {
+		// Details
 
-            for (TrackEffectiveLengthDetailRequest dto : request.getDetails()) {
+		if (request.getDetails() != null) {
 
-                TrackEffectiveLengthDetail detail = new TrackEffectiveLengthDetail();
+			for (TrackEffectiveLengthDetailRequest dto : request.getDetails()) {
 
-                detail.setTrackEffectiveLengthHeader(header);
+				TrackEffectiveLengthDetail detail = new TrackEffectiveLengthDetail();
 
-                detail.setLineName(dto.getLineName());
+				detail.setTrackEffectiveLengthHeader(header);
 
-                detail.setChainageKm(dto.getChainageKm());
-                detail.setChainageM(dto.getChainageM());
+				detail.setLineName(dto.getLineName());
 
-                detail.setDistanceDesignValue(dto.getDistanceDesignValue());
-                detail.setDistanceMeasuredValue(dto.getDistanceMeasuredValue());
+				detail.setChainageKm(dto.getChainageKm());
+				detail.setChainageM(dto.getChainageM());
 
-                detail.setEffectiveLengthDesign(dto.getEffectiveLengthDesign());
-                detail.setEffectiveLengthMeasured(dto.getEffectiveLengthMeasured());
+				detail.setDistanceDesignValue(dto.getDistanceDesignValue());
+				detail.setDistanceMeasuredValue(dto.getDistanceMeasuredValue());
 
-                detail.setIrregularity(dto.getIrregularity());
+				detail.setEffectiveLengthDesign(dto.getEffectiveLengthDesign());
+				detail.setEffectiveLengthMeasured(dto.getEffectiveLengthMeasured());
 
-                detail.setRemarks(dto.getRemarks());
+				detail.setIrregularity(dto.getIrregularity());
 
-                detail.setIsActive(true);
+				detail.setRemarks(dto.getRemarks());
 
-                detail.setCreatedBy(request.getCreatedBy());
-                detail.setCreatedDate(LocalDateTime.now());
+				detail.setIsActive(true);
 
-                header.getDetails().add(detail);
-            }
-        }
+				detail.setCreatedBy(request.getCreatedBy());
+				detail.setCreatedDate(LocalDateTime.now());
 
-        headerRepository.save(header);
+				header.getDetails().add(detail);
+			}
+		}
 
-        return header.getTrackEffectiveLengthHeaderId();
-    }
-    
-    @Override
-    public TrackEffectiveLengthResponse getTrackEffectiveLength(
-            Long trackEffectiveLengthHeaderId) {
+		headerRepository.save(header);
 
-        TrackEffectiveLengthHeader header = headerRepository
-                .findById(trackEffectiveLengthHeaderId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Track Effective Length not found with Id : "
-                                        + trackEffectiveLengthHeaderId));
+		return header.getTrackEffectiveLengthHeaderId();
+	}
 
-        TrackEffectiveLengthResponse response =
-                new TrackEffectiveLengthResponse();
+	@Override
+	public TrackEffectiveLengthResponse getTrackEffectiveLength(Long trackEffectiveLengthHeaderId) {
 
-        // Header
+		TrackEffectiveLengthHeader header = headerRepository.findById(trackEffectiveLengthHeaderId)
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Track Effective Length not found with Id : " + trackEffectiveLengthHeaderId));
 
-        response.setTrackEffectiveLengthHeaderId(
-                header.getTrackEffectiveLengthHeaderId());
+		TrackEffectiveLengthResponse response = new TrackEffectiveLengthResponse();
 
-        response.setProjectId(header.getProjectId());
-        response.setFormNo(header.getFormNo());
-        response.setLocation(header.getLocation());
-        response.setInspectionDate(header.getInspectionDate());
+		// Header
 
-        response.setCreatedBy(header.getCreatedBy());
-        response.setCreatedDate(header.getCreatedDate());
+		response.setTrackEffectiveLengthHeaderId(header.getTrackEffectiveLengthHeaderId());
 
-        // Details
+		response.setProjectId(header.getProjectId());
+		response.setFormNo(header.getFormNo());
+		response.setLocation(header.getLocation());
+		response.setInspectionDate(header.getInspectionDate());
 
-        List<TrackEffectiveLengthDetailResponse> detailResponses =
-                new ArrayList<>();
+		response.setCreatedBy(header.getCreatedBy());
+		response.setCreatedDate(header.getCreatedDate());
 
-        if (header.getDetails() != null) {
+		// Details
 
-            for (TrackEffectiveLengthDetail detail : header.getDetails()) {
+		List<TrackEffectiveLengthDetailResponse> detailResponses = new ArrayList<>();
 
-                if (!Boolean.TRUE.equals(detail.getIsActive())) {
-                    continue;
-                }
+		if (header.getDetails() != null) {
 
-                TrackEffectiveLengthDetailResponse dto =
-                        new TrackEffectiveLengthDetailResponse();
+			for (TrackEffectiveLengthDetail detail : header.getDetails()) {
 
-                dto.setTrackEffectiveLengthDetailId(
-                        detail.getTrackEffectiveLengthDetailId());
+				if (!Boolean.TRUE.equals(detail.getIsActive())) {
+					continue;
+				}
 
-                dto.setLineName(detail.getLineName());
+				TrackEffectiveLengthDetailResponse dto = new TrackEffectiveLengthDetailResponse();
 
-                dto.setChainageKm(detail.getChainageKm());
-                dto.setChainageM(detail.getChainageM());
+				dto.setTrackEffectiveLengthDetailId(detail.getTrackEffectiveLengthDetailId());
 
-                dto.setDistanceDesignValue(
-                        detail.getDistanceDesignValue());
+				dto.setLineName(detail.getLineName());
 
-                dto.setDistanceMeasuredValue(
-                        detail.getDistanceMeasuredValue());
+				dto.setChainageKm(detail.getChainageKm());
+				dto.setChainageM(detail.getChainageM());
 
-                dto.setEffectiveLengthDesign(
-                        detail.getEffectiveLengthDesign());
+				dto.setDistanceDesignValue(detail.getDistanceDesignValue());
 
-                dto.setEffectiveLengthMeasured(
-                        detail.getEffectiveLengthMeasured());
+				dto.setDistanceMeasuredValue(detail.getDistanceMeasuredValue());
 
-                dto.setIrregularity(
-                        detail.getIrregularity());
+				dto.setEffectiveLengthDesign(detail.getEffectiveLengthDesign());
 
-                dto.setRemarks(
-                        detail.getRemarks());
+				dto.setEffectiveLengthMeasured(detail.getEffectiveLengthMeasured());
 
-                detailResponses.add(dto);
-            }
-        }
+				dto.setIrregularity(detail.getIrregularity());
 
-        response.setDetails(detailResponses);
+				dto.setRemarks(detail.getRemarks());
 
-        return response;
-    }
-    
-    @Override
-    public List<TrackEffectiveLengthResponse> getAllTrackEffectiveLengths() {
+				detailResponses.add(dto);
+			}
+		}
 
-        List<TrackEffectiveLengthHeader> headers = headerRepository.findAll();
+		response.setDetails(detailResponses);
 
-        List<TrackEffectiveLengthResponse> responseList = new ArrayList<>();
+		return response;
+	}
 
-        for (TrackEffectiveLengthHeader header : headers) {
+	@Override
+	public List<TrackEffectiveLengthResponse> getAllTrackEffectiveLengths() {
 
-            if (!Boolean.TRUE.equals(header.getIsActive())) {
-                continue;
-            }
+		List<TrackEffectiveLengthHeader> headers = headerRepository.findAll();
 
-            TrackEffectiveLengthResponse response =
-                    new TrackEffectiveLengthResponse();
+		List<TrackEffectiveLengthResponse> responseList = new ArrayList<>();
 
-            // Header
+		for (TrackEffectiveLengthHeader header : headers) {
 
+			if (!Boolean.TRUE.equals(header.getIsActive())) {
+				continue;
+			}
 
-            response.setTrackEffectiveLengthHeaderId(
-                    header.getTrackEffectiveLengthHeaderId());
+			TrackEffectiveLengthResponse response = new TrackEffectiveLengthResponse();
 
-            response.setProjectId(header.getProjectId());
-            response.setFormNo(header.getFormNo());
-            response.setLocation(header.getLocation());
-            response.setInspectionDate(header.getInspectionDate());
+			// Header
 
-            response.setCreatedBy(header.getCreatedBy());
-            response.setCreatedDate(header.getCreatedDate());
+			response.setTrackEffectiveLengthHeaderId(header.getTrackEffectiveLengthHeaderId());
 
-            // Details
+			response.setProjectId(header.getProjectId());
+			response.setFormNo(header.getFormNo());
+			response.setLocation(header.getLocation());
+			response.setInspectionDate(header.getInspectionDate());
 
+			response.setCreatedBy(header.getCreatedBy());
+			response.setCreatedDate(header.getCreatedDate());
 
-            List<TrackEffectiveLengthDetailResponse> detailResponses =
-                    new ArrayList<>();
+			// Details
 
-            if (header.getDetails() != null) {
+			List<TrackEffectiveLengthDetailResponse> detailResponses = new ArrayList<>();
 
-                for (TrackEffectiveLengthDetail detail : header.getDetails()) {
+			if (header.getDetails() != null) {
 
-                    if (!Boolean.TRUE.equals(detail.getIsActive())) {
-                        continue;
-                    }
+				for (TrackEffectiveLengthDetail detail : header.getDetails()) {
 
-                    TrackEffectiveLengthDetailResponse dto =
-                            new TrackEffectiveLengthDetailResponse();
+					if (!Boolean.TRUE.equals(detail.getIsActive())) {
+						continue;
+					}
 
-                    dto.setTrackEffectiveLengthDetailId(
-                            detail.getTrackEffectiveLengthDetailId());
+					TrackEffectiveLengthDetailResponse dto = new TrackEffectiveLengthDetailResponse();
 
-                    dto.setLineName(detail.getLineName());
+					dto.setTrackEffectiveLengthDetailId(detail.getTrackEffectiveLengthDetailId());
 
-                    dto.setChainageKm(detail.getChainageKm());
-                    dto.setChainageM(detail.getChainageM());
+					dto.setLineName(detail.getLineName());
 
-                    dto.setDistanceDesignValue(
-                            detail.getDistanceDesignValue());
+					dto.setChainageKm(detail.getChainageKm());
+					dto.setChainageM(detail.getChainageM());
 
-                    dto.setDistanceMeasuredValue(
-                            detail.getDistanceMeasuredValue());
+					dto.setDistanceDesignValue(detail.getDistanceDesignValue());
 
-                    dto.setEffectiveLengthDesign(
-                            detail.getEffectiveLengthDesign());
+					dto.setDistanceMeasuredValue(detail.getDistanceMeasuredValue());
 
-                    dto.setEffectiveLengthMeasured(
-                            detail.getEffectiveLengthMeasured());
+					dto.setEffectiveLengthDesign(detail.getEffectiveLengthDesign());
 
-                    dto.setIrregularity(
-                            detail.getIrregularity());
+					dto.setEffectiveLengthMeasured(detail.getEffectiveLengthMeasured());
 
-                    dto.setRemarks(
-                            detail.getRemarks());
+					dto.setIrregularity(detail.getIrregularity());
 
-                    detailResponses.add(dto);
-                }
-            }
+					dto.setRemarks(detail.getRemarks());
 
-            response.setDetails(detailResponses);
+					detailResponses.add(dto);
+				}
+			}
 
-            responseList.add(response);
-        }
+			response.setDetails(detailResponses);
 
-        return responseList;
-    }
-    
-    @Override
-    @Transactional
-    public Long updateTrackEffectiveLength(
-            Long trackEffectiveLengthHeaderId,
-            TrackEffectiveLengthRequest request) {
+			responseList.add(response);
+		}
 
-        TrackEffectiveLengthHeader header = headerRepository
-                .findById(trackEffectiveLengthHeaderId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Track Effective Length not found with Id : "
-                                        + trackEffectiveLengthHeaderId));
+		return responseList;
+	}
 
-        // Update Header
+	@Override
+	@Transactional
+	public Long updateTrackEffectiveLength(Long trackEffectiveLengthHeaderId, TrackEffectiveLengthRequest request) {
 
-        header.setProjectId(request.getProjectId());
-        header.setFormNo(request.getFormNo());
-        header.setLocation(request.getLocation());
-        header.setInspectionDate(request.getInspectionDate());
+		TrackEffectiveLengthHeader header = headerRepository.findById(trackEffectiveLengthHeaderId)
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Track Effective Length not found with Id : " + trackEffectiveLengthHeaderId));
 
-        header.setUpdatedBy(request.getUpdatedBy());
-        header.setUpdatedDate(LocalDateTime.now());
+		// Update Header
 
-        // Soft Delete Removed Details
+		header.setProjectId(request.getProjectId());
+		header.setFormNo(request.getFormNo());
+		header.setLocation(request.getLocation());
+		header.setInspectionDate(request.getInspectionDate());
 
-        Set<Long> requestDetailIds = request.getDetails().stream()
-                .map(TrackEffectiveLengthDetailRequest::getTrackEffectiveLengthDetailId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+		header.setUpdatedBy(request.getUpdatedBy());
+		header.setUpdatedDate(LocalDateTime.now());
 
-        for (TrackEffectiveLengthDetail existingDetail : header.getDetails()) {
+		// Soft Delete Removed Details
 
-            if (!requestDetailIds.contains(
-                    existingDetail.getTrackEffectiveLengthDetailId())) {
+		Set<Long> requestDetailIds = request.getDetails().stream()
+				.map(TrackEffectiveLengthDetailRequest::getTrackEffectiveLengthDetailId).filter(Objects::nonNull)
+				.collect(Collectors.toSet());
 
-                existingDetail.setIsActive(false);
-                existingDetail.setUpdatedBy(request.getUpdatedBy());
-                existingDetail.setUpdatedDate(LocalDateTime.now());
-            }
-        }
+		for (TrackEffectiveLengthDetail existingDetail : header.getDetails()) {
 
-        // Insert / Update Details
+			if (!requestDetailIds.contains(existingDetail.getTrackEffectiveLengthDetailId())) {
 
+				existingDetail.setIsActive(false);
+				existingDetail.setUpdatedBy(request.getUpdatedBy());
+				existingDetail.setUpdatedDate(LocalDateTime.now());
+			}
+		}
 
-        for (TrackEffectiveLengthDetailRequest dto : request.getDetails()) {
+		// Insert / Update Details
 
-            TrackEffectiveLengthDetail detail;
+		for (TrackEffectiveLengthDetailRequest dto : request.getDetails()) {
 
-            // UPDATE EXISTING DETAIL
+			TrackEffectiveLengthDetail detail;
 
+			// UPDATE EXISTING DETAIL
 
-            if (dto.getTrackEffectiveLengthDetailId() != null) {
+			if (dto.getTrackEffectiveLengthDetailId() != null) {
 
-                detail = detailRepository
-                        .findById(dto.getTrackEffectiveLengthDetailId())
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Track Effective Length Detail not found with Id : "
-                                                + dto.getTrackEffectiveLengthDetailId()));
+				detail = detailRepository.findById(dto.getTrackEffectiveLengthDetailId())
+						.orElseThrow(() -> new ResourceNotFoundException("Track Effective Length Detail not found with Id : "
+								+ dto.getTrackEffectiveLengthDetailId()));
 
-                detail.setUpdatedBy(request.getUpdatedBy());
-                detail.setUpdatedDate(LocalDateTime.now());
-            }
+				detail.setUpdatedBy(request.getUpdatedBy());
+				detail.setUpdatedDate(LocalDateTime.now());
+			}
 
-            // INSERT NEW DETAIL
+			// INSERT NEW DETAIL
 
-            else {
+			else {
 
-                detail = new TrackEffectiveLengthDetail();
+				detail = new TrackEffectiveLengthDetail();
 
-                detail.setTrackEffectiveLengthHeader(header);
+				detail.setTrackEffectiveLengthHeader(header);
 
-                detail.setCreatedBy(request.getUpdatedBy());
-                detail.setCreatedDate(LocalDateTime.now());
+				detail.setCreatedBy(request.getUpdatedBy());
+				detail.setCreatedDate(LocalDateTime.now());
 
-                detail.setIsActive(true);
+				detail.setIsActive(true);
 
-                header.getDetails().add(detail);
-            }
+				header.getDetails().add(detail);
+			}
 
-            detail.setLineName(dto.getLineName());
+			detail.setLineName(dto.getLineName());
 
-            detail.setChainageKm(dto.getChainageKm());
-            detail.setChainageM(dto.getChainageM());
+			detail.setChainageKm(dto.getChainageKm());
+			detail.setChainageM(dto.getChainageM());
 
-            detail.setDistanceDesignValue(dto.getDistanceDesignValue());
-            detail.setDistanceMeasuredValue(dto.getDistanceMeasuredValue());
+			detail.setDistanceDesignValue(dto.getDistanceDesignValue());
+			detail.setDistanceMeasuredValue(dto.getDistanceMeasuredValue());
 
-            detail.setEffectiveLengthDesign(dto.getEffectiveLengthDesign());
-            detail.setEffectiveLengthMeasured(dto.getEffectiveLengthMeasured());
+			detail.setEffectiveLengthDesign(dto.getEffectiveLengthDesign());
+			detail.setEffectiveLengthMeasured(dto.getEffectiveLengthMeasured());
 
-            detail.setIrregularity(dto.getIrregularity());
+			detail.setIrregularity(dto.getIrregularity());
 
-            detail.setRemarks(dto.getRemarks());
+			detail.setRemarks(dto.getRemarks());
 
-            detail.setIsActive(true);
-        }
+			detail.setIsActive(true);
+		}
 
-        headerRepository.save(header);
+		headerRepository.save(header);
 
-        return header.getTrackEffectiveLengthHeaderId();
-    }
+		return header.getTrackEffectiveLengthHeaderId();
+	}
 
-    
-    @Override
-    @Transactional
-    public void deleteTrackEffectiveLength(
-            Long trackEffectiveLengthHeaderId,
-            String updatedBy) {
+	@Override
+	@Transactional
+	public void deleteTrackEffectiveLength(Long trackEffectiveLengthHeaderId, String updatedBy) {
 
-        TrackEffectiveLengthHeader header = headerRepository
-                .findById(trackEffectiveLengthHeaderId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Track Effective Length not found with Id : "
-                                        + trackEffectiveLengthHeaderId));
+		TrackEffectiveLengthHeader header = headerRepository.findById(trackEffectiveLengthHeaderId)
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Track Effective Length not found with Id : " + trackEffectiveLengthHeaderId));
 
-        // Soft Delete Header
+		// Soft Delete Header
 
-        header.setIsActive(false);
-        header.setUpdatedBy(updatedBy);
-        header.setUpdatedDate(LocalDateTime.now());
+		header.setIsActive(false);
+		header.setUpdatedBy(updatedBy);
+		header.setUpdatedDate(LocalDateTime.now());
 
-        // Soft Delete Details
+		// Soft Delete Details
 
-        if (header.getDetails() != null) {
+		if (header.getDetails() != null) {
 
-            for (TrackEffectiveLengthDetail detail : header.getDetails()) {
+			for (TrackEffectiveLengthDetail detail : header.getDetails()) {
 
-                detail.setIsActive(false);
-                detail.setUpdatedBy(updatedBy);
-                detail.setUpdatedDate(LocalDateTime.now());
-            }
-        }
+				detail.setIsActive(false);
+				detail.setUpdatedBy(updatedBy);
+				detail.setUpdatedDate(LocalDateTime.now());
+			}
+		}
 
-        headerRepository.save(header);
-    }
+		headerRepository.save(header);
+	}
 }

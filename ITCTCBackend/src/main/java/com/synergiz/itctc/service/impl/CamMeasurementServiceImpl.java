@@ -7,6 +7,7 @@ import com.synergiz.itctc.dto.response.CamMeasurementResponse;
 import com.synergiz.itctc.entity.CamMeasurementDetail;
 import com.synergiz.itctc.entity.CamMeasurementHeader;
 import com.synergiz.itctc.entity.TrackDirection;
+import com.synergiz.itctc.exception.ResourceNotFoundException;
 import com.synergiz.itctc.repository.CamMeasurementDetailRepository;
 import com.synergiz.itctc.repository.CamMeasurementHeaderRepository;
 import com.synergiz.itctc.repository.TrackDirectionRepository;
@@ -67,7 +68,7 @@ public class CamMeasurementServiceImpl implements CamMeasurementService {
                 TrackDirection trackDirection = trackDirectionRepository
                         .findById(dto.getTrackDirectionId())
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new ResourceNotFoundException(
                                         "Invalid Track Direction Id : "
                                                 + dto.getTrackDirectionId()));
 
@@ -127,7 +128,7 @@ public class CamMeasurementServiceImpl implements CamMeasurementService {
         CamMeasurementHeader header = headerRepository
                 .findById(camMeasurementHeaderId)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new ResourceNotFoundException(
                                 "CAM Measurement not found with Id : "
                                         + camMeasurementHeaderId));
 
@@ -335,7 +336,7 @@ public class CamMeasurementServiceImpl implements CamMeasurementService {
         CamMeasurementHeader header = headerRepository
                 .findById(camMeasurementHeaderId)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new ResourceNotFoundException(
                                 "CAM Measurement not found with Id : "
                                         + camMeasurementHeaderId));
 
@@ -380,7 +381,7 @@ public class CamMeasurementServiceImpl implements CamMeasurementService {
             TrackDirection trackDirection = trackDirectionRepository
                     .findById(dto.getTrackDirectionId())
                     .orElseThrow(() ->
-                            new RuntimeException(
+                            new ResourceNotFoundException(
                                     "Invalid Track Direction Id"));
 
             CamMeasurementDetail detail;
@@ -396,7 +397,7 @@ public class CamMeasurementServiceImpl implements CamMeasurementService {
                                 .equals(dto.getCamMeasurementDetailId()))
                         .findFirst()
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new ResourceNotFoundException(
                                         "CAM Measurement Detail not found with Id : "
                                                 + dto.getCamMeasurementDetailId()));
 
@@ -471,7 +472,7 @@ public class CamMeasurementServiceImpl implements CamMeasurementService {
         CamMeasurementHeader header = headerRepository
                 .findById(camMeasurementHeaderId)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new ResourceNotFoundException(
                                 "CAM Measurement not found with Id : "
                                         + camMeasurementHeaderId));
 

@@ -7,6 +7,7 @@ import com.synergiz.itctc.dto.response.FasteningBoltResponse;
 import com.synergiz.itctc.entity.FasteningBoltDetail;
 import com.synergiz.itctc.entity.FasteningBoltHeader;
 import com.synergiz.itctc.entity.TrackDirection;
+import com.synergiz.itctc.exception.ResourceNotFoundException;
 import com.synergiz.itctc.repository.FasteningBoltDetailRepository;
 import com.synergiz.itctc.repository.FasteningBoltHeaderRepository;
 import com.synergiz.itctc.repository.TrackDirectionRepository;
@@ -22,378 +23,326 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class FasteningBoltServiceImpl
-        implements FasteningBoltService {
+public class FasteningBoltServiceImpl implements FasteningBoltService {
 
-    private final FasteningBoltHeaderRepository headerRepository;
+	private final FasteningBoltHeaderRepository headerRepository;
 
-    private final FasteningBoltDetailRepository detailRepository;
+	private final FasteningBoltDetailRepository detailRepository;
 
-    private final TrackDirectionRepository trackDirectionRepository;
+	private final TrackDirectionRepository trackDirectionRepository;
 
-    public FasteningBoltServiceImpl(
-            FasteningBoltHeaderRepository headerRepository,
-            FasteningBoltDetailRepository detailRepository,
-            TrackDirectionRepository trackDirectionRepository) {
+	public FasteningBoltServiceImpl(FasteningBoltHeaderRepository headerRepository,
+			FasteningBoltDetailRepository detailRepository, TrackDirectionRepository trackDirectionRepository) {
 
-        this.headerRepository = headerRepository;
-        this.detailRepository = detailRepository;
-        this.trackDirectionRepository = trackDirectionRepository;
-    }
-    
-    @Override
-    @Transactional
-    public Long saveFasteningBolt(
-            FasteningBoltRequest request) {
+		this.headerRepository = headerRepository;
+		this.detailRepository = detailRepository;
+		this.trackDirectionRepository = trackDirectionRepository;
+	}
 
-        FasteningBoltHeader header = new FasteningBoltHeader();
+	@Override
+	@Transactional
+	public Long saveFasteningBolt(FasteningBoltRequest request) {
 
-        // Header
+		FasteningBoltHeader header = new FasteningBoltHeader();
 
-        header.setProjectId(request.getProjectId());
-        header.setFormNo(request.getFormNo());
-        header.setRecordNo(request.getRecordNo());
-        header.setInspectionDate(request.getInspectionDate());
+		// Header
 
-        header.setIsActive(true);
+		header.setProjectId(request.getProjectId());
+		header.setFormNo(request.getFormNo());
+		header.setRecordNo(request.getRecordNo());
+		header.setInspectionDate(request.getInspectionDate());
 
-        header.setCreatedBy(request.getCreatedBy());
-        header.setCreatedDate(LocalDateTime.now());
+		header.setIsActive(true);
 
-        // Details
+		header.setCreatedBy(request.getCreatedBy());
+		header.setCreatedDate(LocalDateTime.now());
 
-        if (request.getDetails() != null) {
+		// Details
 
-            for (FasteningBoltDetailRequest dto : request.getDetails()) {
+		if (request.getDetails() != null) {
 
-                TrackDirection direction = trackDirectionRepository
-                        .findById(dto.getTrackDirectionId())
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Invalid Track Direction Id : "
-                                                + dto.getTrackDirectionId()));
+			for (FasteningBoltDetailRequest dto : request.getDetails()) {
 
-                FasteningBoltDetail detail = new FasteningBoltDetail();
+				TrackDirection direction = trackDirectionRepository.findById(dto.getTrackDirectionId()).orElseThrow(
+						() -> new ResourceNotFoundException("Invalid Track Direction Id : " + dto.getTrackDirectionId()));
 
-                detail.setTrackDirection(direction);
+				FasteningBoltDetail detail = new FasteningBoltDetail();
 
-                detail.setChainageKm(dto.getChainageKm());
-                detail.setChainageM(dto.getChainageM());
-                detail.setChainageCm(dto.getChainageCm());
+				detail.setTrackDirection(direction);
 
-                detail.setSleeperNumber(dto.getSleeperNumber());
+				detail.setChainageKm(dto.getChainageKm());
+				detail.setChainageM(dto.getChainageM());
+				detail.setChainageCm(dto.getChainageCm());
 
-                detail.setMeasuredLeft(dto.getMeasuredLeft());
-                detail.setMeasuredRight(dto.getMeasuredRight());
+				detail.setSleeperNumber(dto.getSleeperNumber());
 
-                detail.setRemarks(dto.getRemarks());
+				detail.setMeasuredLeft(dto.getMeasuredLeft());
+				detail.setMeasuredRight(dto.getMeasuredRight());
 
-                detail.setFasteningBoltHeader(header);
+				detail.setRemarks(dto.getRemarks());
 
-                detail.setIsActive(true);
+				detail.setFasteningBoltHeader(header);
 
-                detail.setCreatedBy(request.getCreatedBy());
-                detail.setCreatedDate(LocalDateTime.now());
+				detail.setIsActive(true);
 
-                header.getDetails().add(detail);
-            }
-        }
+				detail.setCreatedBy(request.getCreatedBy());
+				detail.setCreatedDate(LocalDateTime.now());
 
-        headerRepository.save(header);
+				header.getDetails().add(detail);
+			}
+		}
 
-        return header.getFasteningBoltHeaderId();
-    }
+		headerRepository.save(header);
 
-    @Override
-    public FasteningBoltResponse getFasteningBolt(
-            Long fasteningBoltHeaderId) {
+		return header.getFasteningBoltHeaderId();
+	}
 
-        FasteningBoltHeader header = headerRepository
-                .findById(fasteningBoltHeaderId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Fastening Bolt not found with Id : "
-                                        + fasteningBoltHeaderId));
+	@Override
+	public FasteningBoltResponse getFasteningBolt(Long fasteningBoltHeaderId) {
 
-        FasteningBoltResponse response =
-                new FasteningBoltResponse();
+		FasteningBoltHeader header = headerRepository.findById(fasteningBoltHeaderId)
+				.orElseThrow(() -> new ResourceNotFoundException("Fastening Bolt not found with Id : " + fasteningBoltHeaderId));
 
-        // Header
+		FasteningBoltResponse response = new FasteningBoltResponse();
 
-        response.setFasteningBoltHeaderId(
-                header.getFasteningBoltHeaderId());
+		// Header
 
-        response.setProjectId(header.getProjectId());
-        response.setFormNo(header.getFormNo());
-        response.setRecordNo(header.getRecordNo());
-        response.setInspectionDate(header.getInspectionDate());
+		response.setFasteningBoltHeaderId(header.getFasteningBoltHeaderId());
 
-        response.setCreatedBy(header.getCreatedBy());
-        response.setCreatedDate(header.getCreatedDate());
+		response.setProjectId(header.getProjectId());
+		response.setFormNo(header.getFormNo());
+		response.setRecordNo(header.getRecordNo());
+		response.setInspectionDate(header.getInspectionDate());
 
-        // Details
+		response.setCreatedBy(header.getCreatedBy());
+		response.setCreatedDate(header.getCreatedDate());
 
-        List<FasteningBoltDetailResponse> detailResponses =
-                new ArrayList<>();
+		// Details
 
-        if (header.getDetails() != null) {
+		List<FasteningBoltDetailResponse> detailResponses = new ArrayList<>();
 
-            for (FasteningBoltDetail detail : header.getDetails()) {
+		if (header.getDetails() != null) {
 
-                if (!Boolean.TRUE.equals(detail.getIsActive())) {
-                    continue;
-                }
+			for (FasteningBoltDetail detail : header.getDetails()) {
 
-                FasteningBoltDetailResponse dto =
-                        new FasteningBoltDetailResponse();
+				if (!Boolean.TRUE.equals(detail.getIsActive())) {
+					continue;
+				}
 
-                dto.setFasteningBoltDetailId(
-                        detail.getFasteningBoltDetailId());
+				FasteningBoltDetailResponse dto = new FasteningBoltDetailResponse();
 
-                dto.setTrackDirectionId(
-                        detail.getTrackDirection().getTrackDirectionId());
+				dto.setFasteningBoltDetailId(detail.getFasteningBoltDetailId());
 
-                dto.setTrackDirectionName(
-                        detail.getTrackDirection().getDirectionName());
+				dto.setTrackDirectionId(detail.getTrackDirection().getTrackDirectionId());
 
-                dto.setChainageKm(detail.getChainageKm());
-                dto.setChainageM(detail.getChainageM());
-                dto.setChainageCm(detail.getChainageCm());
+				dto.setTrackDirectionName(detail.getTrackDirection().getDirectionName());
 
-                dto.setSleeperNumber(detail.getSleeperNumber());
+				dto.setChainageKm(detail.getChainageKm());
+				dto.setChainageM(detail.getChainageM());
+				dto.setChainageCm(detail.getChainageCm());
 
-                dto.setMeasuredLeft(detail.getMeasuredLeft());
-                dto.setMeasuredRight(detail.getMeasuredRight());
+				dto.setSleeperNumber(detail.getSleeperNumber());
 
-                dto.setRemarks(detail.getRemarks());
+				dto.setMeasuredLeft(detail.getMeasuredLeft());
+				dto.setMeasuredRight(detail.getMeasuredRight());
 
-                detailResponses.add(dto);
-            }
-        }
+				dto.setRemarks(detail.getRemarks());
 
-        response.setDetails(detailResponses);
+				detailResponses.add(dto);
+			}
+		}
 
-        return response;
-    }
-    
-    
-    @Override
-    public List<FasteningBoltResponse> getAllFasteningBolts() {
+		response.setDetails(detailResponses);
 
-        List<FasteningBoltHeader> headers = headerRepository.findAll();
+		return response;
+	}
 
-        List<FasteningBoltResponse> responseList = new ArrayList<>();
+	@Override
+	public List<FasteningBoltResponse> getAllFasteningBolts() {
 
-        for (FasteningBoltHeader header : headers) {
+		List<FasteningBoltHeader> headers = headerRepository.findAll();
 
-            if (!Boolean.TRUE.equals(header.getIsActive())) {
-                continue;
-            }
+		List<FasteningBoltResponse> responseList = new ArrayList<>();
 
-            FasteningBoltResponse response =
-                    new FasteningBoltResponse();
+		for (FasteningBoltHeader header : headers) {
 
-            // Header
+			if (!Boolean.TRUE.equals(header.getIsActive())) {
+				continue;
+			}
 
-            response.setFasteningBoltHeaderId(
-                    header.getFasteningBoltHeaderId());
+			FasteningBoltResponse response = new FasteningBoltResponse();
 
-            response.setProjectId(header.getProjectId());
-            response.setFormNo(header.getFormNo());
-            response.setRecordNo(header.getRecordNo());
-            response.setInspectionDate(header.getInspectionDate());
+			// Header
 
-            response.setCreatedBy(header.getCreatedBy());
-            response.setCreatedDate(header.getCreatedDate());
+			response.setFasteningBoltHeaderId(header.getFasteningBoltHeaderId());
 
-            // Details
+			response.setProjectId(header.getProjectId());
+			response.setFormNo(header.getFormNo());
+			response.setRecordNo(header.getRecordNo());
+			response.setInspectionDate(header.getInspectionDate());
 
-            List<FasteningBoltDetailResponse> detailResponses =
-                    new ArrayList<>();
+			response.setCreatedBy(header.getCreatedBy());
+			response.setCreatedDate(header.getCreatedDate());
 
-            if (header.getDetails() != null) {
+			// Details
 
-                for (FasteningBoltDetail detail : header.getDetails()) {
+			List<FasteningBoltDetailResponse> detailResponses = new ArrayList<>();
 
-                    if (!Boolean.TRUE.equals(detail.getIsActive())) {
-                        continue;
-                    }
+			if (header.getDetails() != null) {
 
-                    FasteningBoltDetailResponse dto =
-                            new FasteningBoltDetailResponse();
+				for (FasteningBoltDetail detail : header.getDetails()) {
 
-                    dto.setFasteningBoltDetailId(
-                            detail.getFasteningBoltDetailId());
+					if (!Boolean.TRUE.equals(detail.getIsActive())) {
+						continue;
+					}
 
-                    dto.setTrackDirectionId(
-                            detail.getTrackDirection().getTrackDirectionId());
+					FasteningBoltDetailResponse dto = new FasteningBoltDetailResponse();
 
-                    dto.setTrackDirectionName(
-                            detail.getTrackDirection().getDirectionName());
+					dto.setFasteningBoltDetailId(detail.getFasteningBoltDetailId());
 
-                    dto.setChainageKm(detail.getChainageKm());
-                    dto.setChainageM(detail.getChainageM());
-                    dto.setChainageCm(detail.getChainageCm());
+					dto.setTrackDirectionId(detail.getTrackDirection().getTrackDirectionId());
 
-                    dto.setSleeperNumber(detail.getSleeperNumber());
+					dto.setTrackDirectionName(detail.getTrackDirection().getDirectionName());
 
-                    dto.setMeasuredLeft(detail.getMeasuredLeft());
-                    dto.setMeasuredRight(detail.getMeasuredRight());
+					dto.setChainageKm(detail.getChainageKm());
+					dto.setChainageM(detail.getChainageM());
+					dto.setChainageCm(detail.getChainageCm());
 
-                    dto.setRemarks(detail.getRemarks());
+					dto.setSleeperNumber(detail.getSleeperNumber());
 
-                    detailResponses.add(dto);
-                }
-            }
+					dto.setMeasuredLeft(detail.getMeasuredLeft());
+					dto.setMeasuredRight(detail.getMeasuredRight());
 
-            response.setDetails(detailResponses);
+					dto.setRemarks(detail.getRemarks());
 
-            responseList.add(response);
-        }
+					detailResponses.add(dto);
+				}
+			}
 
-        return responseList;
-    }
-    
-    
-    @Override
-    @Transactional
-    public Long updateFasteningBolt(
-            Long fasteningBoltHeaderId,
-            FasteningBoltRequest request) {
+			response.setDetails(detailResponses);
 
-        FasteningBoltHeader header = headerRepository
-                .findById(fasteningBoltHeaderId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Fastening Bolt not found with Id : "
-                                        + fasteningBoltHeaderId));
+			responseList.add(response);
+		}
 
-        // Update Header
+		return responseList;
+	}
 
-        header.setProjectId(request.getProjectId());
-        header.setFormNo(request.getFormNo());
-        header.setRecordNo(request.getRecordNo());
-        header.setInspectionDate(request.getInspectionDate());
+	@Override
+	@Transactional
+	public Long updateFasteningBolt(Long fasteningBoltHeaderId, FasteningBoltRequest request) {
 
-        header.setUpdatedBy(request.getUpdatedBy());
-        header.setUpdatedDate(LocalDateTime.now());
+		FasteningBoltHeader header = headerRepository.findById(fasteningBoltHeaderId)
+				.orElseThrow(() -> new ResourceNotFoundException("Fastening Bolt not found with Id : " + fasteningBoltHeaderId));
 
-        // Soft Delete Removed Details
+		// Update Header
 
-        Set<Long> requestDetailIds = request.getDetails().stream()
-                .map(FasteningBoltDetailRequest::getFasteningBoltDetailId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+		header.setProjectId(request.getProjectId());
+		header.setFormNo(request.getFormNo());
+		header.setRecordNo(request.getRecordNo());
+		header.setInspectionDate(request.getInspectionDate());
 
-        for (FasteningBoltDetail existingDetail : header.getDetails()) {
+		header.setUpdatedBy(request.getUpdatedBy());
+		header.setUpdatedDate(LocalDateTime.now());
 
-            if (!requestDetailIds.contains(
-                    existingDetail.getFasteningBoltDetailId())) {
+		// Soft Delete Removed Details
 
-                existingDetail.setIsActive(false);
-                existingDetail.setUpdatedBy(request.getUpdatedBy());
-                existingDetail.setUpdatedDate(LocalDateTime.now());
-            }
-        }
+		Set<Long> requestDetailIds = request.getDetails().stream()
+				.map(FasteningBoltDetailRequest::getFasteningBoltDetailId).filter(Objects::nonNull)
+				.collect(Collectors.toSet());
 
-        // Insert / Update Details
+		for (FasteningBoltDetail existingDetail : header.getDetails()) {
 
-        for (FasteningBoltDetailRequest dto : request.getDetails()) {
+			if (!requestDetailIds.contains(existingDetail.getFasteningBoltDetailId())) {
 
-            TrackDirection direction = trackDirectionRepository
-                    .findById(dto.getTrackDirectionId())
-                    .orElseThrow(() ->
-                            new RuntimeException(
-                                    "Invalid Track Direction Id"));
+				existingDetail.setIsActive(false);
+				existingDetail.setUpdatedBy(request.getUpdatedBy());
+				existingDetail.setUpdatedDate(LocalDateTime.now());
+			}
+		}
 
-            FasteningBoltDetail detail;
+		// Insert / Update Details
 
-            // UPDATE EXISTING DETAIL
+		for (FasteningBoltDetailRequest dto : request.getDetails()) {
 
+			TrackDirection direction = trackDirectionRepository.findById(dto.getTrackDirectionId())
+					.orElseThrow(() -> new ResourceNotFoundException("Invalid Track Direction Id"));
 
-            if (dto.getFasteningBoltDetailId() != null) {
+			FasteningBoltDetail detail;
 
-                detail = detailRepository
-                        .findById(dto.getFasteningBoltDetailId())
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Fastening Bolt Detail not found with Id : "
-                                                + dto.getFasteningBoltDetailId()));
+			// UPDATE EXISTING DETAIL
 
-                detail.setUpdatedBy(request.getUpdatedBy());
-                detail.setUpdatedDate(LocalDateTime.now());
-            }
+			if (dto.getFasteningBoltDetailId() != null) {
 
+				detail = detailRepository.findById(dto.getFasteningBoltDetailId())
+						.orElseThrow(() -> new ResourceNotFoundException(
+								"Fastening Bolt Detail not found with Id : " + dto.getFasteningBoltDetailId()));
 
-            // INSERT NEW DETAIL
-  
+				detail.setUpdatedBy(request.getUpdatedBy());
+				detail.setUpdatedDate(LocalDateTime.now());
+			}
 
-            else {
+			// INSERT NEW DETAIL
 
-                detail = new FasteningBoltDetail();
+			else {
 
-                detail.setFasteningBoltHeader(header);
+				detail = new FasteningBoltDetail();
 
-                detail.setCreatedBy(request.getUpdatedBy());
-                detail.setCreatedDate(LocalDateTime.now());
+				detail.setFasteningBoltHeader(header);
 
-                detail.setIsActive(true);
+				detail.setCreatedBy(request.getUpdatedBy());
+				detail.setCreatedDate(LocalDateTime.now());
 
-                header.getDetails().add(detail);
-            }
+				detail.setIsActive(true);
 
-            detail.setTrackDirection(direction);
+				header.getDetails().add(detail);
+			}
 
-            detail.setChainageKm(dto.getChainageKm());
-            detail.setChainageM(dto.getChainageM());
-            detail.setChainageCm(dto.getChainageCm());
+			detail.setTrackDirection(direction);
 
-            detail.setSleeperNumber(dto.getSleeperNumber());
+			detail.setChainageKm(dto.getChainageKm());
+			detail.setChainageM(dto.getChainageM());
+			detail.setChainageCm(dto.getChainageCm());
 
-            detail.setMeasuredLeft(dto.getMeasuredLeft());
-            detail.setMeasuredRight(dto.getMeasuredRight());
+			detail.setSleeperNumber(dto.getSleeperNumber());
 
-            detail.setRemarks(dto.getRemarks());
+			detail.setMeasuredLeft(dto.getMeasuredLeft());
+			detail.setMeasuredRight(dto.getMeasuredRight());
 
-            detail.setIsActive(true);
-        }
+			detail.setRemarks(dto.getRemarks());
 
-        headerRepository.save(header);
+			detail.setIsActive(true);
+		}
 
-        return header.getFasteningBoltHeaderId();
-    }
-    
-    @Override
-    @Transactional
-    public void deleteFasteningBolt(
-            Long fasteningBoltHeaderId,
-            String updatedBy) {
+		headerRepository.save(header);
 
-        FasteningBoltHeader header = headerRepository
-                .findById(fasteningBoltHeaderId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Fastening Bolt not found with Id : "
-                                        + fasteningBoltHeaderId));
+		return header.getFasteningBoltHeaderId();
+	}
 
-        // Soft Delete Header
+	@Override
+	@Transactional
+	public void deleteFasteningBolt(Long fasteningBoltHeaderId, String updatedBy) {
 
-        header.setIsActive(false);
-        header.setUpdatedBy(updatedBy);
-        header.setUpdatedDate(LocalDateTime.now());
+		FasteningBoltHeader header = headerRepository.findById(fasteningBoltHeaderId)
+				.orElseThrow(() -> new ResourceNotFoundException("Fastening Bolt not found with Id : " + fasteningBoltHeaderId));
 
-        // Soft Delete Details
+		// Soft Delete Header
 
-        if (header.getDetails() != null) {
+		header.setIsActive(false);
+		header.setUpdatedBy(updatedBy);
+		header.setUpdatedDate(LocalDateTime.now());
 
-            for (FasteningBoltDetail detail : header.getDetails()) {
+		// Soft Delete Details
 
-                detail.setIsActive(false);
-                detail.setUpdatedBy(updatedBy);
-                detail.setUpdatedDate(LocalDateTime.now());
-            }
-        }
+		if (header.getDetails() != null) {
 
-        headerRepository.save(header);
-    }
+			for (FasteningBoltDetail detail : header.getDetails()) {
+
+				detail.setIsActive(false);
+				detail.setUpdatedBy(updatedBy);
+				detail.setUpdatedDate(LocalDateTime.now());
+			}
+		}
+
+		headerRepository.save(header);
+	}
 }

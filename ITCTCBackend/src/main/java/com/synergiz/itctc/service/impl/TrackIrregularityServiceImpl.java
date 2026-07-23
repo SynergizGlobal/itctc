@@ -1,7 +1,5 @@
 package com.synergiz.itctc.service.impl;
 
-
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +18,7 @@ import com.synergiz.itctc.entity.TrackDirection;
 import com.synergiz.itctc.entity.TrackIrregularityDetail;
 import com.synergiz.itctc.entity.TrackIrregularityHeader;
 import com.synergiz.itctc.entity.TrackIrregularityType;
+import com.synergiz.itctc.exception.ResourceNotFoundException;
 import com.synergiz.itctc.repository.TrackDirectionRepository;
 import com.synergiz.itctc.repository.TrackIrregularityDetailRepository;
 import com.synergiz.itctc.repository.TrackIrregularityHeaderRepository;
@@ -29,394 +28,358 @@ import com.synergiz.itctc.service.TrackIrregularityService;
 @Service
 public class TrackIrregularityServiceImpl implements TrackIrregularityService {
 
-    private final TrackIrregularityHeaderRepository headerRepository;
-    private final TrackIrregularityDetailRepository detailRepository;
-    private final TrackDirectionRepository directionRepository;
-    private final TrackIrregularityTypeRepository typeRepository;
+	private final TrackIrregularityHeaderRepository headerRepository;
+	private final TrackIrregularityDetailRepository detailRepository;
+	private final TrackDirectionRepository directionRepository;
+	private final TrackIrregularityTypeRepository typeRepository;
 
-    public TrackIrregularityServiceImpl(
-            TrackIrregularityHeaderRepository headerRepository,
-            TrackIrregularityDetailRepository detailRepository,
-            TrackDirectionRepository directionRepository,
-            TrackIrregularityTypeRepository typeRepository) {
+	public TrackIrregularityServiceImpl(TrackIrregularityHeaderRepository headerRepository,
+			TrackIrregularityDetailRepository detailRepository, TrackDirectionRepository directionRepository,
+			TrackIrregularityTypeRepository typeRepository) {
 
-        this.headerRepository = headerRepository;
-        this.detailRepository = detailRepository;
-        this.directionRepository = directionRepository;
-        this.typeRepository = typeRepository;
-    }
+		this.headerRepository = headerRepository;
+		this.detailRepository = detailRepository;
+		this.directionRepository = directionRepository;
+		this.typeRepository = typeRepository;
+	}
 
-    @Override
-    @Transactional
-    public Long saveTrackIrregularity(TrackIrregularityRequest request) {
+	@Override
+	@Transactional
+	public Long saveTrackIrregularity(TrackIrregularityRequest request) {
 
-        TrackIrregularityHeader header = new TrackIrregularityHeader();
+		TrackIrregularityHeader header = new TrackIrregularityHeader();
 
-        header.setProjectId(request.getProjectId());
-        header.setFormNumber(request.getFormNumber());
-        header.setMeasurementDate(request.getMeasurementDate());
-        header.setChainageKm(request.getChainageKm());
-        header.setChainageM(request.getChainageM());
+		header.setProjectId(request.getProjectId());
+		header.setFormNumber(request.getFormNumber());
+		header.setMeasurementDate(request.getMeasurementDate());
+		header.setChainageKm(request.getChainageKm());
+		header.setChainageM(request.getChainageM());
 
-        header.setMeasuringPointDown(request.getMeasuringPointDown());
-        header.setMeasuringPointUp(request.getMeasuringPointUp());
+		header.setMeasuringPointDown(request.getMeasuringPointDown());
+		header.setMeasuringPointUp(request.getMeasuringPointUp());
 
-        header.setVerticalCurveDiagramDown(request.getVerticalCurveDiagramDown());
-        header.setPlaneCurveDiagramDown(request.getPlaneCurveDiagramDown());
+		header.setVerticalCurveDiagramDown(request.getVerticalCurveDiagramDown());
+		header.setPlaneCurveDiagramDown(request.getPlaneCurveDiagramDown());
 
-        header.setVerticalCurveDiagramUp(request.getVerticalCurveDiagramUp());
-        header.setPlaneCurveDiagramUp(request.getPlaneCurveDiagramUp());
+		header.setVerticalCurveDiagramUp(request.getVerticalCurveDiagramUp());
+		header.setPlaneCurveDiagramUp(request.getPlaneCurveDiagramUp());
 
-        header.setRemarks(request.getRemarks());
-     
-        header.setIsActive(true);
-        header.setCreatedBy(request.getCreatedBy());
-        header.setCreatedDate(LocalDateTime.now());
+		header.setRemarks(request.getRemarks());
 
-        for (TrackIrregularityDetailRequest dto : request.getDetails()) {
+		header.setIsActive(true);
+		header.setCreatedBy(request.getCreatedBy());
+		header.setCreatedDate(LocalDateTime.now());
 
-            TrackDirection direction = directionRepository.findById(dto.getTrackDirectionId())
-                    .orElseThrow(() ->
-                            new RuntimeException("Invalid Track Direction Id"));
+		for (TrackIrregularityDetailRequest dto : request.getDetails()) {
 
-            TrackIrregularityType type = typeRepository.findById(dto.getTrackIrregularityTypeId())
-                    .orElseThrow(() ->
-                            new RuntimeException("Invalid Track Irregularity Type Id"));
+			TrackDirection direction = directionRepository.findById(dto.getTrackDirectionId())
+					.orElseThrow(() -> new ResourceNotFoundException("Invalid Track Direction Id"));
 
-            TrackIrregularityDetail detail = new TrackIrregularityDetail();
+			TrackIrregularityType type = typeRepository.findById(dto.getTrackIrregularityTypeId())
+					.orElseThrow(() -> new ResourceNotFoundException("Invalid Track Irregularity Type Id"));
 
-            detail.setTrackIrregularityHeader(header);
+			TrackIrregularityDetail detail = new TrackIrregularityDetail();
 
-            detail.setTrackDirection(direction);
+			detail.setTrackIrregularityHeader(header);
 
-            detail.setTrackIrregularityType(type);
+			detail.setTrackDirection(direction);
 
-            detail.setDesignValue(dto.getDesignValue());
-            detail.setMeasuredValue(dto.getMeasuredValue());
-            detail.setIrregularityValue(dto.getIrregularityValue());
+			detail.setTrackIrregularityType(type);
 
-            detail.setDetailRemarks(dto.getDetailRemarks());
+			detail.setDesignValue(dto.getDesignValue());
+			detail.setMeasuredValue(dto.getMeasuredValue());
+			detail.setIrregularityValue(dto.getIrregularityValue());
 
-            detail.setIsActive(true);
-            detail.setCreatedBy(request.getCreatedBy());
-            detail.setCreatedDate(LocalDateTime.now());
+			detail.setDetailRemarks(dto.getDetailRemarks());
 
-            header.getDetails().add(detail);
-        }
+			detail.setIsActive(true);
+			detail.setCreatedBy(request.getCreatedBy());
+			detail.setCreatedDate(LocalDateTime.now());
 
-        TrackIrregularityHeader savedHeader = headerRepository.save(header);
+			header.getDetails().add(detail);
+		}
 
-        return savedHeader.getTrackIrregularityId();
-    }
-    
-    @Override
-    @Transactional(readOnly = true)
-    public TrackIrregularityResponse getTrackIrregularity(Long trackIrregularityId) {
+		TrackIrregularityHeader savedHeader = headerRepository.save(header);
 
-        TrackIrregularityHeader header = headerRepository
-                .findById(trackIrregularityId)
-                .orElseThrow(() ->
-                        new RuntimeException("Track Irregularity not found with Id : "
-                                + trackIrregularityId));
+		return savedHeader.getTrackIrregularityId();
+	}
 
-        TrackIrregularityResponse response = new TrackIrregularityResponse();
+	@Override
+	@Transactional(readOnly = true)
+	public TrackIrregularityResponse getTrackIrregularity(Long trackIrregularityId) {
 
-        response.setTrackIrregularityId(header.getTrackIrregularityId());
-        response.setProjectId(header.getProjectId());
-        response.setFormNumber(header.getFormNumber());
-        response.setMeasurementDate(header.getMeasurementDate());
-        response.setChainageKm(header.getChainageKm());
-        response.setChainageM(header.getChainageM());
+		TrackIrregularityHeader header = headerRepository.findById(trackIrregularityId).orElseThrow(
+				() -> new ResourceNotFoundException("Track Irregularity not found with Id : " + trackIrregularityId));
 
-        response.setMeasuringPointDown(header.getMeasuringPointDown());
-        response.setMeasuringPointUp(header.getMeasuringPointUp());
+		TrackIrregularityResponse response = new TrackIrregularityResponse();
 
-        response.setVerticalCurveDiagramDown(header.getVerticalCurveDiagramDown());
-        response.setPlaneCurveDiagramDown(header.getPlaneCurveDiagramDown());
+		response.setTrackIrregularityId(header.getTrackIrregularityId());
+		response.setProjectId(header.getProjectId());
+		response.setFormNumber(header.getFormNumber());
+		response.setMeasurementDate(header.getMeasurementDate());
+		response.setChainageKm(header.getChainageKm());
+		response.setChainageM(header.getChainageM());
 
-        response.setVerticalCurveDiagramUp(header.getVerticalCurveDiagramUp());
-        response.setPlaneCurveDiagramUp(header.getPlaneCurveDiagramUp());
+		response.setMeasuringPointDown(header.getMeasuringPointDown());
+		response.setMeasuringPointUp(header.getMeasuringPointUp());
 
-        response.setRemarks(header.getRemarks());
-        response.setCreatedDate(header.getCreatedDate());
+		response.setVerticalCurveDiagramDown(header.getVerticalCurveDiagramDown());
+		response.setPlaneCurveDiagramDown(header.getPlaneCurveDiagramDown());
 
-        List<TrackIrregularityDetailResponse> detailResponses = new ArrayList<>();
+		response.setVerticalCurveDiagramUp(header.getVerticalCurveDiagramUp());
+		response.setPlaneCurveDiagramUp(header.getPlaneCurveDiagramUp());
 
-        if (header.getDetails() != null) {
+		response.setRemarks(header.getRemarks());
+		response.setCreatedDate(header.getCreatedDate());
 
-            for (TrackIrregularityDetail detail : header.getDetails()) {
+		List<TrackIrregularityDetailResponse> detailResponses = new ArrayList<>();
 
-                if (Boolean.FALSE.equals(detail.getIsActive())) {
-                    continue;
-                }
+		if (header.getDetails() != null) {
 
-                TrackIrregularityDetailResponse detailResponse =
-                        new TrackIrregularityDetailResponse();
+			for (TrackIrregularityDetail detail : header.getDetails()) {
 
-                detailResponse.setTrackIrregularityDetailId(
-                        detail.getTrackIrregularityDetailId());
+				if (Boolean.FALSE.equals(detail.getIsActive())) {
+					continue;
+				}
 
-                detailResponse.setTrackDirectionId(
-                        detail.getTrackDirection().getTrackDirectionId());
+				TrackIrregularityDetailResponse detailResponse = new TrackIrregularityDetailResponse();
 
-                detailResponse.setDirectionName(
-                        detail.getTrackDirection().getDirectionName());
+				detailResponse.setTrackIrregularityDetailId(detail.getTrackIrregularityDetailId());
 
-                detailResponse.setTrackIrregularityTypeId(
-                        detail.getTrackIrregularityType().getTrackIrregularityTypeId());
+				detailResponse.setTrackDirectionId(detail.getTrackDirection().getTrackDirectionId());
 
-                detailResponse.setMeasurementName(
-                        detail.getTrackIrregularityType().getMeasurementName());
+				detailResponse.setDirectionName(detail.getTrackDirection().getDirectionName());
 
-                detailResponse.setDesignValue(detail.getDesignValue());
-                detailResponse.setMeasuredValue(detail.getMeasuredValue());
-                detailResponse.setIrregularityValue(detail.getIrregularityValue());
+				detailResponse
+						.setTrackIrregularityTypeId(detail.getTrackIrregularityType().getTrackIrregularityTypeId());
 
-                detailResponse.setDetailRemarks(detail.getDetailRemarks());
+				detailResponse.setMeasurementName(detail.getTrackIrregularityType().getMeasurementName());
 
-                detailResponses.add(detailResponse);
-            }
-        }
+				detailResponse.setDesignValue(detail.getDesignValue());
+				detailResponse.setMeasuredValue(detail.getMeasuredValue());
+				detailResponse.setIrregularityValue(detail.getIrregularityValue());
 
-        response.setDetails(detailResponses);
+				detailResponse.setDetailRemarks(detail.getDetailRemarks());
 
-        return response;
-    }
-    
-    @Override
-    @Transactional(readOnly = true)
-    public List<TrackIrregularityResponse> getAllTrackIrregularities() {
+				detailResponses.add(detailResponse);
+			}
+		}
 
-        List<TrackIrregularityHeader> headers = headerRepository.findAll();
+		response.setDetails(detailResponses);
 
-        List<TrackIrregularityResponse> responses = new ArrayList<>();
+		return response;
+	}
 
-        for (TrackIrregularityHeader header : headers) {
+	@Override
+	@Transactional(readOnly = true)
+	public List<TrackIrregularityResponse> getAllTrackIrregularities() {
 
-            if (Boolean.FALSE.equals(header.getIsActive())) {
-                continue;
-            }
+		List<TrackIrregularityHeader> headers = headerRepository.findAll();
 
-            TrackIrregularityResponse response = new TrackIrregularityResponse();
+		List<TrackIrregularityResponse> responses = new ArrayList<>();
 
-            response.setTrackIrregularityId(header.getTrackIrregularityId());
-            response.setProjectId(header.getProjectId());
-            response.setFormNumber(header.getFormNumber());
-            response.setMeasurementDate(header.getMeasurementDate());
-            response.setChainageKm(header.getChainageKm());
-            response.setChainageM(header.getChainageM());
+		for (TrackIrregularityHeader header : headers) {
 
-            response.setMeasuringPointDown(header.getMeasuringPointDown());
-            response.setMeasuringPointUp(header.getMeasuringPointUp());
+			if (Boolean.FALSE.equals(header.getIsActive())) {
+				continue;
+			}
 
-            response.setVerticalCurveDiagramDown(header.getVerticalCurveDiagramDown());
-            response.setPlaneCurveDiagramDown(header.getPlaneCurveDiagramDown());
+			TrackIrregularityResponse response = new TrackIrregularityResponse();
 
-            response.setVerticalCurveDiagramUp(header.getVerticalCurveDiagramUp());
-            response.setPlaneCurveDiagramUp(header.getPlaneCurveDiagramUp());
+			response.setTrackIrregularityId(header.getTrackIrregularityId());
+			response.setProjectId(header.getProjectId());
+			response.setFormNumber(header.getFormNumber());
+			response.setMeasurementDate(header.getMeasurementDate());
+			response.setChainageKm(header.getChainageKm());
+			response.setChainageM(header.getChainageM());
 
-            response.setRemarks(header.getRemarks());
-            response.setCreatedDate(header.getCreatedDate());
+			response.setMeasuringPointDown(header.getMeasuringPointDown());
+			response.setMeasuringPointUp(header.getMeasuringPointUp());
 
-            List<TrackIrregularityDetailResponse> detailResponses = new ArrayList<>();
+			response.setVerticalCurveDiagramDown(header.getVerticalCurveDiagramDown());
+			response.setPlaneCurveDiagramDown(header.getPlaneCurveDiagramDown());
 
-            if (header.getDetails() != null) {
+			response.setVerticalCurveDiagramUp(header.getVerticalCurveDiagramUp());
+			response.setPlaneCurveDiagramUp(header.getPlaneCurveDiagramUp());
 
-                for (TrackIrregularityDetail detail : header.getDetails()) {
+			response.setRemarks(header.getRemarks());
+			response.setCreatedDate(header.getCreatedDate());
 
-                    if (Boolean.FALSE.equals(detail.getIsActive())) {
-                        continue;
-                    }
+			List<TrackIrregularityDetailResponse> detailResponses = new ArrayList<>();
 
-                    TrackIrregularityDetailResponse detailResponse =
-                            new TrackIrregularityDetailResponse();
+			if (header.getDetails() != null) {
 
-                    detailResponse.setTrackIrregularityDetailId(
-                            detail.getTrackIrregularityDetailId());
+				for (TrackIrregularityDetail detail : header.getDetails()) {
 
-                    detailResponse.setTrackDirectionId(
-                            detail.getTrackDirection().getTrackDirectionId());
+					if (Boolean.FALSE.equals(detail.getIsActive())) {
+						continue;
+					}
 
-                    detailResponse.setDirectionName(
-                            detail.getTrackDirection().getDirectionName());
+					TrackIrregularityDetailResponse detailResponse = new TrackIrregularityDetailResponse();
 
-                    detailResponse.setTrackIrregularityTypeId(
-                            detail.getTrackIrregularityType().getTrackIrregularityTypeId());
+					detailResponse.setTrackIrregularityDetailId(detail.getTrackIrregularityDetailId());
 
-                    detailResponse.setMeasurementName(
-                            detail.getTrackIrregularityType().getMeasurementName());
+					detailResponse.setTrackDirectionId(detail.getTrackDirection().getTrackDirectionId());
 
-                    detailResponse.setDesignValue(detail.getDesignValue());
-                    detailResponse.setMeasuredValue(detail.getMeasuredValue());
-                    detailResponse.setIrregularityValue(detail.getIrregularityValue());
+					detailResponse.setDirectionName(detail.getTrackDirection().getDirectionName());
 
-                    detailResponse.setDetailRemarks(detail.getDetailRemarks());
+					detailResponse
+							.setTrackIrregularityTypeId(detail.getTrackIrregularityType().getTrackIrregularityTypeId());
 
-                    detailResponses.add(detailResponse);
-                }
-            }
+					detailResponse.setMeasurementName(detail.getTrackIrregularityType().getMeasurementName());
 
-            response.setDetails(detailResponses);
+					detailResponse.setDesignValue(detail.getDesignValue());
+					detailResponse.setMeasuredValue(detail.getMeasuredValue());
+					detailResponse.setIrregularityValue(detail.getIrregularityValue());
 
-            responses.add(response);
-        }
+					detailResponse.setDetailRemarks(detail.getDetailRemarks());
 
-        return responses;
-    }
-    
-    @Override
-    @Transactional
-    public Long updateTrackIrregularity(
-            Long trackIrregularityId,
-            TrackIrregularityRequest request) {
+					detailResponses.add(detailResponse);
+				}
+			}
 
-        TrackIrregularityHeader header = headerRepository
-                .findById(trackIrregularityId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Track Irregularity not found with Id : "
-                                        + trackIrregularityId));
+			response.setDetails(detailResponses);
 
-        // ===========================
-        // Update Header
-        // ===========================
+			responses.add(response);
+		}
 
-        header.setProjectId(request.getProjectId());
-        header.setFormNumber(request.getFormNumber());
-        header.setMeasurementDate(request.getMeasurementDate());
+		return responses;
+	}
 
-        header.setChainageKm(request.getChainageKm());
-        header.setChainageM(request.getChainageM());
+	@Override
+	@Transactional
+	public Long updateTrackIrregularity(Long trackIrregularityId, TrackIrregularityRequest request) {
 
-        header.setMeasuringPointDown(request.getMeasuringPointDown());
-        header.setMeasuringPointUp(request.getMeasuringPointUp());
+		TrackIrregularityHeader header = headerRepository.findById(trackIrregularityId).orElseThrow(
+				() -> new ResourceNotFoundException("Track Irregularity not found with Id : " + trackIrregularityId));
 
-        header.setVerticalCurveDiagramDown(request.getVerticalCurveDiagramDown());
-        header.setPlaneCurveDiagramDown(request.getPlaneCurveDiagramDown());
+		// ===========================
+		// Update Header
+		// ===========================
 
-        header.setVerticalCurveDiagramUp(request.getVerticalCurveDiagramUp());
-        header.setPlaneCurveDiagramUp(request.getPlaneCurveDiagramUp());
+		header.setProjectId(request.getProjectId());
+		header.setFormNumber(request.getFormNumber());
+		header.setMeasurementDate(request.getMeasurementDate());
 
-        header.setRemarks(request.getRemarks());
+		header.setChainageKm(request.getChainageKm());
+		header.setChainageM(request.getChainageM());
 
-        header.setUpdatedBy(request.getUpdatedBy());
-        header.setUpdatedDate(LocalDateTime.now());
+		header.setMeasuringPointDown(request.getMeasuringPointDown());
+		header.setMeasuringPointUp(request.getMeasuringPointUp());
 
-        // ==================================================
-        // Soft Delete Removed Details
-        // ==================================================
+		header.setVerticalCurveDiagramDown(request.getVerticalCurveDiagramDown());
+		header.setPlaneCurveDiagramDown(request.getPlaneCurveDiagramDown());
 
-        Set<Long> requestDetailIds = request.getDetails().stream()
-                .map(TrackIrregularityDetailRequest::getTrackIrregularityDetailId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+		header.setVerticalCurveDiagramUp(request.getVerticalCurveDiagramUp());
+		header.setPlaneCurveDiagramUp(request.getPlaneCurveDiagramUp());
 
-        for (TrackIrregularityDetail existingDetail : header.getDetails()) {
+		header.setRemarks(request.getRemarks());
 
-            if (!requestDetailIds.contains(existingDetail.getTrackIrregularityDetailId())) {
+		header.setUpdatedBy(request.getUpdatedBy());
+		header.setUpdatedDate(LocalDateTime.now());
 
-                existingDetail.setIsActive(false);
-                existingDetail.setUpdatedBy(request.getUpdatedBy());
-                existingDetail.setUpdatedDate(LocalDateTime.now());
-            }
-        }
+		// ==================================================
+		// Soft Delete Removed Details
+		// ==================================================
 
-        // ==================================================
-        // Insert / Update Details
-        // ==================================================
+		Set<Long> requestDetailIds = request.getDetails().stream()
+				.map(TrackIrregularityDetailRequest::getTrackIrregularityDetailId).filter(Objects::nonNull)
+				.collect(Collectors.toSet());
 
-        for (TrackIrregularityDetailRequest dto : request.getDetails()) {
+		for (TrackIrregularityDetail existingDetail : header.getDetails()) {
 
-            TrackDirection direction = directionRepository
-                    .findById(dto.getTrackDirectionId())
-                    .orElseThrow(() ->
-                            new RuntimeException("Invalid Track Direction Id"));
+			if (!requestDetailIds.contains(existingDetail.getTrackIrregularityDetailId())) {
 
-            TrackIrregularityType type = typeRepository
-                    .findById(dto.getTrackIrregularityTypeId())
-                    .orElseThrow(() ->
-                            new RuntimeException("Invalid Track Irregularity Type Id"));
+				existingDetail.setIsActive(false);
+				existingDetail.setUpdatedBy(request.getUpdatedBy());
+				existingDetail.setUpdatedDate(LocalDateTime.now());
+			}
+		}
 
-            TrackIrregularityDetail detail;
+		// ==================================================
+		// Insert / Update Details
+		// ==================================================
 
-            // ===========================
-            // UPDATE EXISTING DETAIL
-            // ===========================
+		for (TrackIrregularityDetailRequest dto : request.getDetails()) {
 
-            if (dto.getTrackIrregularityDetailId() != null) {
+			TrackDirection direction = directionRepository.findById(dto.getTrackDirectionId())
+					.orElseThrow(() -> new ResourceNotFoundException("Invalid Track Direction Id"));
 
-                detail = detailRepository
-                        .findById(dto.getTrackIrregularityDetailId())
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Track Irregularity Detail not found with Id : "
-                                                + dto.getTrackIrregularityDetailId()));
+			TrackIrregularityType type = typeRepository.findById(dto.getTrackIrregularityTypeId())
+					.orElseThrow(() -> new ResourceNotFoundException("Invalid Track Irregularity Type Id"));
 
-                detail.setUpdatedBy(request.getUpdatedBy());
-                detail.setUpdatedDate(LocalDateTime.now());
-            }
+			TrackIrregularityDetail detail;
 
-            // ===========================
-            // INSERT NEW DETAIL
-            // ===========================
+			// ===========================
+			// UPDATE EXISTING DETAIL
+			// ===========================
 
-            else {
+			if (dto.getTrackIrregularityDetailId() != null) {
 
-                detail = new TrackIrregularityDetail();
+				detail = detailRepository.findById(dto.getTrackIrregularityDetailId())
+						.orElseThrow(() -> new ResourceNotFoundException(
+								"Track Irregularity Detail not found with Id : " + dto.getTrackIrregularityDetailId()));
 
-                detail.setTrackIrregularityHeader(header);
+				detail.setUpdatedBy(request.getUpdatedBy());
+				detail.setUpdatedDate(LocalDateTime.now());
+			}
 
-                detail.setCreatedBy(request.getUpdatedBy());
-                detail.setCreatedDate(LocalDateTime.now());
+			// ===========================
+			// INSERT NEW DETAIL
+			// ===========================
 
-                detail.setIsActive(true);
+			else {
 
-                header.getDetails().add(detail);
-            }
+				detail = new TrackIrregularityDetail();
 
-            detail.setTrackDirection(direction);
-            detail.setTrackIrregularityType(type);
+				detail.setTrackIrregularityHeader(header);
 
-            detail.setDesignValue(dto.getDesignValue());
-            detail.setMeasuredValue(dto.getMeasuredValue());
-            detail.setIrregularityValue(dto.getIrregularityValue());
+				detail.setCreatedBy(request.getUpdatedBy());
+				detail.setCreatedDate(LocalDateTime.now());
 
-            detail.setDetailRemarks(dto.getDetailRemarks());
+				detail.setIsActive(true);
 
-            detail.setIsActive(true);
-        }
+				header.getDetails().add(detail);
+			}
 
-        headerRepository.save(header);
+			detail.setTrackDirection(direction);
+			detail.setTrackIrregularityType(type);
 
-        return header.getTrackIrregularityId();
-    }
-    
-    @Override
-    @Transactional
-    public void deleteTrackIrregularity(Long trackIrregularityId,
-                                        String updatedBy) {
+			detail.setDesignValue(dto.getDesignValue());
+			detail.setMeasuredValue(dto.getMeasuredValue());
+			detail.setIrregularityValue(dto.getIrregularityValue());
 
-        TrackIrregularityHeader header = headerRepository
-                .findById(trackIrregularityId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Track Irregularity not found with Id : "
-                                        + trackIrregularityId));
+			detail.setDetailRemarks(dto.getDetailRemarks());
 
-        header.setIsActive(false);
-        header.setUpdatedBy(updatedBy);
-        header.setUpdatedDate(LocalDateTime.now());
+			detail.setIsActive(true);
+		}
 
-        if (header.getDetails() != null) {
+		headerRepository.save(header);
 
-            for (TrackIrregularityDetail detail : header.getDetails()) {
+		return header.getTrackIrregularityId();
+	}
 
-                detail.setIsActive(false);
-                detail.setUpdatedBy(updatedBy);
-                detail.setUpdatedDate(LocalDateTime.now());
-            }
-        }
+	@Override
+	@Transactional
+	public void deleteTrackIrregularity(Long trackIrregularityId, String updatedBy) {
 
-        headerRepository.save(header);
-    }
+		TrackIrregularityHeader header = headerRepository.findById(trackIrregularityId).orElseThrow(
+				() -> new ResourceNotFoundException("Track Irregularity not found with Id : " + trackIrregularityId));
+
+		header.setIsActive(false);
+		header.setUpdatedBy(updatedBy);
+		header.setUpdatedDate(LocalDateTime.now());
+
+		if (header.getDetails() != null) {
+
+			for (TrackIrregularityDetail detail : header.getDetails()) {
+
+				detail.setIsActive(false);
+				detail.setUpdatedBy(updatedBy);
+				detail.setUpdatedDate(LocalDateTime.now());
+			}
+		}
+
+		headerRepository.save(header);
+	}
 }

@@ -7,6 +7,7 @@ import com.synergiz.itctc.dto.response.SleeperSpacingResponse;
 import com.synergiz.itctc.entity.SleeperSpacingDetail;
 import com.synergiz.itctc.entity.SleeperSpacingHeader;
 import com.synergiz.itctc.entity.TrackDirection;
+import com.synergiz.itctc.exception.ResourceNotFoundException;
 import com.synergiz.itctc.repository.SleeperSpacingDetailRepository;
 import com.synergiz.itctc.repository.SleeperSpacingHeaderRepository;
 import com.synergiz.itctc.repository.TrackDirectionRepository;
@@ -70,7 +71,7 @@ public class SleeperSpacingServiceImpl implements SleeperSpacingService {
                 TrackDirection trackDirection = trackDirectionRepository
                         .findById(dto.getTrackDirectionId())
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new ResourceNotFoundException(
                                         "Invalid Track Direction Id : "
                                                 + dto.getTrackDirectionId()));
 
@@ -115,7 +116,7 @@ public class SleeperSpacingServiceImpl implements SleeperSpacingService {
         SleeperSpacingHeader header = headerRepository
                 .findById(sleeperSpacingHeaderId)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new ResourceNotFoundException(
                                 "Sleeper Spacing not found with Id : "
                                         + sleeperSpacingHeaderId));
 
@@ -288,7 +289,7 @@ public class SleeperSpacingServiceImpl implements SleeperSpacingService {
         SleeperSpacingHeader header = headerRepository
                 .findById(sleeperSpacingHeaderId)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new ResourceNotFoundException(
                                 "Sleeper Spacing not found with Id : "
                                         + sleeperSpacingHeaderId));
 
@@ -333,7 +334,7 @@ public class SleeperSpacingServiceImpl implements SleeperSpacingService {
             TrackDirection direction = trackDirectionRepository
                     .findById(dto.getTrackDirectionId())
                     .orElseThrow(() ->
-                            new RuntimeException(
+                            new ResourceNotFoundException(
                                     "Invalid Track Direction Id"));
 
             SleeperSpacingDetail detail;
@@ -347,7 +348,7 @@ public class SleeperSpacingServiceImpl implements SleeperSpacingService {
                 detail = detailRepository
                         .findById(dto.getSleeperSpacingDetailId())
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new ResourceNotFoundException(
                                         "Sleeper Spacing Detail not found with Id : "
                                                 + dto.getSleeperSpacingDetailId()));
 
@@ -406,7 +407,7 @@ public class SleeperSpacingServiceImpl implements SleeperSpacingService {
         SleeperSpacingHeader header = headerRepository
                 .findById(sleeperSpacingHeaderId)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new ResourceNotFoundException(
                                 "Sleeper Spacing not found with Id : "
                                         + sleeperSpacingHeaderId));
 
@@ -432,7 +433,7 @@ public class SleeperSpacingServiceImpl implements SleeperSpacingService {
             }
         }
 
-        headerRepository.save(header);
-    }
+		headerRepository.save(header);
+	}
 
 }

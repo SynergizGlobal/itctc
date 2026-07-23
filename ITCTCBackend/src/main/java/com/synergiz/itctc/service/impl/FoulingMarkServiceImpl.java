@@ -6,6 +6,7 @@ import com.synergiz.itctc.dto.response.FoulingMarkDetailResponse;
 import com.synergiz.itctc.dto.response.FoulingMarkResponse;
 import com.synergiz.itctc.entity.FoulingMarkDetail;
 import com.synergiz.itctc.entity.FoulingMarkHeader;
+import com.synergiz.itctc.exception.ResourceNotFoundException;
 import com.synergiz.itctc.repository.FoulingMarkDetailRepository;
 import com.synergiz.itctc.repository.FoulingMarkHeaderRepository;
 import com.synergiz.itctc.service.FoulingMarkService;
@@ -20,349 +21,299 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class FoulingMarkServiceImpl
-        implements FoulingMarkService {
+public class FoulingMarkServiceImpl implements FoulingMarkService {
 
-    private final FoulingMarkHeaderRepository headerRepository;
+	private final FoulingMarkHeaderRepository headerRepository;
 
-    private final FoulingMarkDetailRepository detailRepository;
+	private final FoulingMarkDetailRepository detailRepository;
 
-    public FoulingMarkServiceImpl(
-            FoulingMarkHeaderRepository headerRepository,
-            FoulingMarkDetailRepository detailRepository) {
+	public FoulingMarkServiceImpl(FoulingMarkHeaderRepository headerRepository,
+			FoulingMarkDetailRepository detailRepository) {
 
-        this.headerRepository = headerRepository;
-        this.detailRepository = detailRepository;
-    }
+		this.headerRepository = headerRepository;
+		this.detailRepository = detailRepository;
+	}
 
-    
-    @Override
-    @Transactional
-    public Long saveFoulingMark(
-            FoulingMarkRequest request) {
+	@Override
+	@Transactional
+	public Long saveFoulingMark(FoulingMarkRequest request) {
 
-        FoulingMarkHeader header = new FoulingMarkHeader();
+		FoulingMarkHeader header = new FoulingMarkHeader();
 
-        // Header
+		// Header
 
-        header.setProjectId(request.getProjectId());
-        header.setFormNo(request.getFormNo());
-        header.setRecordNo(request.getRecordNo());
-        header.setInspectionDate(request.getInspectionDate());
-        header.setLineName(request.getLineName());
+		header.setProjectId(request.getProjectId());
+		header.setFormNo(request.getFormNo());
+		header.setRecordNo(request.getRecordNo());
+		header.setInspectionDate(request.getInspectionDate());
+		header.setLineName(request.getLineName());
 
-        header.setIsActive(true);
+		header.setIsActive(true);
 
-        header.setCreatedBy(request.getCreatedBy());
-        header.setCreatedDate(LocalDateTime.now());
+		header.setCreatedBy(request.getCreatedBy());
+		header.setCreatedDate(LocalDateTime.now());
 
-        // Details
+		// Details
 
-        if (request.getDetails() != null) {
+		if (request.getDetails() != null) {
 
-            for (FoulingMarkDetailRequest dto : request.getDetails()) {
+			for (FoulingMarkDetailRequest dto : request.getDetails()) {
 
-                FoulingMarkDetail detail = new FoulingMarkDetail();
+				FoulingMarkDetail detail = new FoulingMarkDetail();
 
-                detail.setFoulingMarkHeader(header);
+				detail.setFoulingMarkHeader(header);
 
-                detail.setChainageLocation(dto.getChainageLocation());
+				detail.setChainageLocation(dto.getChainageLocation());
 
-                detail.setDesignValue(dto.getDesignValue());
-                detail.setMeasuredValue(dto.getMeasuredValue());
-                detail.setDifferenceValue(dto.getDifferenceValue());
+				detail.setDesignValue(dto.getDesignValue());
+				detail.setMeasuredValue(dto.getMeasuredValue());
+				detail.setDifferenceValue(dto.getDifferenceValue());
 
-                detail.setRemarks(dto.getRemarks());
+				detail.setRemarks(dto.getRemarks());
 
-                detail.setIsActive(true);
+				detail.setIsActive(true);
 
-                detail.setCreatedBy(request.getCreatedBy());
-                detail.setCreatedDate(LocalDateTime.now());
+				detail.setCreatedBy(request.getCreatedBy());
+				detail.setCreatedDate(LocalDateTime.now());
 
-                header.getDetails().add(detail);
-            }
-        }
+				header.getDetails().add(detail);
+			}
+		}
 
-        headerRepository.save(header);
+		headerRepository.save(header);
 
-        return header.getFoulingMarkHeaderId();
-    }
-    
-    @Override
-    public FoulingMarkResponse getFoulingMark(
-            Long foulingMarkHeaderId) {
+		return header.getFoulingMarkHeaderId();
+	}
 
-        FoulingMarkHeader header = headerRepository
-                .findById(foulingMarkHeaderId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Fouling Mark not found with Id : "
-                                        + foulingMarkHeaderId));
+	@Override
+	public FoulingMarkResponse getFoulingMark(Long foulingMarkHeaderId) {
 
-        FoulingMarkResponse response = new FoulingMarkResponse();
+		FoulingMarkHeader header = headerRepository.findById(foulingMarkHeaderId)
+				.orElseThrow(() -> new ResourceNotFoundException("Fouling Mark not found with Id : " + foulingMarkHeaderId));
 
-        // Header
+		FoulingMarkResponse response = new FoulingMarkResponse();
 
-        response.setFoulingMarkHeaderId(
-                header.getFoulingMarkHeaderId());
+		// Header
 
-        response.setProjectId(header.getProjectId());
-        response.setFormNo(header.getFormNo());
-        response.setRecordNo(header.getRecordNo());
-        response.setInspectionDate(header.getInspectionDate());
-        response.setLineName(header.getLineName());
+		response.setFoulingMarkHeaderId(header.getFoulingMarkHeaderId());
 
-        response.setCreatedBy(header.getCreatedBy());
-        response.setCreatedDate(header.getCreatedDate());
+		response.setProjectId(header.getProjectId());
+		response.setFormNo(header.getFormNo());
+		response.setRecordNo(header.getRecordNo());
+		response.setInspectionDate(header.getInspectionDate());
+		response.setLineName(header.getLineName());
 
-        // Details
+		response.setCreatedBy(header.getCreatedBy());
+		response.setCreatedDate(header.getCreatedDate());
 
+		// Details
 
-        List<FoulingMarkDetailResponse> detailResponses =
-                new ArrayList<>();
+		List<FoulingMarkDetailResponse> detailResponses = new ArrayList<>();
 
-        if (header.getDetails() != null) {
+		if (header.getDetails() != null) {
 
-            for (FoulingMarkDetail detail : header.getDetails()) {
+			for (FoulingMarkDetail detail : header.getDetails()) {
 
-                if (!Boolean.TRUE.equals(detail.getIsActive())) {
-                    continue;
-                }
+				if (!Boolean.TRUE.equals(detail.getIsActive())) {
+					continue;
+				}
 
-                FoulingMarkDetailResponse dto =
-                        new FoulingMarkDetailResponse();
+				FoulingMarkDetailResponse dto = new FoulingMarkDetailResponse();
 
-                dto.setFoulingMarkDetailId(
-                        detail.getFoulingMarkDetailId());
+				dto.setFoulingMarkDetailId(detail.getFoulingMarkDetailId());
 
-                dto.setChainageLocation(
-                        detail.getChainageLocation());
+				dto.setChainageLocation(detail.getChainageLocation());
 
-                dto.setDesignValue(
-                        detail.getDesignValue());
+				dto.setDesignValue(detail.getDesignValue());
 
-                dto.setMeasuredValue(
-                        detail.getMeasuredValue());
+				dto.setMeasuredValue(detail.getMeasuredValue());
 
-                dto.setDifferenceValue(
-                        detail.getDifferenceValue());
+				dto.setDifferenceValue(detail.getDifferenceValue());
 
-                dto.setRemarks(
-                        detail.getRemarks());
+				dto.setRemarks(detail.getRemarks());
 
-                detailResponses.add(dto);
-            }
-        }
+				detailResponses.add(dto);
+			}
+		}
 
-        response.setDetails(detailResponses);
+		response.setDetails(detailResponses);
 
-        return response;
-    }
-    
-    @Override
-    public List<FoulingMarkResponse> getAllFoulingMarks() {
+		return response;
+	}
 
-        List<FoulingMarkHeader> headers = headerRepository.findAll();
+	@Override
+	public List<FoulingMarkResponse> getAllFoulingMarks() {
 
-        List<FoulingMarkResponse> responseList = new ArrayList<>();
+		List<FoulingMarkHeader> headers = headerRepository.findAll();
 
-        for (FoulingMarkHeader header : headers) {
+		List<FoulingMarkResponse> responseList = new ArrayList<>();
 
-            if (!Boolean.TRUE.equals(header.getIsActive())) {
-                continue;
-            }
+		for (FoulingMarkHeader header : headers) {
 
-            FoulingMarkResponse response =
-                    new FoulingMarkResponse();
+			if (!Boolean.TRUE.equals(header.getIsActive())) {
+				continue;
+			}
 
-            // Header
+			FoulingMarkResponse response = new FoulingMarkResponse();
 
-            response.setFoulingMarkHeaderId(
-                    header.getFoulingMarkHeaderId());
+			// Header
 
-            response.setProjectId(header.getProjectId());
-            response.setFormNo(header.getFormNo());
-            response.setRecordNo(header.getRecordNo());
-            response.setInspectionDate(header.getInspectionDate());
-            response.setLineName(header.getLineName());
+			response.setFoulingMarkHeaderId(header.getFoulingMarkHeaderId());
 
-            response.setCreatedBy(header.getCreatedBy());
-            response.setCreatedDate(header.getCreatedDate());
+			response.setProjectId(header.getProjectId());
+			response.setFormNo(header.getFormNo());
+			response.setRecordNo(header.getRecordNo());
+			response.setInspectionDate(header.getInspectionDate());
+			response.setLineName(header.getLineName());
 
-            // Details
-            
-            List<FoulingMarkDetailResponse> detailResponses =
-                    new ArrayList<>();
+			response.setCreatedBy(header.getCreatedBy());
+			response.setCreatedDate(header.getCreatedDate());
 
-            if (header.getDetails() != null) {
+			// Details
 
-                for (FoulingMarkDetail detail : header.getDetails()) {
+			List<FoulingMarkDetailResponse> detailResponses = new ArrayList<>();
 
-                    if (!Boolean.TRUE.equals(detail.getIsActive())) {
-                        continue;
-                    }
+			if (header.getDetails() != null) {
 
-                    FoulingMarkDetailResponse dto =
-                            new FoulingMarkDetailResponse();
+				for (FoulingMarkDetail detail : header.getDetails()) {
 
-                    dto.setFoulingMarkDetailId(
-                            detail.getFoulingMarkDetailId());
+					if (!Boolean.TRUE.equals(detail.getIsActive())) {
+						continue;
+					}
 
-                    dto.setChainageLocation(
-                            detail.getChainageLocation());
+					FoulingMarkDetailResponse dto = new FoulingMarkDetailResponse();
 
-                    dto.setDesignValue(
-                            detail.getDesignValue());
+					dto.setFoulingMarkDetailId(detail.getFoulingMarkDetailId());
 
-                    dto.setMeasuredValue(
-                            detail.getMeasuredValue());
+					dto.setChainageLocation(detail.getChainageLocation());
 
-                    dto.setDifferenceValue(
-                            detail.getDifferenceValue());
+					dto.setDesignValue(detail.getDesignValue());
 
-                    dto.setRemarks(
-                            detail.getRemarks());
+					dto.setMeasuredValue(detail.getMeasuredValue());
 
-                    detailResponses.add(dto);
-                }
-            }
+					dto.setDifferenceValue(detail.getDifferenceValue());
 
-            response.setDetails(detailResponses);
+					dto.setRemarks(detail.getRemarks());
 
-            responseList.add(response);
-        }
+					detailResponses.add(dto);
+				}
+			}
 
-        return responseList;
-    }
-    
-    @Override
-    @Transactional
-    public Long updateFoulingMark(
-            Long foulingMarkHeaderId,
-            FoulingMarkRequest request) {
+			response.setDetails(detailResponses);
 
-        FoulingMarkHeader header = headerRepository
-                .findById(foulingMarkHeaderId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Fouling Mark not found with Id : "
-                                        + foulingMarkHeaderId));
+			responseList.add(response);
+		}
 
-        // Update Header
+		return responseList;
+	}
 
-        header.setProjectId(request.getProjectId());
-        header.setFormNo(request.getFormNo());
-        header.setRecordNo(request.getRecordNo());
-        header.setInspectionDate(request.getInspectionDate());
-        header.setLineName(request.getLineName());
+	@Override
+	@Transactional
+	public Long updateFoulingMark(Long foulingMarkHeaderId, FoulingMarkRequest request) {
 
-        header.setUpdatedBy(request.getUpdatedBy());
-        header.setUpdatedDate(LocalDateTime.now());
+		FoulingMarkHeader header = headerRepository.findById(foulingMarkHeaderId)
+				.orElseThrow(() -> new ResourceNotFoundException("Fouling Mark not found with Id : " + foulingMarkHeaderId));
 
-        // Soft Delete Removed Details
+		// Update Header
 
+		header.setProjectId(request.getProjectId());
+		header.setFormNo(request.getFormNo());
+		header.setRecordNo(request.getRecordNo());
+		header.setInspectionDate(request.getInspectionDate());
+		header.setLineName(request.getLineName());
 
-        Set<Long> requestDetailIds = request.getDetails().stream()
-                .map(FoulingMarkDetailRequest::getFoulingMarkDetailId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+		header.setUpdatedBy(request.getUpdatedBy());
+		header.setUpdatedDate(LocalDateTime.now());
 
-        for (FoulingMarkDetail existingDetail : header.getDetails()) {
+		// Soft Delete Removed Details
 
-            if (!requestDetailIds.contains(
-                    existingDetail.getFoulingMarkDetailId())) {
+		Set<Long> requestDetailIds = request.getDetails().stream().map(FoulingMarkDetailRequest::getFoulingMarkDetailId)
+				.filter(Objects::nonNull).collect(Collectors.toSet());
 
-                existingDetail.setIsActive(false);
-                existingDetail.setUpdatedBy(request.getUpdatedBy());
-                existingDetail.setUpdatedDate(LocalDateTime.now());
-            }
-        }
+		for (FoulingMarkDetail existingDetail : header.getDetails()) {
 
-        // Insert / Update Details
+			if (!requestDetailIds.contains(existingDetail.getFoulingMarkDetailId())) {
 
+				existingDetail.setIsActive(false);
+				existingDetail.setUpdatedBy(request.getUpdatedBy());
+				existingDetail.setUpdatedDate(LocalDateTime.now());
+			}
+		}
 
-        for (FoulingMarkDetailRequest dto : request.getDetails()) {
+		// Insert / Update Details
 
-            FoulingMarkDetail detail;
+		for (FoulingMarkDetailRequest dto : request.getDetails()) {
 
-            // UPDATE EXISTING DETAIL
+			FoulingMarkDetail detail;
 
-            if (dto.getFoulingMarkDetailId() != null) {
+			// UPDATE EXISTING DETAIL
 
-                detail = detailRepository
-                        .findById(dto.getFoulingMarkDetailId())
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Fouling Mark Detail not found with Id : "
-                                                + dto.getFoulingMarkDetailId()));
+			if (dto.getFoulingMarkDetailId() != null) {
 
-                detail.setUpdatedBy(request.getUpdatedBy());
-                detail.setUpdatedDate(LocalDateTime.now());
-            }
+				detail = detailRepository.findById(dto.getFoulingMarkDetailId()).orElseThrow(() -> new ResourceNotFoundException(
+						"Fouling Mark Detail not found with Id : " + dto.getFoulingMarkDetailId()));
 
-            // INSERT NEW DETAIL
+				detail.setUpdatedBy(request.getUpdatedBy());
+				detail.setUpdatedDate(LocalDateTime.now());
+			}
 
-            else {
+			// INSERT NEW DETAIL
 
-                detail = new FoulingMarkDetail();
+			else {
 
-                detail.setFoulingMarkHeader(header);
+				detail = new FoulingMarkDetail();
 
-                detail.setCreatedBy(request.getUpdatedBy());
-                detail.setCreatedDate(LocalDateTime.now());
+				detail.setFoulingMarkHeader(header);
 
-                detail.setIsActive(true);
+				detail.setCreatedBy(request.getUpdatedBy());
+				detail.setCreatedDate(LocalDateTime.now());
 
-                header.getDetails().add(detail);
-            }
+				detail.setIsActive(true);
 
-            detail.setChainageLocation(dto.getChainageLocation());
+				header.getDetails().add(detail);
+			}
 
-            detail.setDesignValue(dto.getDesignValue());
-            detail.setMeasuredValue(dto.getMeasuredValue());
-            detail.setDifferenceValue(dto.getDifferenceValue());
+			detail.setChainageLocation(dto.getChainageLocation());
 
-            detail.setRemarks(dto.getRemarks());
+			detail.setDesignValue(dto.getDesignValue());
+			detail.setMeasuredValue(dto.getMeasuredValue());
+			detail.setDifferenceValue(dto.getDifferenceValue());
 
-            detail.setIsActive(true);
-        }
+			detail.setRemarks(dto.getRemarks());
 
-        headerRepository.save(header);
+			detail.setIsActive(true);
+		}
 
-        return header.getFoulingMarkHeaderId();
-    }
-    
-    @Override
-    @Transactional
-    public void deleteFoulingMark(
-            Long foulingMarkHeaderId,
-            String updatedBy) {
+		headerRepository.save(header);
 
-        FoulingMarkHeader header = headerRepository
-                .findById(foulingMarkHeaderId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Fouling Mark not found with Id : "
-                                        + foulingMarkHeaderId));
+		return header.getFoulingMarkHeaderId();
+	}
 
-        // Soft Delete Header
-        
-        header.setIsActive(false);
-        header.setUpdatedBy(updatedBy);
-        header.setUpdatedDate(LocalDateTime.now());
+	@Override
+	@Transactional
+	public void deleteFoulingMark(Long foulingMarkHeaderId, String updatedBy) {
 
-        // Soft Delete Details
+		FoulingMarkHeader header = headerRepository.findById(foulingMarkHeaderId)
+				.orElseThrow(() -> new ResourceNotFoundException("Fouling Mark not found with Id : " + foulingMarkHeaderId));
 
-        if (header.getDetails() != null) {
+		// Soft Delete Header
 
-            for (FoulingMarkDetail detail : header.getDetails()) {
+		header.setIsActive(false);
+		header.setUpdatedBy(updatedBy);
+		header.setUpdatedDate(LocalDateTime.now());
 
-                detail.setIsActive(false);
-                detail.setUpdatedBy(updatedBy);
-                detail.setUpdatedDate(LocalDateTime.now());
-            }
-        }
+		// Soft Delete Details
 
-        headerRepository.save(header);
-    }
+		if (header.getDetails() != null) {
+
+			for (FoulingMarkDetail detail : header.getDetails()) {
+
+				detail.setIsActive(false);
+				detail.setUpdatedBy(updatedBy);
+				detail.setUpdatedDate(LocalDateTime.now());
+			}
+		}
+
+		headerRepository.save(header);
+	}
 }
