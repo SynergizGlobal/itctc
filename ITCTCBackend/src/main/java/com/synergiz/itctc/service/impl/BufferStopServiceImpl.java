@@ -6,6 +6,7 @@ import com.synergiz.itctc.dto.response.BufferStopDetailResponse;
 import com.synergiz.itctc.dto.response.BufferStopResponse;
 import com.synergiz.itctc.entity.BufferStopDetail;
 import com.synergiz.itctc.entity.BufferStopHeader;
+import com.synergiz.itctc.exception.ResourceNotFoundException;
 import com.synergiz.itctc.repository.BufferStopDetailRepository;
 import com.synergiz.itctc.repository.BufferStopHeaderRepository;
 import com.synergiz.itctc.service.BufferStopService;
@@ -89,7 +90,7 @@ public class BufferStopServiceImpl implements BufferStopService {
         BufferStopHeader header = headerRepository
                 .findById(bufferStopHeaderId)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new ResourceNotFoundException(
                                 "Buffer Stop not found with Id : "
                                         + bufferStopHeaderId));
 
@@ -239,7 +240,7 @@ public class BufferStopServiceImpl implements BufferStopService {
         BufferStopHeader header = headerRepository
                 .findById(bufferStopHeaderId)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new ResourceNotFoundException(
                                 "Buffer Stop not found with Id : "
                                         + bufferStopHeaderId));
 
@@ -284,7 +285,7 @@ public class BufferStopServiceImpl implements BufferStopService {
                 detail = detailRepository
                         .findById(dto.getBufferStopDetailId())
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new ResourceNotFoundException(
                                         "Buffer Stop Detail not found with Id : "
                                                 + dto.getBufferStopDetailId()));
 
@@ -333,7 +334,7 @@ public class BufferStopServiceImpl implements BufferStopService {
         BufferStopHeader header = headerRepository
                 .findById(bufferStopHeaderId)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new ResourceNotFoundException(
                                 "Buffer Stop not found with Id : "
                                         + bufferStopHeaderId));
 

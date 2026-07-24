@@ -1,6 +1,5 @@
 package com.synergiz.itctc.service.impl;
 
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +16,7 @@ import com.synergiz.itctc.entity.NoiseBarrierMeasurementDetail;
 import com.synergiz.itctc.entity.NoiseBarrierMeasurementHeader;
 import com.synergiz.itctc.entity.StructureType;
 import com.synergiz.itctc.entity.TrackType;
+import com.synergiz.itctc.exception.ResourceNotFoundException;
 import com.synergiz.itctc.repository.NoiseBarrierMeasurementHeaderRepository;
 import com.synergiz.itctc.repository.StructureTypeRepository;
 import com.synergiz.itctc.repository.TrackTypeRepository;
@@ -26,279 +26,245 @@ import com.synergiz.itctc.service.NoiseBarrierMeasurementService;
 @Transactional
 public class NoiseBarrierMeasurementServiceImpl implements NoiseBarrierMeasurementService {
 
-    private final NoiseBarrierMeasurementHeaderRepository noiseBarrierMeasurementHeaderRepository;
-    private final StructureTypeRepository structureTypeRepository;
-    private final TrackTypeRepository trackTypeRepository;
-
-    public NoiseBarrierMeasurementServiceImpl(
-            NoiseBarrierMeasurementHeaderRepository noiseBarrierMeasurementHeaderRepository,
-            StructureTypeRepository structureTypeRepository,
-            TrackTypeRepository trackTypeRepository) {
+	private final NoiseBarrierMeasurementHeaderRepository noiseBarrierMeasurementHeaderRepository;
+	private final StructureTypeRepository structureTypeRepository;
+	private final TrackTypeRepository trackTypeRepository;
 
-        this.noiseBarrierMeasurementHeaderRepository = noiseBarrierMeasurementHeaderRepository;
-        this.structureTypeRepository = structureTypeRepository;
-        this.trackTypeRepository = trackTypeRepository;
-    }
-
-    @Override
-    public Long saveNoiseBarrierMeasurement(NoiseBarrierMeasurementRequest request) {
+	public NoiseBarrierMeasurementServiceImpl(
+			NoiseBarrierMeasurementHeaderRepository noiseBarrierMeasurementHeaderRepository,
+			StructureTypeRepository structureTypeRepository, TrackTypeRepository trackTypeRepository) {
 
-        StructureType structureType = structureTypeRepository
-                .findById(request.getStructureTypeId())
-                .orElseThrow(() ->
-                        new RuntimeException("Invalid Structure Type Id"));
-
-        TrackType trackType = trackTypeRepository
-                .findById(request.getTrackTypeId())
-                .orElseThrow(() ->
-                        new RuntimeException("Invalid Track Type Id"));
+		this.noiseBarrierMeasurementHeaderRepository = noiseBarrierMeasurementHeaderRepository;
+		this.structureTypeRepository = structureTypeRepository;
+		this.trackTypeRepository = trackTypeRepository;
+	}
 
-        NoiseBarrierMeasurementHeader header = new NoiseBarrierMeasurementHeader();
+	@Override
+	public Long saveNoiseBarrierMeasurement(NoiseBarrierMeasurementRequest request) {
 
-        header.setProjectId(request.getProjectId());
-        header.setChainageKm(request.getChainageKm());
-        header.setChainageM(request.getChainageM());
-        header.setStructureType(structureType);
-        header.setTrackType(trackType);
-        header.setIsCurve(request.getIsCurve());
-        header.setCurveRadius(request.getCurveRadius());
-        header.setAppliedCantValueMm(request.getAppliedCantValueMm());
-        header.setRemarks(request.getRemarks());
-        header.setCreatedBy(request.getCreatedBy());
-        header.setCreatedDate(LocalDateTime.now());
-        header.setIsActive(true);
+		StructureType structureType = structureTypeRepository.findById(request.getStructureTypeId())
+				.orElseThrow(() -> new ResourceNotFoundException("Invalid Structure Type Id"));
 
-        List<NoiseBarrierMeasurementDetail> details = new ArrayList<>();
+		TrackType trackType = trackTypeRepository.findById(request.getTrackTypeId())
+				.orElseThrow(() -> new ResourceNotFoundException("Invalid Track Type Id"));
 
-        if (request.getDetails() != null && !request.getDetails().isEmpty()) {
+		NoiseBarrierMeasurementHeader header = new NoiseBarrierMeasurementHeader();
 
-            for (NoiseBarrierMeasurementDetailRequest dto : request.getDetails()) {
+		header.setProjectId(request.getProjectId());
+		header.setChainageKm(request.getChainageKm());
+		header.setChainageM(request.getChainageM());
+		header.setStructureType(structureType);
+		header.setTrackType(trackType);
+		header.setIsCurve(request.getIsCurve());
+		header.setCurveRadius(request.getCurveRadius());
+		header.setAppliedCantValueMm(request.getAppliedCantValueMm());
+		header.setRemarks(request.getRemarks());
+		header.setCreatedBy(request.getCreatedBy());
+		header.setCreatedDate(LocalDateTime.now());
+		header.setIsActive(true);
 
-                NoiseBarrierMeasurementDetail detail = new NoiseBarrierMeasurementDetail();
+		List<NoiseBarrierMeasurementDetail> details = new ArrayList<>();
 
-                detail.setH1MeasuredValue(dto.getH1MeasuredValue());
-                detail.setH2MeasuredValue(dto.getH2MeasuredValue());
-                detail.setH3MeasuredValue(dto.getH3MeasuredValue());
-                detail.setH4MeasuredValue(dto.getH4MeasuredValue());
-                detail.setH5MeasuredValue(dto.getH5MeasuredValue());
-                detail.setH6MeasuredValue(dto.getH6MeasuredValue());
+		if (request.getDetails() != null && !request.getDetails().isEmpty()) {
 
-                detail.setAStandardValue(dto.getaStandardValue());
-                detail.setAMeasuredValue(dto.getaMeasuredValue());
+			for (NoiseBarrierMeasurementDetailRequest dto : request.getDetails()) {
 
-                detail.setBStandardValue(dto.getbStandardValue());
-                detail.setBMeasuredValue(dto.getbMeasuredValue());
+				NoiseBarrierMeasurementDetail detail = new NoiseBarrierMeasurementDetail();
 
-                detail.setNoiseBarrierMeasurementHeader(header);
-                detail.setCreatedDate(LocalDateTime.now());
-                detail.setIsActive(true);
+				detail.setH1MeasuredValue(dto.getH1MeasuredValue());
+				detail.setH2MeasuredValue(dto.getH2MeasuredValue());
+				detail.setH3MeasuredValue(dto.getH3MeasuredValue());
+				detail.setH4MeasuredValue(dto.getH4MeasuredValue());
+				detail.setH5MeasuredValue(dto.getH5MeasuredValue());
+				detail.setH6MeasuredValue(dto.getH6MeasuredValue());
 
-                details.add(detail);
-            }
-        }
+				detail.setAStandardValue(dto.getaStandardValue());
+				detail.setAMeasuredValue(dto.getaMeasuredValue());
 
-        header.setDetails(details);
+				detail.setBStandardValue(dto.getbStandardValue());
+				detail.setBMeasuredValue(dto.getbMeasuredValue());
 
-        NoiseBarrierMeasurementHeader savedHeader =
-                noiseBarrierMeasurementHeaderRepository.save(header);
+				detail.setNoiseBarrierMeasurementHeader(header);
+				detail.setCreatedDate(LocalDateTime.now());
+				detail.setIsActive(true);
 
-        return savedHeader.getNoiseBarrierMeasurementId();
-    }
-    
-    @Override
-    @Transactional(readOnly = true)
-    public NoiseBarrierMeasurementResponse getNoiseBarrierMeasurement(Long noiseBarrierMeasurementId) {
+				details.add(detail);
+			}
+		}
 
-        NoiseBarrierMeasurementHeader header = noiseBarrierMeasurementHeaderRepository
-                .findById(noiseBarrierMeasurementId)
-                .orElseThrow(() ->
-                        new RuntimeException("Noise Barrier Measurement not found with Id : "
-                                + noiseBarrierMeasurementId));
+		header.setDetails(details);
 
-        return convertToResponse(header);
-    }
+		NoiseBarrierMeasurementHeader savedHeader = noiseBarrierMeasurementHeaderRepository.save(header);
 
-    private NoiseBarrierMeasurementResponse convertToResponse(
-            NoiseBarrierMeasurementHeader header) {
+		return savedHeader.getNoiseBarrierMeasurementId();
+	}
 
-        NoiseBarrierMeasurementResponse response =
-                new NoiseBarrierMeasurementResponse();
-
-        response.setNoiseBarrierMeasurementId(
-                header.getNoiseBarrierMeasurementId());
+	@Override
+	@Transactional(readOnly = true)
+	public NoiseBarrierMeasurementResponse getNoiseBarrierMeasurement(Long noiseBarrierMeasurementId) {
 
-        response.setProjectId(header.getProjectId());
-        response.setChainageKm(header.getChainageKm());
-        response.setChainageM(header.getChainageM());
+		NoiseBarrierMeasurementHeader header = noiseBarrierMeasurementHeaderRepository
+				.findById(noiseBarrierMeasurementId).orElseThrow(() -> new ResourceNotFoundException(
+						"Noise Barrier Measurement not found with Id : " + noiseBarrierMeasurementId));
 
-        response.setStructureTypeId(
-                header.getStructureType().getStructureTypeId());
+		return convertToResponse(header);
+	}
 
-        response.setStructureTypeName(
-                header.getStructureType().getStructureName());
-
-        response.setTrackTypeId(
-                header.getTrackType().getTrackTypeId());
-
-        response.setTrackTypeName(
-                header.getTrackType().getTrackTypeName());
-
-        response.setIsCurve(header.getIsCurve());
-        response.setCurveRadius(header.getCurveRadius());
-        response.setAppliedCantValueMm(
-                header.getAppliedCantValueMm());
+	private NoiseBarrierMeasurementResponse convertToResponse(NoiseBarrierMeasurementHeader header) {
 
-        response.setRemarks(header.getRemarks());
-        response.setCreatedDate(header.getCreatedDate());
+		NoiseBarrierMeasurementResponse response = new NoiseBarrierMeasurementResponse();
 
-        List<NoiseBarrierMeasurementDetailResponse> detailResponses =
-                new ArrayList<>();
+		response.setNoiseBarrierMeasurementId(header.getNoiseBarrierMeasurementId());
 
-        if (header.getDetails() != null) {
-
-            for (NoiseBarrierMeasurementDetail detail : header.getDetails()) {
+		response.setProjectId(header.getProjectId());
+		response.setChainageKm(header.getChainageKm());
+		response.setChainageM(header.getChainageM());
 
-                NoiseBarrierMeasurementDetailResponse dto =
-                        new NoiseBarrierMeasurementDetailResponse();
+		response.setStructureTypeId(header.getStructureType().getStructureTypeId());
 
-                dto.setNoiseBarrierMeasurementDetailId(
-                        detail.getNoiseBarrierMeasurementDetailId());
+		response.setStructureTypeName(header.getStructureType().getStructureName());
 
-                dto.setH1MeasuredValue(detail.getH1MeasuredValue());
-                dto.setH2MeasuredValue(detail.getH2MeasuredValue());
-                dto.setH3MeasuredValue(detail.getH3MeasuredValue());
-                dto.setH4MeasuredValue(detail.getH4MeasuredValue());
-                dto.setH5MeasuredValue(detail.getH5MeasuredValue());
-                dto.setH6MeasuredValue(detail.getH6MeasuredValue());
+		response.setTrackTypeId(header.getTrackType().getTrackTypeId());
 
-                dto.setaStandardValue(detail.getAStandardValue());
-                dto.setaMeasuredValue(detail.getAMeasuredValue());
+		response.setTrackTypeName(header.getTrackType().getTrackTypeName());
 
-                dto.setbStandardValue(detail.getBStandardValue());
-                dto.setbMeasuredValue(detail.getBMeasuredValue());
+		response.setIsCurve(header.getIsCurve());
+		response.setCurveRadius(header.getCurveRadius());
+		response.setAppliedCantValueMm(header.getAppliedCantValueMm());
 
-                detailResponses.add(dto);
-            }
-        }
+		response.setRemarks(header.getRemarks());
+		response.setCreatedDate(header.getCreatedDate());
 
-        response.setDetails(detailResponses);
+		List<NoiseBarrierMeasurementDetailResponse> detailResponses = new ArrayList<>();
 
-        return response;
-    }
-    
-    @Override
-    @Transactional(readOnly = true)
-    public List<NoiseBarrierMeasurementResponse> getAllNoiseBarrierMeasurements() {
-
-        List<NoiseBarrierMeasurementHeader> headers =
-                noiseBarrierMeasurementHeaderRepository.findAll();
-
-        List<NoiseBarrierMeasurementResponse> responses =
-                new ArrayList<>();
+		if (header.getDetails() != null) {
 
-        for (NoiseBarrierMeasurementHeader header : headers) {
+			for (NoiseBarrierMeasurementDetail detail : header.getDetails()) {
 
-            if (Boolean.TRUE.equals(header.getIsActive())) {
-                responses.add(convertToResponse(header));
-            }
-        }
+				NoiseBarrierMeasurementDetailResponse dto = new NoiseBarrierMeasurementDetailResponse();
 
-        return responses;
-    }
-    
-    @Override
-    @Transactional
-    public Long updateNoiseBarrierMeasurement(
-            Long noiseBarrierMeasurementId,
-            NoiseBarrierMeasurementUpdateRequest request) {
+				dto.setNoiseBarrierMeasurementDetailId(detail.getNoiseBarrierMeasurementDetailId());
 
-        NoiseBarrierMeasurementHeader header = noiseBarrierMeasurementHeaderRepository
-                .findById(noiseBarrierMeasurementId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Noise Barrier Measurement not found with Id : "
-                                        + noiseBarrierMeasurementId));
+				dto.setH1MeasuredValue(detail.getH1MeasuredValue());
+				dto.setH2MeasuredValue(detail.getH2MeasuredValue());
+				dto.setH3MeasuredValue(detail.getH3MeasuredValue());
+				dto.setH4MeasuredValue(detail.getH4MeasuredValue());
+				dto.setH5MeasuredValue(detail.getH5MeasuredValue());
+				dto.setH6MeasuredValue(detail.getH6MeasuredValue());
 
-        StructureType structureType = structureTypeRepository
-                .findById(request.getStructureTypeId())
-                .orElseThrow(() ->
-                        new RuntimeException("Invalid Structure Type Id"));
+				dto.setaStandardValue(detail.getAStandardValue());
+				dto.setaMeasuredValue(detail.getAMeasuredValue());
 
-        TrackType trackType = trackTypeRepository
-                .findById(request.getTrackTypeId())
-                .orElseThrow(() ->
-                        new RuntimeException("Invalid Track Type Id"));
+				dto.setbStandardValue(detail.getBStandardValue());
+				dto.setbMeasuredValue(detail.getBMeasuredValue());
 
-        header.setProjectId(request.getProjectId());
-        header.setChainageKm(request.getChainageKm());
-        header.setChainageM(request.getChainageM());
-        header.setStructureType(structureType);
-        header.setTrackType(trackType);
-        header.setIsCurve(request.getIsCurve());
-        header.setCurveRadius(request.getCurveRadius());
-        header.setAppliedCantValueMm(request.getAppliedCantValueMm());
-        header.setRemarks(request.getRemarks());
-        header.setUpdatedBy(request.getUpdatedBy());
-        header.setUpdatedDate(LocalDateTime.now());
+				detailResponses.add(dto);
+			}
+		}
 
-        header.getDetails().clear();
+		response.setDetails(detailResponses);
 
-        if (request.getDetails() != null) {
+		return response;
+	}
 
-            for (NoiseBarrierMeasurementDetailRequest dto : request.getDetails()) {
+	@Override
+	@Transactional(readOnly = true)
+	public List<NoiseBarrierMeasurementResponse> getAllNoiseBarrierMeasurements() {
 
-                NoiseBarrierMeasurementDetail detail =
-                        new NoiseBarrierMeasurementDetail();
+		List<NoiseBarrierMeasurementHeader> headers = noiseBarrierMeasurementHeaderRepository.findAll();
 
-                detail.setH1MeasuredValue(dto.getH1MeasuredValue());
-                detail.setH2MeasuredValue(dto.getH2MeasuredValue());
-                detail.setH3MeasuredValue(dto.getH3MeasuredValue());
-                detail.setH4MeasuredValue(dto.getH4MeasuredValue());
-                detail.setH5MeasuredValue(dto.getH5MeasuredValue());
-                detail.setH6MeasuredValue(dto.getH6MeasuredValue());
+		List<NoiseBarrierMeasurementResponse> responses = new ArrayList<>();
 
-                detail.setAStandardValue(dto.getaStandardValue());
-                detail.setAMeasuredValue(dto.getaMeasuredValue());
+		for (NoiseBarrierMeasurementHeader header : headers) {
 
-                detail.setBStandardValue(dto.getbStandardValue());
-                detail.setBMeasuredValue(dto.getbMeasuredValue());
+			if (Boolean.TRUE.equals(header.getIsActive())) {
+				responses.add(convertToResponse(header));
+			}
+		}
 
-                detail.setNoiseBarrierMeasurementHeader(header);
-                detail.setCreatedDate(LocalDateTime.now());
-                detail.setIsActive(true);
+		return responses;
+	}
 
-                header.getDetails().add(detail);
-            }
-        }
+	@Override
+	@Transactional
+	public Long updateNoiseBarrierMeasurement(Long noiseBarrierMeasurementId,
+			NoiseBarrierMeasurementUpdateRequest request) {
 
-        noiseBarrierMeasurementHeaderRepository.save(header);
+		NoiseBarrierMeasurementHeader header = noiseBarrierMeasurementHeaderRepository
+				.findById(noiseBarrierMeasurementId).orElseThrow(() -> new ResourceNotFoundException(
+						"Noise Barrier Measurement not found with Id : " + noiseBarrierMeasurementId));
 
-        return header.getNoiseBarrierMeasurementId();
-    }
-    
-    @Override
-    @Transactional
-    public void deleteNoiseBarrierMeasurement(Long noiseBarrierMeasurementId) {
+		StructureType structureType = structureTypeRepository.findById(request.getStructureTypeId())
+				.orElseThrow(() -> new ResourceNotFoundException("Invalid Structure Type Id"));
 
-        NoiseBarrierMeasurementHeader header =
-                noiseBarrierMeasurementHeaderRepository
-                        .findById(noiseBarrierMeasurementId)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Noise Barrier Measurement not found with Id : "
-                                                + noiseBarrierMeasurementId));
+		TrackType trackType = trackTypeRepository.findById(request.getTrackTypeId())
+				.orElseThrow(() -> new ResourceNotFoundException("Invalid Track Type Id"));
 
-        header.setIsActive(false);
-        header.setUpdatedDate(LocalDateTime.now());
+		header.setProjectId(request.getProjectId());
+		header.setChainageKm(request.getChainageKm());
+		header.setChainageM(request.getChainageM());
+		header.setStructureType(structureType);
+		header.setTrackType(trackType);
+		header.setIsCurve(request.getIsCurve());
+		header.setCurveRadius(request.getCurveRadius());
+		header.setAppliedCantValueMm(request.getAppliedCantValueMm());
+		header.setRemarks(request.getRemarks());
+		header.setUpdatedBy(request.getUpdatedBy());
+		header.setUpdatedDate(LocalDateTime.now());
 
-        if (header.getDetails() != null) {
+		header.getDetails().clear();
 
-            for (NoiseBarrierMeasurementDetail detail : header.getDetails()) {
+		if (request.getDetails() != null) {
 
-                detail.setIsActive(false);
-            }
-        }
+			for (NoiseBarrierMeasurementDetailRequest dto : request.getDetails()) {
 
-        noiseBarrierMeasurementHeaderRepository.save(header);
-    }
+				NoiseBarrierMeasurementDetail detail = new NoiseBarrierMeasurementDetail();
+
+				detail.setH1MeasuredValue(dto.getH1MeasuredValue());
+				detail.setH2MeasuredValue(dto.getH2MeasuredValue());
+				detail.setH3MeasuredValue(dto.getH3MeasuredValue());
+				detail.setH4MeasuredValue(dto.getH4MeasuredValue());
+				detail.setH5MeasuredValue(dto.getH5MeasuredValue());
+				detail.setH6MeasuredValue(dto.getH6MeasuredValue());
+
+				detail.setAStandardValue(dto.getaStandardValue());
+				detail.setAMeasuredValue(dto.getaMeasuredValue());
+
+				detail.setBStandardValue(dto.getbStandardValue());
+				detail.setBMeasuredValue(dto.getbMeasuredValue());
+
+				detail.setNoiseBarrierMeasurementHeader(header);
+				detail.setCreatedDate(LocalDateTime.now());
+				detail.setIsActive(true);
+
+				header.getDetails().add(detail);
+			}
+		}
+
+		noiseBarrierMeasurementHeaderRepository.save(header);
+
+		return header.getNoiseBarrierMeasurementId();
+	}
+
+	@Override
+	@Transactional
+	public void deleteNoiseBarrierMeasurement(Long noiseBarrierMeasurementId) {
+
+		NoiseBarrierMeasurementHeader header = noiseBarrierMeasurementHeaderRepository
+				.findById(noiseBarrierMeasurementId).orElseThrow(() -> new ResourceNotFoundException(
+						"Noise Barrier Measurement not found with Id : " + noiseBarrierMeasurementId));
+
+		header.setIsActive(false);
+		header.setUpdatedDate(LocalDateTime.now());
+
+		if (header.getDetails() != null) {
+
+			for (NoiseBarrierMeasurementDetail detail : header.getDetails()) {
+
+				detail.setIsActive(false);
+			}
+		}
+
+		noiseBarrierMeasurementHeaderRepository.save(header);
+	}
 }

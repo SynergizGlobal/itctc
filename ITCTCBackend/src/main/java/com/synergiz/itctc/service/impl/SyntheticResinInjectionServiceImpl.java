@@ -7,6 +7,7 @@ import com.synergiz.itctc.dto.response.SyntheticResinInjectionResponse;
 import com.synergiz.itctc.entity.SyntheticResinInjectionDetail;
 import com.synergiz.itctc.entity.SyntheticResinInjectionHeader;
 import com.synergiz.itctc.entity.TrackDirection;
+import com.synergiz.itctc.exception.ResourceNotFoundException;
 import com.synergiz.itctc.repository.SyntheticResinInjectionDetailRepository;
 import com.synergiz.itctc.repository.SyntheticResinInjectionHeaderRepository;
 import com.synergiz.itctc.repository.TrackDirectionRepository;
@@ -22,396 +23,348 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class SyntheticResinInjectionServiceImpl
-        implements SyntheticResinInjectionService {
+public class SyntheticResinInjectionServiceImpl implements SyntheticResinInjectionService {
 
-    private final SyntheticResinInjectionHeaderRepository headerRepository;
+	private final SyntheticResinInjectionHeaderRepository headerRepository;
 
-    private final SyntheticResinInjectionDetailRepository detailRepository;
+	private final SyntheticResinInjectionDetailRepository detailRepository;
 
-    private final TrackDirectionRepository trackDirectionRepository;
+	private final TrackDirectionRepository trackDirectionRepository;
 
-    public SyntheticResinInjectionServiceImpl(
-            SyntheticResinInjectionHeaderRepository headerRepository,
-            SyntheticResinInjectionDetailRepository detailRepository,
-            TrackDirectionRepository trackDirectionRepository) {
+	public SyntheticResinInjectionServiceImpl(SyntheticResinInjectionHeaderRepository headerRepository,
+			SyntheticResinInjectionDetailRepository detailRepository,
+			TrackDirectionRepository trackDirectionRepository) {
 
-        this.headerRepository = headerRepository;
-        this.detailRepository = detailRepository;
-        this.trackDirectionRepository = trackDirectionRepository;
-    }
-    
-    @Override
-    @Transactional
-    public Long saveSyntheticResinInjection(
-            SyntheticResinInjectionRequest request) {
+		this.headerRepository = headerRepository;
+		this.detailRepository = detailRepository;
+		this.trackDirectionRepository = trackDirectionRepository;
+	}
 
-        SyntheticResinInjectionHeader header =
-                new SyntheticResinInjectionHeader();
+	@Override
+	@Transactional
+	public Long saveSyntheticResinInjection(SyntheticResinInjectionRequest request) {
 
-        
-        // Header
+		SyntheticResinInjectionHeader header = new SyntheticResinInjectionHeader();
 
-        header.setProjectId(request.getProjectId());
-        header.setFormNo(request.getFormNo());
-        header.setRecordNo(request.getRecordNo());
-        header.setInspectionDate(request.getInspectionDate());
+		// Header
 
-        header.setIsActive(true);
+		header.setProjectId(request.getProjectId());
+		header.setFormNo(request.getFormNo());
+		header.setRecordNo(request.getRecordNo());
+		header.setInspectionDate(request.getInspectionDate());
 
-        header.setCreatedBy(request.getCreatedBy());
-        header.setCreatedDate(LocalDateTime.now());
+		header.setIsActive(true);
 
-        // Details
+		header.setCreatedBy(request.getCreatedBy());
+		header.setCreatedDate(LocalDateTime.now());
 
-        if (request.getDetails() != null) {
+		// Details
 
-            for (SyntheticResinInjectionDetailRequest dto : request.getDetails()) {
+		if (request.getDetails() != null) {
 
-                TrackDirection trackDirection = trackDirectionRepository
-                        .findById(dto.getTrackDirectionId())
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Invalid Track Direction Id : "
-                                                + dto.getTrackDirectionId()));
+			for (SyntheticResinInjectionDetailRequest dto : request.getDetails()) {
 
-                SyntheticResinInjectionDetail detail =
-                        new SyntheticResinInjectionDetail();
+				TrackDirection trackDirection = trackDirectionRepository.findById(dto.getTrackDirectionId())
+						.orElseThrow(() -> new ResourceNotFoundException(
+								"Invalid Track Direction Id : " + dto.getTrackDirectionId()));
 
-                detail.setTrackDirection(trackDirection);
+				SyntheticResinInjectionDetail detail = new SyntheticResinInjectionDetail();
 
-                detail.setChainageKm(dto.getChainageKm());
-                detail.setChainageM(dto.getChainageM());
-                detail.setChainageCm(dto.getChainageCm());
+				detail.setTrackDirection(trackDirection);
 
-                detail.setSleeperNumber(dto.getSleeperNumber());
+				detail.setChainageKm(dto.getChainageKm());
+				detail.setChainageM(dto.getChainageM());
+				detail.setChainageCm(dto.getChainageCm());
 
-                detail.setInjectionLeft(dto.getInjectionLeft());
-                detail.setInjectionCentre(dto.getInjectionCentre());
-                detail.setInjectionRight(dto.getInjectionRight());
-                detail.setInjectionAverage(dto.getInjectionAverage());
+				detail.setSleeperNumber(dto.getSleeperNumber());
 
-                detail.setGap(dto.getGap());
+				detail.setInjectionLeft(dto.getInjectionLeft());
+				detail.setInjectionCentre(dto.getInjectionCentre());
+				detail.setInjectionRight(dto.getInjectionRight());
+				detail.setInjectionAverage(dto.getInjectionAverage());
 
-                detail.setRemarks(dto.getRemarks());
+				detail.setGap(dto.getGap());
 
-                detail.setSyntheticResinInjectionHeader(header);
+				detail.setRemarks(dto.getRemarks());
 
-                detail.setIsActive(true);
+				detail.setSyntheticResinInjectionHeader(header);
 
-                detail.setCreatedBy(request.getCreatedBy());
-                detail.setCreatedDate(LocalDateTime.now());
+				detail.setIsActive(true);
 
-                header.getDetails().add(detail);
-            }
-        }
+				detail.setCreatedBy(request.getCreatedBy());
+				detail.setCreatedDate(LocalDateTime.now());
 
-        headerRepository.save(header);
+				header.getDetails().add(detail);
+			}
+		}
 
-        return header.getSyntheticResinInjectionHeaderId();
-    }
-    
-    @Override
-    public SyntheticResinInjectionResponse getSyntheticResinInjection(
-            Long syntheticResinInjectionHeaderId) {
+		headerRepository.save(header);
 
-        SyntheticResinInjectionHeader header = headerRepository
-                .findById(syntheticResinInjectionHeaderId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Synthetic Resin Injection not found with Id : "
-                                        + syntheticResinInjectionHeaderId));
+		return header.getSyntheticResinInjectionHeaderId();
+	}
 
-        SyntheticResinInjectionResponse response =
-                new SyntheticResinInjectionResponse();
+	@Override
+	public SyntheticResinInjectionResponse getSyntheticResinInjection(Long syntheticResinInjectionHeaderId) {
 
-        // Header
+		SyntheticResinInjectionHeader header = headerRepository.findById(syntheticResinInjectionHeaderId)
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Synthetic Resin Injection not found with Id : " + syntheticResinInjectionHeaderId));
 
-        response.setSyntheticResinInjectionHeaderId(
-                header.getSyntheticResinInjectionHeaderId());
+		SyntheticResinInjectionResponse response = new SyntheticResinInjectionResponse();
 
-        response.setProjectId(header.getProjectId());
-        response.setFormNo(header.getFormNo());
-        response.setRecordNo(header.getRecordNo());
-        response.setInspectionDate(header.getInspectionDate());
+		// Header
 
-        response.setCreatedBy(header.getCreatedBy());
-        response.setCreatedDate(header.getCreatedDate());
+		response.setSyntheticResinInjectionHeaderId(header.getSyntheticResinInjectionHeaderId());
 
-        // Details
+		response.setProjectId(header.getProjectId());
+		response.setFormNo(header.getFormNo());
+		response.setRecordNo(header.getRecordNo());
+		response.setInspectionDate(header.getInspectionDate());
 
-        List<SyntheticResinInjectionDetailResponse> detailResponses =
-                new ArrayList<>();
+		response.setCreatedBy(header.getCreatedBy());
+		response.setCreatedDate(header.getCreatedDate());
 
-        if (header.getDetails() != null) {
+		// Details
 
-            for (SyntheticResinInjectionDetail detail : header.getDetails()) {
+		List<SyntheticResinInjectionDetailResponse> detailResponses = new ArrayList<>();
 
-                if (!Boolean.TRUE.equals(detail.getIsActive())) {
-                    continue;
-                }
+		if (header.getDetails() != null) {
 
-                SyntheticResinInjectionDetailResponse dto =
-                        new SyntheticResinInjectionDetailResponse();
+			for (SyntheticResinInjectionDetail detail : header.getDetails()) {
 
-                dto.setSyntheticResinInjectionDetailId(
-                        detail.getSyntheticResinInjectionDetailId());
+				if (!Boolean.TRUE.equals(detail.getIsActive())) {
+					continue;
+				}
 
-                dto.setTrackDirectionId(
-                        detail.getTrackDirection().getTrackDirectionId());
+				SyntheticResinInjectionDetailResponse dto = new SyntheticResinInjectionDetailResponse();
 
-                dto.setTrackDirectionName(
-                        detail.getTrackDirection().getDirectionName());
+				dto.setSyntheticResinInjectionDetailId(detail.getSyntheticResinInjectionDetailId());
 
-                dto.setChainageKm(detail.getChainageKm());
-                dto.setChainageM(detail.getChainageM());
-                dto.setChainageCm(detail.getChainageCm());
+				dto.setTrackDirectionId(detail.getTrackDirection().getTrackDirectionId());
 
-                dto.setSleeperNumber(detail.getSleeperNumber());
+				dto.setTrackDirectionName(detail.getTrackDirection().getDirectionName());
 
-                dto.setInjectionLeft(detail.getInjectionLeft());
-                dto.setInjectionCentre(detail.getInjectionCentre());
-                dto.setInjectionRight(detail.getInjectionRight());
-                dto.setInjectionAverage(detail.getInjectionAverage());
+				dto.setChainageKm(detail.getChainageKm());
+				dto.setChainageM(detail.getChainageM());
+				dto.setChainageCm(detail.getChainageCm());
 
-                dto.setGap(detail.getGap());
+				dto.setSleeperNumber(detail.getSleeperNumber());
 
-                dto.setRemarks(detail.getRemarks());
+				dto.setInjectionLeft(detail.getInjectionLeft());
+				dto.setInjectionCentre(detail.getInjectionCentre());
+				dto.setInjectionRight(detail.getInjectionRight());
+				dto.setInjectionAverage(detail.getInjectionAverage());
 
-                detailResponses.add(dto);
-            }
-        }
+				dto.setGap(detail.getGap());
 
-        response.setDetails(detailResponses);
+				dto.setRemarks(detail.getRemarks());
 
-        return response;
-    }
-    
-    @Override
-    public List<SyntheticResinInjectionResponse> getAllSyntheticResinInjections() {
+				detailResponses.add(dto);
+			}
+		}
 
-        List<SyntheticResinInjectionHeader> headers = headerRepository.findAll();
+		response.setDetails(detailResponses);
 
-        List<SyntheticResinInjectionResponse> responseList = new ArrayList<>();
+		return response;
+	}
 
-        for (SyntheticResinInjectionHeader header : headers) {
+	@Override
+	public List<SyntheticResinInjectionResponse> getAllSyntheticResinInjections() {
 
-            if (!Boolean.TRUE.equals(header.getIsActive())) {
-                continue;
-            }
+		List<SyntheticResinInjectionHeader> headers = headerRepository.findAll();
 
-            SyntheticResinInjectionResponse response =
-                    new SyntheticResinInjectionResponse();
+		List<SyntheticResinInjectionResponse> responseList = new ArrayList<>();
 
-            // Header
+		for (SyntheticResinInjectionHeader header : headers) {
 
-            response.setSyntheticResinInjectionHeaderId(
-                    header.getSyntheticResinInjectionHeaderId());
+			if (!Boolean.TRUE.equals(header.getIsActive())) {
+				continue;
+			}
 
-            response.setProjectId(header.getProjectId());
-            response.setFormNo(header.getFormNo());
-            response.setRecordNo(header.getRecordNo());
-            response.setInspectionDate(header.getInspectionDate());
+			SyntheticResinInjectionResponse response = new SyntheticResinInjectionResponse();
 
-            response.setCreatedBy(header.getCreatedBy());
-            response.setCreatedDate(header.getCreatedDate());
+			// Header
 
-            // Details
+			response.setSyntheticResinInjectionHeaderId(header.getSyntheticResinInjectionHeaderId());
 
-            List<SyntheticResinInjectionDetailResponse> detailResponses =
-                    new ArrayList<>();
+			response.setProjectId(header.getProjectId());
+			response.setFormNo(header.getFormNo());
+			response.setRecordNo(header.getRecordNo());
+			response.setInspectionDate(header.getInspectionDate());
 
-            if (header.getDetails() != null) {
+			response.setCreatedBy(header.getCreatedBy());
+			response.setCreatedDate(header.getCreatedDate());
 
-                for (SyntheticResinInjectionDetail detail : header.getDetails()) {
+			// Details
 
-                    if (!Boolean.TRUE.equals(detail.getIsActive())) {
-                        continue;
-                    }
+			List<SyntheticResinInjectionDetailResponse> detailResponses = new ArrayList<>();
 
-                    SyntheticResinInjectionDetailResponse dto =
-                            new SyntheticResinInjectionDetailResponse();
+			if (header.getDetails() != null) {
 
-                    dto.setSyntheticResinInjectionDetailId(
-                            detail.getSyntheticResinInjectionDetailId());
+				for (SyntheticResinInjectionDetail detail : header.getDetails()) {
 
-                    dto.setTrackDirectionId(
-                            detail.getTrackDirection().getTrackDirectionId());
+					if (!Boolean.TRUE.equals(detail.getIsActive())) {
+						continue;
+					}
 
-                    dto.setTrackDirectionName(
-                            detail.getTrackDirection().getDirectionName());
+					SyntheticResinInjectionDetailResponse dto = new SyntheticResinInjectionDetailResponse();
 
-                    dto.setChainageKm(detail.getChainageKm());
-                    dto.setChainageM(detail.getChainageM());
-                    dto.setChainageCm(detail.getChainageCm());
+					dto.setSyntheticResinInjectionDetailId(detail.getSyntheticResinInjectionDetailId());
 
-                    dto.setSleeperNumber(detail.getSleeperNumber());
+					dto.setTrackDirectionId(detail.getTrackDirection().getTrackDirectionId());
 
-                    dto.setInjectionLeft(detail.getInjectionLeft());
-                    dto.setInjectionCentre(detail.getInjectionCentre());
-                    dto.setInjectionRight(detail.getInjectionRight());
-                    dto.setInjectionAverage(detail.getInjectionAverage());
+					dto.setTrackDirectionName(detail.getTrackDirection().getDirectionName());
 
-                    dto.setGap(detail.getGap());
+					dto.setChainageKm(detail.getChainageKm());
+					dto.setChainageM(detail.getChainageM());
+					dto.setChainageCm(detail.getChainageCm());
 
-                    dto.setRemarks(detail.getRemarks());
+					dto.setSleeperNumber(detail.getSleeperNumber());
 
-                    detailResponses.add(dto);
-                }
-            }
+					dto.setInjectionLeft(detail.getInjectionLeft());
+					dto.setInjectionCentre(detail.getInjectionCentre());
+					dto.setInjectionRight(detail.getInjectionRight());
+					dto.setInjectionAverage(detail.getInjectionAverage());
 
-            response.setDetails(detailResponses);
+					dto.setGap(detail.getGap());
 
-            responseList.add(response);
-        }
+					dto.setRemarks(detail.getRemarks());
 
-        return responseList;
-    }
+					detailResponses.add(dto);
+				}
+			}
 
-    
-    @Override
-    @Transactional
-    public Long updateSyntheticResinInjection(
-            Long syntheticResinInjectionHeaderId,
-            SyntheticResinInjectionRequest request) {
+			response.setDetails(detailResponses);
 
-        SyntheticResinInjectionHeader header = headerRepository
-                .findById(syntheticResinInjectionHeaderId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Synthetic Resin Injection not found with Id : "
-                                        + syntheticResinInjectionHeaderId));
+			responseList.add(response);
+		}
 
-        // Update Header
+		return responseList;
+	}
 
-        header.setProjectId(request.getProjectId());
-        header.setFormNo(request.getFormNo());
-        header.setRecordNo(request.getRecordNo());
-        header.setInspectionDate(request.getInspectionDate());
+	@Override
+	@Transactional
+	public Long updateSyntheticResinInjection(Long syntheticResinInjectionHeaderId,
+			SyntheticResinInjectionRequest request) {
 
-        header.setUpdatedBy(request.getUpdatedBy());
-        header.setUpdatedDate(LocalDateTime.now());
+		SyntheticResinInjectionHeader header = headerRepository.findById(syntheticResinInjectionHeaderId)
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Synthetic Resin Injection not found with Id : " + syntheticResinInjectionHeaderId));
 
+		// Update Header
 
-        // Soft Delete Removed Details
+		header.setProjectId(request.getProjectId());
+		header.setFormNo(request.getFormNo());
+		header.setRecordNo(request.getRecordNo());
+		header.setInspectionDate(request.getInspectionDate());
 
-        Set<Long> requestDetailIds = request.getDetails().stream()
-                .map(SyntheticResinInjectionDetailRequest::getSyntheticResinInjectionDetailId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+		header.setUpdatedBy(request.getUpdatedBy());
+		header.setUpdatedDate(LocalDateTime.now());
 
-        for (SyntheticResinInjectionDetail existingDetail : header.getDetails()) {
+		// Soft Delete Removed Details
 
-            if (!requestDetailIds.contains(
-                    existingDetail.getSyntheticResinInjectionDetailId())) {
+		Set<Long> requestDetailIds = request.getDetails().stream()
+				.map(SyntheticResinInjectionDetailRequest::getSyntheticResinInjectionDetailId).filter(Objects::nonNull)
+				.collect(Collectors.toSet());
 
-                existingDetail.setIsActive(false);
-                existingDetail.setUpdatedBy(request.getUpdatedBy());
-                existingDetail.setUpdatedDate(LocalDateTime.now());
-            }
-        }
+		for (SyntheticResinInjectionDetail existingDetail : header.getDetails()) {
 
+			if (!requestDetailIds.contains(existingDetail.getSyntheticResinInjectionDetailId())) {
 
-        // Insert / Update Details
+				existingDetail.setIsActive(false);
+				existingDetail.setUpdatedBy(request.getUpdatedBy());
+				existingDetail.setUpdatedDate(LocalDateTime.now());
+			}
+		}
 
-        for (SyntheticResinInjectionDetailRequest dto : request.getDetails()) {
+		// Insert / Update Details
 
-            TrackDirection direction = trackDirectionRepository
-                    .findById(dto.getTrackDirectionId())
-                    .orElseThrow(() ->
-                            new RuntimeException(
-                                    "Invalid Track Direction Id"));
+		for (SyntheticResinInjectionDetailRequest dto : request.getDetails()) {
 
-            SyntheticResinInjectionDetail detail;
+			TrackDirection direction = trackDirectionRepository.findById(dto.getTrackDirectionId())
+					.orElseThrow(() -> new ResourceNotFoundException("Invalid Track Direction Id"));
 
-            // UPDATE EXISTING DETAIL
+			SyntheticResinInjectionDetail detail;
 
-            if (dto.getSyntheticResinInjectionDetailId() != null) {
+			// UPDATE EXISTING DETAIL
 
-                detail = detailRepository
-                        .findById(dto.getSyntheticResinInjectionDetailId())
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Synthetic Resin Injection Detail not found with Id : "
-                                                + dto.getSyntheticResinInjectionDetailId()));
+			if (dto.getSyntheticResinInjectionDetailId() != null) {
 
-                detail.setUpdatedBy(request.getUpdatedBy());
-                detail.setUpdatedDate(LocalDateTime.now());
-            }
+				detail = detailRepository.findById(dto.getSyntheticResinInjectionDetailId())
+						.orElseThrow(() -> new ResourceNotFoundException("Synthetic Resin Injection Detail not found with Id : "
+								+ dto.getSyntheticResinInjectionDetailId()));
 
-            // INSERT NEW DETAIL
- 
+				detail.setUpdatedBy(request.getUpdatedBy());
+				detail.setUpdatedDate(LocalDateTime.now());
+			}
 
-            else {
+			// INSERT NEW DETAIL
 
-                detail = new SyntheticResinInjectionDetail();
+			else {
 
-                detail.setSyntheticResinInjectionHeader(header);
+				detail = new SyntheticResinInjectionDetail();
 
-                detail.setCreatedBy(request.getUpdatedBy());
-                detail.setCreatedDate(LocalDateTime.now());
+				detail.setSyntheticResinInjectionHeader(header);
 
-                detail.setIsActive(true);
+				detail.setCreatedBy(request.getUpdatedBy());
+				detail.setCreatedDate(LocalDateTime.now());
 
-                header.getDetails().add(detail);
-            }
+				detail.setIsActive(true);
 
-            detail.setTrackDirection(direction);
+				header.getDetails().add(detail);
+			}
 
-            detail.setChainageKm(dto.getChainageKm());
-            detail.setChainageM(dto.getChainageM());
-            detail.setChainageCm(dto.getChainageCm());
+			detail.setTrackDirection(direction);
 
-            detail.setSleeperNumber(dto.getSleeperNumber());
+			detail.setChainageKm(dto.getChainageKm());
+			detail.setChainageM(dto.getChainageM());
+			detail.setChainageCm(dto.getChainageCm());
 
-            detail.setInjectionLeft(dto.getInjectionLeft());
-            detail.setInjectionCentre(dto.getInjectionCentre());
-            detail.setInjectionRight(dto.getInjectionRight());
-            detail.setInjectionAverage(dto.getInjectionAverage());
+			detail.setSleeperNumber(dto.getSleeperNumber());
 
-            detail.setGap(dto.getGap());
+			detail.setInjectionLeft(dto.getInjectionLeft());
+			detail.setInjectionCentre(dto.getInjectionCentre());
+			detail.setInjectionRight(dto.getInjectionRight());
+			detail.setInjectionAverage(dto.getInjectionAverage());
 
-            detail.setRemarks(dto.getRemarks());
+			detail.setGap(dto.getGap());
 
-            detail.setIsActive(true);
-        }
+			detail.setRemarks(dto.getRemarks());
 
-        headerRepository.save(header);
+			detail.setIsActive(true);
+		}
 
-        return header.getSyntheticResinInjectionHeaderId();
-    }
-    
-    @Override
-    @Transactional
-    public void deleteSyntheticResinInjection(
-            Long syntheticResinInjectionHeaderId,
-            String updatedBy) {
+		headerRepository.save(header);
 
-        SyntheticResinInjectionHeader header = headerRepository
-                .findById(syntheticResinInjectionHeaderId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Synthetic Resin Injection not found with Id : "
-                                        + syntheticResinInjectionHeaderId));
+		return header.getSyntheticResinInjectionHeaderId();
+	}
 
-        // Soft Delete Header
+	@Override
+	@Transactional
+	public void deleteSyntheticResinInjection(Long syntheticResinInjectionHeaderId, String updatedBy) {
 
-        header.setIsActive(false);
-        header.setUpdatedBy(updatedBy);
-        header.setUpdatedDate(LocalDateTime.now());
+		SyntheticResinInjectionHeader header = headerRepository.findById(syntheticResinInjectionHeaderId)
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"Synthetic Resin Injection not found with Id : " + syntheticResinInjectionHeaderId));
 
-        // Soft Delete Details
+		// Soft Delete Header
 
-        if (header.getDetails() != null) {
+		header.setIsActive(false);
+		header.setUpdatedBy(updatedBy);
+		header.setUpdatedDate(LocalDateTime.now());
 
-            for (SyntheticResinInjectionDetail detail : header.getDetails()) {
+		// Soft Delete Details
 
-                detail.setIsActive(false);
-                detail.setUpdatedBy(updatedBy);
-                detail.setUpdatedDate(LocalDateTime.now());
-            }
-        }
+		if (header.getDetails() != null) {
 
-        headerRepository.save(header);
-    }
+			for (SyntheticResinInjectionDetail detail : header.getDetails()) {
+
+				detail.setIsActive(false);
+				detail.setUpdatedBy(updatedBy);
+				detail.setUpdatedDate(LocalDateTime.now());
+			}
+		}
+
+		headerRepository.save(header);
+	}
 }
