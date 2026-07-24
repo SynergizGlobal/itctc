@@ -1,5 +1,8 @@
 import useStickyHeaders from '../hooks/useStickyHeaders';
 import formT22Diagram from '../assets/images/Form_T-22.png';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
+import useDownloadExcel from '../hooks/useDownloadExcel';
 
 const measurementRows = [
   ['P1', 245, 4980, 980, 3370, 3870], ['P2', 248, 5010, 1010, 3410, 3905],
@@ -7,15 +10,22 @@ const measurementRows = [
   ['P5', 247, 4990, 990, 3385, 3880],
 ];
 export default function FormT22() {
+  const navigate = useNavigate();
   useStickyHeaders();
+  const downloadExcel = useDownloadExcel();
 
   return (
     <div className="container-fluid py-3">
       <div className="panel-heading d-flex align-items-center justify-content-between mb-3">
+        <button type="button" onClick={() => navigate(-1)} title="Back" style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer' }}><ArrowLeft aria-hidden="true" /></button>
         <h1 className="h6 mb-0">Form T-22</h1>
         <span className="title-main text-center flex-grow-1 mx-3">Measurement record of Buffer Stop (1st GRADE with GRAVEL FILL)</span>
         <span>No. <input type="text" className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
         <span className="ms-2">Date: <input type="text" className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
+        <div className="form-export-actions">
+          <button type="button" onClick={() => window.print()} title="Download as PDF"><i className="fa-solid fa-file-pdf" /></button>
+          <button type="button" onClick={() => downloadExcel('Form-T-22.xls')} title="Download as Excel"><i className="fa-solid fa-file-excel" /></button>
+        </div>
       </div>
       <div className="mb-3">
         <span className="me-1">Line:</span>

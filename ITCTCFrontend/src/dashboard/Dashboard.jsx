@@ -1,221 +1,727 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { CircleCheck, ClipboardList, FileDown, FileSpreadsheet, FileText, TriangleAlert } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './dashboard.css';
-import './overview-icon.css';
-import FormC1 from '../components/FormC1';
-import FormC7 from '../components/FormC7';
-import FormT2 from '../components/FormT2';
-import FormT5 from '../components/FormT5';
-import FormT72 from '../components/FormT-7-2';
-import FormT8 from '../components/FormT8';
-import FormT9 from '../components/FormT9';
-import FormT10 from '../components/FormT10';
-import FormT13 from '../components/FormT13';
-import FormT21 from '../components/FormT21';
-import FormT22 from '../components/FormT22';
-import useDownloadExcel from '../hooks/useDownloadExcel';
 
-const menuItems = [
-  { icon: '/overview-icon.png', label: 'Overview', isImage: true },
-  { icon: '▤', label: 'Sections' },
-  { icon: '!', label: 'Defects' },
-  { icon: '▥', label: 'Reports' },
-  { icon: '◷', label: 'Inspection Logs' },
-  { icon: '◫', label: 'Forms' },
-];
-
-const stats = [
-  { label: 'Total Forms', value: '11', change: 'Actual', note: 'available form templates', tone: 'blue', icon: FileText },
-  { label: 'Available', value: '11', change: '100%', note: 'ready to open', tone: 'green', icon: CircleCheck },
-  { label: 'Pending Review', value: '0', change: '0%', note: 'no review data recorded', tone: 'orange', icon: ClipboardList },
-  { label: 'Issues Found', value: '0', change: '0%', note: 'no issues recorded', tone: 'red', icon: TriangleAlert },
+const sidebarNav = [
+  { id: 'overview', label: 'Overview', icon: 'fa-solid fa-gauge-high' },
+  { id: 'sections', label: 'Sections', icon: 'fa-solid fa-table-cells-large' },
+  { id: 'workflow', label: 'Workflow', icon: 'fa-solid fa-diagram-project' },
+  { id: 'defects', label: 'Defects', icon: 'fa-solid fa-triangle-exclamation' },
+  { id: 'reports', label: 'Reports', icon: 'fa-solid fa-chart-column' },
+  { id: 'forms', label: 'Forms', icon: 'fa-solid fa-table-list' },
+  { id: 'logs', label: 'Inspection Logs', icon: 'fa-solid fa-clock-rotate-left' },
 ];
 
 const formLinks = [
-  ['/form-c1', 'C-1'], ['/form-c7', 'C-7'], ['/form-t2', 'T-2'], ['/form-t5', 'T-5'],
-  ['/form-t7-2', 'T-7-2'], ['/form-t8', 'T-8'], ['/form-t9', 'T-9'], ['/form-t10', 'T-10'],
-  ['/form-t13', 'T-13'], ['/form-t21', 'T-21'], ['/form-t22', 'T-22'],
+  { path: '/form-c1', code: 'C-1', name: 'Formation Width', type: 'civil' },
+  { path: '/form-c7', code: 'C-7', name: 'Civil Measurement', type: 'civil' },
+  { path: '/form-t2', code: 'T-2', name: 'Track Irregularity', type: 'track' },
+  { path: '/form-t5', code: 'T-5', name: 'Track Geometry', type: 'track' },
+  { path: '/form-t7-2', code: 'T-7-2', name: 'Track Alignment', type: 'track' },
+  { path: '/form-t8', code: 'T-8', name: 'Track Structure', type: 'track' },
+  { path: '/form-t9', code: 'T-9', name: 'Track Geometry Rev', type: 'track' },
+  { path: '/form-t10', code: 'T-10', name: 'Track Installation', type: 'track' },
+  { path: '/form-t13', code: 'T-13', name: 'Switch Measurement', type: 'track' },
+  { path: '/form-t21', code: 'T-21', name: 'Track Component', type: 'track' },
+  { path: '/form-t22', code: 'T-22', name: 'Buffer Stop', type: 'track' },
 ];
-const inspectionLogRows = [
-  ['/form-c1','C-1','Formation Width','Civil inspection','C1-001','KM 1.50 + 250 M'],
-  ['/form-c7','C-7','Civil Measurement','Civil inspection','C7-001','KM 1.75 + 100 M'],
-  ['/form-t2','T-2','Track Irregularity','Finished state measurement','T2-001','KM 1 + 250–340 M'],
-  ['/form-t5','T-5','Track Measurement','Track inspection','T5-001','KM 2 + 100 M'],
-  ['/form-t7-2','T-7-2','Track Alignment','Track inspection','T72-001','KM 2 + 450 M'],
-  ['/form-t8','T-8','Track Structure','Track inspection','T8-001','KM 3 + 000 M'],
-  ['/form-t9','T-9','Track Geometry','Track inspection','T9-001','KM 3 + 250 M'],
-  ['/form-t10','T-10','Track Installation','Track inspection','T10-001','KM 3 + 500 M'],
-  ['/form-t13','T-13','Switch Measurement','Track inspection','T13-001','KM 4 + 000 M'],
-  ['/form-t21','T-21','Track Component','Track inspection','T21-001','KM 4 + 250 M'],
-  ['/form-t22','T-22','Buffer Stop','Track inspection','T22-001','KM 4 + 500 M'],
+
+const workflowStages = [
+  { id: 'inspector', label: 'Inspector', subtitle: 'Create & Submit', desc: 'Creates a new inspection record. Completes all required inspection details, observations, measurements, photographs, and attachments. Submits the inspection to the PMC for review.', iconClass: 'fa-solid fa-clipboard-list', color: '#DB2828', count: 12, pending: 3 },
+  { id: 'pmc-review', label: 'PMC Review', subtitle: 'Review & Forward', desc: 'Reviews the inspection details submitted by the Inspector. Approve and forward to ITC Preconfirmation Engineer, or return to Inspector with comments.', iconClass: 'fa-solid fa-magnifying-glass', color: '#f2711c', count: 8, pending: 2 },
+  { id: 'inspector-rework', label: 'Inspector Rework', subtitle: 'Update & Resubmit', desc: 'Reviews the PMC comments. Updates the inspection record as required. Resubmits the inspection to the PMC for review.', iconClass: 'fa-solid fa-rotate', color: '#4d9dd9', count: 5, pending: 1 },
+  { id: 'itc-engineer', label: 'ITC Preconfirmation Engineer', subtitle: 'Final Review', desc: 'Reviews the inspection after PMC approval. Approve (final approved), return to PMC with comments, or return directly to Inspector for correction.', iconClass: 'fa-solid fa-shield-halved', color: '#79d58f', count: 6, pending: 2 },
+  { id: 'pmc-response', label: 'PMC Response to ITC Comments', subtitle: 'Address ITC Comments', desc: 'If the inspection is returned by the ITC Preconfirmation Engineer to the PMC: The PMC reviews the comments and has two options — Address the comments and resubmit to the ITC Preconfirmation Engineer, or Return the inspection to the Inspector if changes require modification of the inspection data or form.', iconClass: 'fa-solid fa-paper-plane', color: '#212121', count: 3, pending: 1 },
+  { id: 'final-approved', label: 'Final Approval', subtitle: 'Completed', desc: 'When the ITC Preconfirmation Engineer approves the inspection, the workflow is complete. The inspection status changes to Approved, and no further review is required unless reopened through a separate administrative process.', iconClass: 'fa-solid fa-circle-check', color: '#79d58f', count: 1, pending: 0 },
+  { id: 'total', label: 'Total', subtitle: 'All Inspections', desc: 'Combined total of all inspections across every workflow stage.', iconClass: 'fa-solid fa-layer-group', color: '#212121', count: 81, pending: 9 },
 ];
-const dashboardForms = {
-  '/form-c1': FormC1, '/form-c7': FormC7, '/form-t2': FormT2, '/form-t5': FormT5,
-  '/form-t7-2': FormT72, '/form-t8': FormT8, '/form-t9': FormT9, '/form-t10': FormT10,
-  '/form-t13': FormT13, '/form-t21': FormT21, '/form-t22': FormT22,
+
+const recentInspections = [
+  { id: 'INS-2026-0471', form: 'C-1', title: 'Formation Width Inspection', chainage: 'KM 1.50 + 250 M', inspector: 'Rajesh Kumar', stage: 'pmc-review', date: '24 Jul 2026', priority: 'normal' },
+  { id: 'INS-2026-0470', form: 'T-5', title: 'Track Geometry Measurement', chainage: 'KM 2.10 + 000 M', inspector: 'Amit Sharma', stage: 'inspector-rework', date: '24 Jul 2026', priority: 'urgent' },
+  { id: 'INS-2026-0469', form: 'T-2', title: 'Track Irregularity Assessment', chainage: 'KM 1.25 + 340 M', inspector: 'Suresh Patel', stage: 'itc-engineer', date: '23 Jul 2026', priority: 'normal' },
+  { id: 'INS-2026-0468', form: 'T-8', title: 'Track Structure Inspection', chainage: 'KM 3.00 + 000 M', inspector: 'Vikram Singh', stage: 'final-approved', date: '23 Jul 2026', priority: 'normal' },
+  { id: 'INS-2026-0467', form: 'C-7', title: 'Civil Measurement Report', chainage: 'KM 1.75 + 100 M', inspector: 'Manoj Verma', stage: 'pmc-response', date: '23 Jul 2026', priority: 'urgent' },
+  { id: 'INS-2026-0466', form: 'T-13', title: 'Switch Measurement Audit', chainage: 'KM 4.00 + 000 M', inspector: 'Deepak Gupta', stage: 'final-approved', date: '22 Jul 2026', priority: 'normal' },
+  { id: 'INS-2026-0465', form: 'T-9', title: 'Track Geometry Review', chainage: 'KM 3.25 + 000 M', inspector: 'Rajesh Kumar', stage: 'inspector', date: '22 Jul 2026', priority: 'normal' },
+  { id: 'INS-2026-0464', form: 'T-22', title: 'Buffer Stop Verification', chainage: 'KM 4.50 + 000 M', inspector: 'Amit Sharma', stage: 'final-approved', date: '22 Jul 2026', priority: 'normal' },
+];
+
+const stageLabels = {
+  'inspector': { label: 'Submitted', tone: 'blue' },
+  'pmc-review': { label: 'PMC Review', tone: 'purple' },
+  'inspector-rework': { label: 'Rework', tone: 'amber' },
+  'itc-engineer': { label: 'ITC Review', tone: 'teal' },
+  'pmc-response': { label: 'PMC Response', tone: 'cyan' },
+  'final-approved': { label: 'Approved', tone: 'green' },
 };
 
-const reportProfiles = {
-  'C-1': { total: 4, failed: 1, failures: [['Formation Width A',0],['Formation Width B',0],['Formation Width C',0],['Formation Width D',1]] },
-  'C-7': { total: 36, failed: 3, failures: [['Civil Measurement',2],['Level Difference',1],['Clearance',0]] },
-  'T-2': { total: 10, failed: 0, failures: [['Track Gauge',0],['Cant',0],['Cross Level',0],['Alignment',0],['Longitudinal Level',0]] },
-  'T-5': { total: 48, failed: 5, failures: [['Track Gauge',2],['Cross Level',1],['Cant',2]] },
-  'T-7-2': { total: 42, failed: 4, failures: [['Horizontal Alignment',2],['Vertical Alignment',1],['Centre Line',1]] },
-  'T-8': { total: 64, failed: 6, failures: [['Rail',2],['Sleeper',1],['Fastening',2],['Ballast',1]] },
-  'T-9': { total: 55, failed: 7, failures: [['Gauge',2],['Twist',2],['Cross Level',1],['Alignment',2]] },
-  'T-10': { total: 40, failed: 3, failures: [['Installation Level',1],['Joint Gap',1],['Fastening',1]] },
-  'T-13': { total: 32, failed: 4, failures: [['Switch Gauge',1],['Flangeway',2],['Throw',1]] },
-  'T-21': { total: 72, failed: 5, failures: [['Rail Component',2],['Fastening Component',2],['Sleeper Component',1]] },
-  'T-22': { total: 24, failed: 2, failures: [['Buffer Alignment',1],['Fixing',1],['Clearance',0]] },
-};
+const weeklyTrend = [
+  { day: 'Mon', submitted: 4, approved: 3, rework: 1, pending: 2, review: 1, confirmed: 3 },
+  { day: 'Tue', submitted: 6, approved: 5, rework: 0, pending: 3, review: 2, confirmed: 4 },
+  { day: 'Wed', submitted: 3, approved: 2, rework: 2, pending: 1, review: 1, confirmed: 2 },
+  { day: 'Thu', submitted: 5, approved: 4, rework: 1, pending: 2, review: 1, confirmed: 3 },
+  { day: 'Fri', submitted: 7, approved: 5, rework: 1, pending: 4, review: 2, confirmed: 5 },
+  { day: 'Sat', submitted: 2, approved: 2, rework: 0, pending: 1, review: 0, confirmed: 2 },
+  { day: 'Sun', submitted: 0, approved: 0, rework: 0, pending: 0, review: 0, confirmed: 0 },
+];
 
-function ListTools({ query, onQueryChange, filter, onFilterChange, placeholder }) {
-  return <div className="dashboard-list-tools">
-    <label className="dashboard-search">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 20-4.35-4.35a8 8 0 1 0-1.41 1.41L20 21l1-1ZM5 11a6 6 0 1 1 12 0 6 6 0 0 1-12 0Z" /></svg>
-      <input type="search" value={query} onChange={(event) => onQueryChange(event.target.value)} placeholder={placeholder} aria-label={placeholder} />
-    </label>
-    <label className="dashboard-filter" title="Filter by form type">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18l-7 8v5l-4 2v-7L3 5Z" /></svg>
-      <select value={filter} onChange={(event) => onFilterChange(event.target.value)} aria-label="Filter by form type">
-        <option value="all">All forms</option><option value="civil">Civil</option><option value="track">Track</option>
-      </select>
-    </label>
-  </div>;
-}
+const formStats = [
+  { code: 'C-1', name: 'Formation Width', total: 18, passed: 15, pending: 3, path: '/form-c1' },
+  { code: 'C-7', name: 'Civil Measurement', total: 12, passed: 10, pending: 2, path: '/form-c7' },
+  { code: 'T-2', name: 'Track Irregularity', total: 22, passed: 18, pending: 4, path: '/form-t2' },
+  { code: 'T-5', name: 'Track Geometry', total: 15, passed: 13, pending: 2, path: '/form-t5' },
+  { code: 'T-7-2', name: 'Track Alignment', total: 10, passed: 8, pending: 2, path: '/form-t7-2' },
+  { code: 'T-8', name: 'Track Structure', total: 14, passed: 11, pending: 3, path: '/form-t8' },
+  { code: 'T-9', name: 'Track Geometry Rev', total: 8, passed: 7, pending: 1, path: '/form-t9' },
+  { code: 'T-10', name: 'Track Installation', total: 6, passed: 5, pending: 1, path: '/form-t10' },
+  { code: 'T-13', name: 'Switch Measurement', total: 9, passed: 7, pending: 2, path: '/form-t13' },
+  { code: 'T-21', name: 'Track Component', total: 11, passed: 9, pending: 2, path: '/form-t21' },
+  { code: 'T-22', name: 'Buffer Stop', total: 5, passed: 4, pending: 1, path: '/form-t22' },
+];
 
-function T2Overview({ downloadExcel }) {
-  const rows = [['T-2','Finished State of Track Irregularity',10,10,0,0,0,'100%']];
-  return <section className="t2-package-dashboard t2-overview-package">
-    <div className="package-breadcrumb"><strong>Form: T-2</strong><span>›</span><b>Finished State of Track Irregularity</b><div className="form-export-actions overview-export-actions"><button type="button" onClick={() => window.print()} title="Download Form T-2 overview as PDF"><FileDown aria-hidden="true" />PDF</button><button type="button" onClick={() => downloadExcel('Form-T-2-Overview.xls')} title="Download Form T-2 overview as Excel"><FileSpreadsheet aria-hidden="true" />Excel</button></div></div>
-    <div className="package-stat-grid">{[['Measured Length','0.09','km','neutral'],['Chainages','10','','neutral'],['Parameters','5','','neutral'],['Total Records','10','','neutral'],['Passed','10','100%','passed'],['Needs Rectification','0','0%','rectification'],['Rectified','0','0%','rectified'],['Pending','0','0%','pending']].map(([label,value,sub,tone]) => <article className={`package-stat ${tone}`} key={label}><small>{label}</small><strong>{value}<em>{sub === 'km' ? ' km' : ''}</em></strong>{sub && sub !== 'km' && <span>{sub}</span>}</article>)}</div>
-    <article className="package-table-panel"><h2>INSPECTION STATUS BY FORM</h2><div className="logs-table-wrap"><table className="package-table export-table"><thead><tr><th>Form Code</th><th>Form Name</th><th>Total Inspections</th><th>Passed</th><th>Needs Rectification</th><th>Rectified</th><th>Pending</th><th>Pass %</th></tr></thead><tbody>
-      {rows.map(row => <tr key={row[0]}>{row.map((cell,i)=><td key={i} className={i===3||i===7?'green':i===4?'orange':i===5?'blue':i===6?'purple':''}>{cell}</td>)}</tr>)}
-      <tr className="package-total"><td colSpan="2">Total</td><td>10</td><td className="green">10</td><td className="orange">0</td><td className="blue">0</td><td className="purple">0</td><td className="green">100%</td></tr>
-    </tbody></table></div></article>
-    <section className="t2-chart-grid">
-      <article className="package-table-panel"><h2>INSPECTION STATUS OVERALL</h2><div className="overview-status-chart"><div className="overview-status-donut t2-only-donut"><div><strong>10</strong><small>Records</small></div></div><div className="overview-chart-legend"><span><i className="passed"/><b>Passed</b><strong>10 <small>100%</small></strong></span><span><i className="rectification"/><b>Needs Rectification</b><strong>0 <small>0%</small></strong></span><span><i className="rectified"/><b>Rectified</b><strong>0 <small>0%</small></strong></span><span><i className="pending"/><b>Pending</b><strong>0 <small>0%</small></strong></span></div></div></article>
-      <article className="package-table-panel"><h2>PASS RATE BY FORM</h2><div className="form-rate-chart">{rows.map(row => <div key={row[0]}><b>{row[0]}</b><span><i style={{width:row[7]}}/></span><strong>{row[7]}</strong></div>)}</div></article>
-    </section>
-  </section>;
-}
+const defectsData = [
+  { id: 'DEF-001', form: 'T-2', description: 'Gauge width exceeding tolerance at KM 3.00', chainage: 'KM 3.00 + 000 M', severity: 'critical', inspector: 'Vikram Singh', date: '23 Jul 2026' },
+  { id: 'DEF-002', form: 'C-1', description: 'Formation width deviation noted at Viaduct Section', chainage: 'KM 1.50 + 250 M', severity: 'major', inspector: 'Rajesh Kumar', date: '24 Jul 2026' },
+  { id: 'DEF-003', form: 'T-8', description: 'Track structure crack detected near bridge pier', chainage: 'KM 3.50 + 100 M', severity: 'critical', inspector: 'Vikram Singh', date: '23 Jul 2026' },
+  { id: 'DEF-004', form: 'T-5', description: 'Alignment deviation beyond acceptable limit', chainage: 'KM 5.00 + 000 M', severity: 'minor', inspector: 'Amit Sharma', date: '24 Jul 2026' },
+  { id: 'DEF-005', form: 'C-7', description: 'Noise barrier height below design specification', chainage: 'KM 2.00 + 500 M', severity: 'major', inspector: 'Deepak Gupta', date: '22 Jul 2026' },
+];
 
-function C1Overview() {
-  return <section className="overview-board">
-    <article className="dashboard-panel section-overview">
-      <div className="panel-title"><div><h2>C-1 FORMATION WIDTH OVERVIEW</h2><p>Measured values compared with C-1 standards</p></div><Link to="/form-c1">Open C-1</Link></div>
-      <div className="c1-meta"><span><small>Chainage</small><strong>1.50 KM + 250.00 M</strong></span><span><small>Structure</small><strong>Earthwork A</strong></span><span><small>Track</small><strong>Down Line</strong></span><span><small>Applied Cant</small><strong>120 mm</strong></span></div>
-      <div className="c1-comparison-chart">
-        {[['A',850,850],['B',5205,5200],['C',850,850],['D',795,800]].map(([label, measured, standard]) => <div className="c1-bar-row" key={label}><b>{label}</b><div className="c1-bar-track"><span style={{width:`${Math.min((measured / standard) * 100, 102)}%`}} /></div><strong>{measured.toLocaleString()} mm</strong><small>Std. {standard.toLocaleString()}</small></div>)}
-      </div>
-      <div className="c1-chart-key"><span><i/>Measured value</span><span><i/>Standard = 100%</span></div>
-    </article>
-    <article className="dashboard-panel inspection-status">
-      <div className="panel-title"><div><h2>C-1 MEASURED WIDTH SUMMARY</h2><p>A, B, C and D measured values</p></div></div>
-      <div className="status-content"><div className="status-donut c1-width-donut"><div><strong>7,700</strong><small>Total mm</small></div></div>
-        <div className="status-legend"><div><i className="passed"/><span>A measured<strong>850 mm (11.0%)</strong></span></div><div><i className="rectification"/><span>B measured<strong>5,205 mm (67.6%)</strong></span></div><div><i className="rectified"/><span>C measured<strong>850 mm (11.0%)</strong></span></div><div><i className="pending"/><span>D measured<strong>795 mm (10.3%)</strong></span></div></div>
-      </div>
-    </article>
-  </section>;
-}
+const activityFeed = [
+  { time: '10:24 AM', action: 'Inspection INS-2026-0471 forwarded to PMC', user: 'Rajesh Kumar', iconClass: 'fa-solid fa-share', color: '#212121' },
+  { time: '09:48 AM', action: 'INS-2026-0470 returned to Inspector with comments', user: 'PMC Review', iconClass: 'fa-solid fa-rotate-left', color: '#f2711c' },
+  { time: '09:15 AM', action: 'INS-2026-0469 escalated to ITC Engineer', user: 'PMC Team', iconClass: 'fa-solid fa-arrow-up-right-dots', color: '#4d9dd9' },
+  { time: '08:52 AM', action: 'INS-2026-0468 approved — Final clearance granted', user: 'ITC Engineer', iconClass: 'fa-solid fa-circle-check', color: '#4d9dd9' },
+  { time: '08:30 AM', action: 'INS-2026-0467 resubmitted after rework', user: 'Manoj Verma', iconClass: 'fa-solid fa-pen-to-square', color: '#DB2828' },
+  { time: 'Yesterday', action: 'INS-2026-0466 approved — Final clearance granted', user: 'ITC Engineer', iconClass: 'fa-solid fa-circle-check', color: '#4d9dd9' },
+];
 
 export default function Dashboard() {
-  const [active, setActive] = useState('Overview');
-  const [open, setOpen] = useState(false);
-  const [selectedForm, setSelectedForm] = useState(null);
-  const [overviewForm, setOverviewForm] = useState(null);
-  const [selectedLog, setSelectedLog] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [activeNav, setActiveNav] = useState('overview');
+  const [activeStage, setActiveStage] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [formFilter, setFormFilter] = useState('all');
-  const [reportForm, setReportForm] = useState('C-1');
-  const downloadExcel = useDownloadExcel();
-  const SelectedForm = selectedForm ? dashboardForms[selectedForm] : null;
-  const matchesForm = (label, text = '') => {
-    const matchesType = formFilter === 'all' || (formFilter === 'civil' ? label.startsWith('C') : label.startsWith('T'));
-    return matchesType && `${label} ${text}`.toLowerCase().includes(searchQuery.trim().toLowerCase());
-  };
-  const filteredForms = formLinks.filter(([, label]) => matchesForm(label));
-  const filteredLogs = inspectionLogRows.filter(([, code, name, type, reference, location]) => matchesForm(code, `${name} ${type} ${reference} ${location}`));
-  const openForm = (path) => { setActive('Forms'); setSelectedForm(path); setOverviewForm(path); setOpen(false); };
-  const reportData = reportProfiles[reportForm];
-  const passedChecks = reportData.total - reportData.failed;
-  const passedPercent = (passedChecks / reportData.total) * 100;
-  const failedPercent = (reportData.failed / reportData.total) * 100;
-  const maxFailure = Math.max(...reportData.failures.map(([, value]) => value), 1);
-  const reportTones = ['red', 'orange', 'yellow', 'lightBlue', 'blue', 'teal', 'purple'];
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showLogout, setShowLogout] = useState(false);
 
-  return <div className="dashboard-shell">
-    <aside className={`dashboard-sidebar ${open ? 'is-open' : ''}`}>
-      <div className="dashboard-brand"><div>ITCTC<small>Inspection Portal</small></div></div>
-      <nav className="dashboard-menu">
-        <p>WORKSPACE</p>
-        {menuItems.map(item => <div key={item.label}>
-          <button className={active === item.label ? 'active' : ''} onClick={() => { setActive(item.label); if (item.label === 'Forms') setSelectedForm(null); if (item.label === 'Inspection Logs') setSelectedLog(null); }}>
-            <span className="menu-icon">{item.isImage ? <img src={item.icon} alt="" /> : item.icon}</span>{item.label}
-          </button>
-        </div>)}
-      </nav>
-      <div className="dashboard-user"><div className="user-avatar">A</div><div><strong>Admin</strong><small>Administrator</small></div><span>⋮</span></div>
-    </aside>
+  useEffect(() => {
+    if (location.state?.activeNav) {
+      setActiveNav(location.state.activeNav);
+    }
+  }, [location.state]);
 
-    {open && <button className="sidebar-backdrop" aria-label="Close menu" onClick={() => setOpen(false)} />}
-    <main className="dashboard-main">
-      <header className="dashboard-topbar">
-        <button className="menu-toggle" onClick={() => setOpen(true)}>☰</button>
-        <div><h1>{active}</h1><p>Welcome back. Here is today’s inspection summary.</p></div>
-        <div className="topbar-actions"><button aria-label="Notifications">♢<span /></button><div className="top-avatar">A</div></div>
-      </header>
+  const totalInspections = workflowStages.reduce((sum, s) => sum + s.count, 0);
+  const pendingTotal = workflowStages.reduce((sum, s) => sum + s.pending, 0);
+  const approvedCount = workflowStages.find(s => s.id === 'final-approved')?.count || 0;
+  const approvalRate = totalInspections > 0 ? ((approvedCount / totalInspections) * 100).toFixed(1) : '0';
 
-      <div className="dashboard-content">
-        {active === 'Forms' && !SelectedForm && <section className="dashboard-form-library">
-          <div className="form-library-heading"><div><h2>Available Forms</h2><p>Open any inspection form from the dashboard.</p></div><span>{filteredForms.length} forms</span></div>
-          <ListTools query={searchQuery} onQueryChange={setSearchQuery} filter={formFilter} onFilterChange={setFormFilter} placeholder="Search forms" />
-          <div className="form-card-grid">{filteredForms.map(([path, label]) => <button type="button" className="dashboard-form-card" key={path} onClick={() => openForm(path)}>
-            <div className="form-card-icon">{label.charAt(0)}</div><div><strong>Form {label}</strong><small>{label.startsWith('C') ? 'Civil inspection form' : 'Track inspection form'}</small></div>
-          </button>)}</div>
-        </section>}
-        {active === 'Forms' && SelectedForm && <section className="embedded-form-area">
-          <div className="embedded-form-toolbar"><button type="button" aria-label="Back to all forms" title="Back to all forms" onClick={() => setSelectedForm(null)}>←</button><strong>{formLinks.find(([path]) => path === selectedForm)?.[1]}</strong></div>
-          <div className="embedded-form-content"><SelectedForm /></div>
-        </section>}
-        {['Sections', 'Defects'].includes(active) && <section className="dashboard-empty-state"><div>{menuItems.find(item => item.label === active)?.icon}</div><h2>{active}</h2><p>No {active.toLowerCase()} have been added yet.</p></section>}
-        {active === 'Reports' && <section className="reports-panel">
-          <div className="report-toolbar"><div><h2>Form {reportForm}</h2><p>Tolerance performance for the selected inspection form.</p></div><div className="report-actions"><label>Form<select value={reportForm} onChange={(event) => setReportForm(event.target.value)}>{formLinks.map(([, label]) => <option key={label}>{label}</option>)}</select></label><button type="button" onClick={() => window.print()} title={`Download Form ${reportForm} as PDF`}><FileDown aria-hidden="true"/>PDF</button><button type="button" onClick={() => downloadExcel(`Form-${reportForm}-Tolerance-Report.xls`)} title={`Download Form ${reportForm} as Excel`}><FileSpreadsheet aria-hidden="true"/>Excel</button></div></div>
-          <div className="tolerance-report-grid">
-            <article className="tolerance-panel"><h3>INSPECTION OUTCOME SUMMARY</h3><div className="tolerance-summary"><div className="tolerance-donut" style={{background:`conic-gradient(#42ad56 0 ${passedPercent}%,#ef5748 ${passedPercent}% 100%)`}}><div><strong>{reportData.total.toLocaleString()}</strong><small>Total Checks</small></div></div><div className="tolerance-legend"><span><i className="passed"/><b>Passed</b><strong>{passedChecks.toLocaleString()} <small>({passedPercent.toFixed(2)}%)</small></strong></span><span><i className="failed"/><b>Failed</b><strong>{reportData.failed.toLocaleString()} <small>({failedPercent.toFixed(2)}%)</small></strong></span></div></div></article>
-            <article className="tolerance-panel"><h3>PARAMETER COMPLIANCE</h3><div className="failure-chart compliance-chart">{reportData.failures.map(([label, value], index) => { const compliance = ((reportData.total - value) / reportData.total) * 100; return <div className="failure-row" key={label}><b>{label}</b><span><i className={reportTones[index % reportTones.length]} style={{width: `${compliance}%`}}/></span><strong>{compliance.toFixed(1)}%</strong></div>; })}</div><div className="failure-axis"><span>0%</span><span>20%</span><span>40%</span><span>60%</span><span>80%</span><span>100%</span></div><p>Compliance Rate</p></article>
+  const filteredInspections = recentInspections.filter(item => {
+    const matchesSearch = searchQuery === '' ||
+      `${item.id} ${item.form} ${item.title} ${item.inspector}`.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStage = !activeStage || item.stage === activeStage;
+    return matchesSearch && matchesStage;
+  });
+
+  const maxTrendVal = Math.max(...weeklyTrend.map(d => Math.max(d.submitted || 1, d.approved || 1, d.rework || 1, d.pending || 1, d.review || 1, d.confirmed || 1)));
+
+  return (
+    <div className="railway-layout">
+      {/* SIDEBAR */}
+      <aside className={`railway-sidebar ${sidebarOpen ? 'is-open' : ''}`}>
+        <div className="sidebar-brand">
+          <div className="sidebar-brand-text">
+            <strong>ITCTC</strong>
+            <small>Inspection Portal</small>
           </div>
-          <table className="export-table report-export-table"><caption>Form {reportForm} Tolerance Report</caption><thead><tr><th>Parameter</th><th>Failures</th><th>Failure Percentage</th></tr></thead><tbody><tr><td>Total Checks</td><td>{reportData.total}</td><td>100%</td></tr><tr><td>Passed</td><td>{passedChecks}</td><td>{passedPercent.toFixed(2)}%</td></tr><tr><td>Failed</td><td>{reportData.failed}</td><td>{failedPercent.toFixed(2)}%</td></tr>{reportData.failures.map(([label, value]) => <tr key={label}><td>{label}</td><td>{value}</td><td>{reportData.failed ? ((value / reportData.failed) * 100).toFixed(2) : '0.00'}%</td></tr>)}</tbody></table>
-        </section>}
-        {active === 'Inspection Logs' && !selectedLog && <section className="inspection-logs-panel">
-          <div className="logs-heading"><div><h2>Inspection Logs</h2><p>Inspection activity organized form-wise</p></div><span>{filteredLogs.length} records</span></div>
-          <ListTools query={searchQuery} onQueryChange={setSearchQuery} filter={formFilter} onFilterChange={setFormFilter} placeholder="Search inspection logs" />
-          <div className="logs-table-wrap"><table className="logs-table"><thead><tr><th>Form</th><th>Inspection</th><th>Reference</th><th>Date</th><th>Location</th><th>Status</th><th></th></tr></thead><tbody>
-            {filteredLogs.map(([path,code,name,type,reference,location]) => <tr className="clickable-log-row" key={path} onClick={() => path === '/form-t2' ? setSelectedLog('T-2') : openForm(path)}><td><b className={`log-form-badge ${code.startsWith('T') ? 'track' : ''}`}>{code}</b></td><td><strong>{name}</strong><small>{type}</small></td><td>{reference}</td><td>17 Jul 2026</td><td>{location}</td><td><span className="log-status complete">Completed</span></td><td><span className="row-arrow">→</span></td></tr>)}
-          </tbody></table></div>
-        </section>}
-        {active === 'Inspection Logs' && selectedLog === 'T-2' && <section className="t2-package-dashboard">
-          <div className="package-breadcrumb"><button onClick={() => setSelectedLog(null)}>←</button><strong>Package: MAHSR–T2</strong><span>›</span><b>Section 2 (25.00 - 50.00 km)</b><button className="map-button">⌖ View on Map</button></div>
-          <div className="package-stat-grid">
-            {[['Length','25.00','km','neutral'],['Chainages','132','','neutral'],['Structures','34','','neutral'],['Total Inspections','3,128','','neutral'],['Passed','2,372','75.86%','passed'],['Needs Rectification','556','17.77%','rectification'],['Rectified','186','5.95%','rectified'],['Pending','14','0.45%','pending']].map(([label,value,sub,tone]) => <article className={`package-stat ${tone}`} key={label}><small>{label}</small><strong>{value}<em>{sub === 'km' ? ' km' : ''}</em></strong>{sub && sub !== 'km' && <span>{sub}</span>}</article>)}
+        </div>
+
+        <nav className="sidebar-nav">
+          <p className="sidebar-section-label">WORKSPACE</p>
+          {sidebarNav.map(item => (
+            <button
+              key={item.id}
+              className={`sidebar-nav-item ${activeNav === item.id ? 'active' : ''}`}
+              onClick={() => {
+                setActiveNav(item.id);
+                setSidebarOpen(false);
+              }}
+            >
+              <i className={item.icon} />
+              <span>{item.label}</span>
+              {item.id === 'workflow' && <span className="sidebar-badge">81</span>}
+              {item.id === 'inspections' && <span className="sidebar-badge amber">9</span>}
+            </button>
+          ))}
+        </nav>
+
+      </aside>
+
+      {/* BACKDROP */}
+      {sidebarOpen && <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />}
+
+      {/* MAIN AREA */}
+      <div className="railway-main-area">
+        {/* TOP HEADER */}
+        <header className="railway-topbar">
+          <div className="topbar-left">
+            <button className="sidebar-toggle" onClick={() => setSidebarOpen(true)}>
+              <i className="fa-solid fa-bars" />
+            </button>
+            <div className="topbar-title">
+              <h1>
+                {activeNav === 'overview' && <><i className="fa-solid fa-gauge-high" /> Overview</>}
+                {activeNav === 'workflow' && <><i className="fa-solid fa-diagram-project" /> Workflow</>}
+                {activeNav === 'defects' && <><i className="fa-solid fa-triangle-exclamation" /> Defects</>}
+                {activeNav === 'reports' && <><i className="fa-solid fa-chart-column" /> Reports</>}
+                {activeNav === 'forms' && <><i className="fa-solid fa-table-list" /> Forms</>}
+                {activeNav === 'logs' && <><i className="fa-solid fa-clock-rotate-left" /> Inspection Logs</>}
+              </h1>
+              <p>Welcome back. Here is today's inspection summary.</p>
+            </div>
           </div>
-          <article className="package-table-panel"><h2>INSPECTION STATUS BY FORM</h2><div className="logs-table-wrap"><table className="package-table"><thead><tr><th>Form Code</th><th>Form Name</th><th>Total Inspections</th><th>Passed</th><th>Needs Rectification</th><th>Rectified</th><th>Pending</th><th>Pass %</th></tr></thead><tbody>
-            {[
-              ['C-0','General Information',132,125,5,2,0,'94.70%'],['C-1','Track Centre Line',132,115,12,4,1,'87.12%'],['C-2','Gauge',132,108,16,7,1,'81.82%'],['C-3','Cross Level',132,112,15,4,1,'84.85%'],['C-4','Cant',132,109,17,5,1,'82.58%'],['T-2','Track Irregularity',132,118,9,4,1,'89.39%']
-            ].map(row => <tr key={row[0]}>{row.map((cell,i)=><td key={i} className={i===3||i===7?'green':i===4?'orange':i===5?'blue':i===6?'purple':''}>{cell}</td>)}</tr>)}
-            <tr className="package-total"><td colSpan="2">Total</td><td>3,128</td><td className="green">2,372</td><td className="orange">556</td><td className="blue">186</td><td className="purple">14</td><td className="green">75.86%</td></tr>
-          </tbody></table></div></article>
-        </section>}
-        {active === 'Overview' && <>
-        <section className="stat-grid dashboard-top-stats">{stats.map(stat => { const Icon = stat.icon; return <article className={`stat-card ${stat.tone}`} key={stat.label}>
-          <div className={`stat-mark ${stat.tone}`} /><Icon className="stat-icon" aria-hidden="true" /><p>{stat.label}</p><div><strong>{stat.value}</strong><span>{stat.change}</span></div><small>{stat.note}</small>
-        </article>; })}</section>
-        {overviewForm === '/form-t2' && <T2Overview downloadExcel={downloadExcel} />}
-        {overviewForm === '/form-c1' && <C1Overview />}
-        {!['/form-t2', '/form-c1'].includes(overviewForm) && <section className="dashboard-empty-state"><div>◫</div><h2>Select a form</h2><p>Open C-1 or T-2 first to view its overview.</p></section>}
-        </>}
+          <div className="topbar-right">
+            <div className="topbar-search">
+              <i className="fa-solid fa-magnifying-glass" />
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <button className="topbar-icon-btn" title="Notifications">
+              <i className="fa-solid fa-bell" />
+              <span className="notif-dot" />
+            </button>
+            <button className="topbar-icon-btn" title="Settings">
+              <i className="fa-solid fa-gear" />
+            </button>
+            <div className="topbar-user-wrap">
+              <button className="topbar-user" onClick={() => setShowLogout(!showLogout)}>
+                <div className="topbar-avatar">D</div>
+                <span className="topbar-user-name">David</span>
+              </button>
+              {showLogout && (
+                <div className="topbar-dropdown">
+                  <button onClick={() => window.location.href = '/'}>
+                    <i className="fa-solid fa-right-from-bracket" /> Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* CONTENT */}
+        <main className="railway-content">
+
+          {/* ============ OVERVIEW ============ */}
+          {activeNav === 'overview' && (
+            <>
+              <section className="railway-stats-row">
+                <div className="railway-stat-card stat-blue">
+                  <div className="stat-card-icon"><i className="fa-solid fa-file-lines" /></div>
+                  <div className="stat-card-info">
+                    <span className="stat-card-value">{totalInspections}</span>
+                    <span className="stat-card-label">Total Inspections</span>
+                  </div>
+                </div>
+                <div className="railway-stat-card stat-amber">
+                  <div className="stat-card-icon"><i className="fa-solid fa-clock-rotate-left" /></div>
+                  <div className="stat-card-info">
+                    <span className="stat-card-value">{pendingTotal}</span>
+                    <span className="stat-card-label">Pending Review</span>
+                  </div>
+                </div>
+                <div className="railway-stat-card stat-green">
+                  <div className="stat-card-icon" style={{ color: '#79d58f' }}><i className="fa-solid fa-circle-check" /></div>
+                  <div className="stat-card-info">
+                    <span className="stat-card-value">{approvedCount}</span>
+                    <span className="stat-card-label">Final Approved</span>
+                  </div>
+                </div>
+                <div className="railway-stat-card stat-purple">
+                  <div className="stat-card-icon"><i className="fa-solid fa-chart-line" /></div>
+                  <div className="stat-card-info">
+                    <span className="stat-card-value">{approvalRate}%</span>
+                    <span className="stat-card-label">Approval Rate</span>
+                  </div>
+                </div>
+                <div className="railway-stat-card stat-red">
+                  <div className="stat-card-icon"><i className="fa-solid fa-triangle-exclamation" /></div>
+                  <div className="stat-card-info">
+                    <span className="stat-card-value">2</span>
+                    <span className="stat-card-label">Urgent Items</span>
+                  </div>
+                </div>
+              </section>
+
+              {/* 100 KM Overview + Key Metrics side by side */}
+              <section className="overview-split">
+                <div className="overview-left">
+                  <div className="km-header">
+                    <h3>100 K.M Project Overview</h3>
+                  </div>
+                  <div className="km-sections-grid">
+                    {[
+                      { section: 'Section A', range: '0 - 25 KM', km: 25, passed: 19, pending: 3, color: '#DB2828', pct: 76 },
+                      { section: 'Section B', range: '25 - 50 KM', km: 25, passed: 16, pending: 4, color: '#212121', pct: 64 },
+                      { section: 'Section C', range: '50 - 75 KM', km: 25, passed: 14, pending: 4, color: '#f2711c', pct: 56 },
+                      { section: 'Section D', range: '75 - 100 KM', km: 25, passed: 18, pending: 3, color: '#4d9dd9', pct: 72 },
+                    ].map(s => (
+                      <div key={s.section} className="km-box" style={{ borderLeft: `4px solid ${s.color}` }}>
+                        <div className="km-box-top">
+                          <div className="km-box-icon" style={{ background: '#f2f2f2', color: s.color }}>
+                            <i className="fa-solid fa-train" />
+                          </div>
+                          <span className="km-box-name">{s.section}</span>
+                          <span className="km-box-pct" style={{ color: s.color }}>{s.pct}%</span>
+                        </div>
+                        <div className="km-box-range">{s.range}</div>
+                        <div className="km-box-bar-track">
+                          <div className="km-box-bar" style={{ width: `${s.pct}%`, background: s.color }} />
+                        </div>
+                        <div className="km-box-footer">
+                          <div className="km-box-footer-item">
+                            <span className="km-box-footer-val" style={{ color: s.color }}>{s.passed}</span>
+                            <span className="km-box-footer-label">Passed</span>
+                          </div>
+                          <div className="km-box-footer-divider" />
+                          <div className="km-box-footer-item">
+                            <span className="km-box-footer-val" style={{ color: '#f2711c' }}>{s.pending}</span>
+                            <span className="km-box-footer-label">Pending</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="key-metrics-inline">
+                    <div className="km-header">
+                      <h3>Key Metrics Summary</h3>
+                    </div>
+                    <div className="key-metrics-grid">
+                      {[
+                        { label: 'Total Sections', value: '4', sub: 'of 100 KM', color: '#DB2828' },
+                        { label: 'Completion', value: '77%', sub: 'overall', color: '#f2711c' },
+                        { label: 'Pass Rate', value: '82%', sub: 'per section', color: '#4d9dd9' },
+                        { label: 'Open Issues', value: '14', sub: 'needs attention', color: '#79d58f' },
+                        { label: 'Forms Done', value: '11', sub: 'of 11', color: '#212121' },
+                        { label: 'Deadline', value: '18', sub: 'days left', color: '#DB2828' },
+                      ].map(m => (
+                        <div key={m.label} className="metric-card">
+                          <div className="metric-info">
+                            <span className="metric-value" style={{ color: m.color }}>{m.value}</span>
+                            <span className="metric-label">{m.label}</span>
+                            <span className="metric-sub">{m.sub}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="overview-right railway-card pie-card">
+                  <div className="card-header">
+                    <h3>Inspection Status Overview</h3>
+                  </div>
+                  <div className="pie-chart-container">
+                    {(() => {
+                      const statusData = [
+                        { label: 'Inspector', count: 12, color: '#DB2828' },
+                        { label: 'PMC Review', count: 8, color: '#f2711c' },
+                        { label: 'Inspector Rework', count: 5, color: '#4d9dd9' },
+                        { label: 'ITC Preconfirmation', count: 6, color: '#79d58f' },
+                        { label: 'PMC Response', count: 3, color: '#212121' },
+                        { label: 'Final Approved', count: 47, color: '#79d58f' },
+                      ];
+                      const total = statusData.reduce((a, b) => a + b.count, 0);
+                      let cumulative = 0;
+                      const gradientParts = statusData.map(item => {
+                        const start = cumulative;
+                        cumulative += (item.count / total) * 360;
+                        return `${item.color} ${start}deg ${cumulative}deg`;
+                      });
+                      return (
+                        <>
+                          <div className="pie-chart" style={{ background: `conic-gradient(${gradientParts.join(', ')})` }}>
+                            <div className="pie-chart-hole">
+                              <span className="pie-total">{total}</span>
+                              <span className="pie-total-label">Total</span>
+                            </div>
+                          </div>
+                          <div className="pie-legend">
+                            {statusData.map(item => (
+                              <div key={item.label} className={`pie-legend-item${item.label === 'Final Approved' ? ' final-approved-legend-item' : ''}`}>
+                                <span className="pie-legend-dot" style={{ background: item.color }} />
+                                <span className="pie-legend-label">{item.label}</span>
+                                <span className="pie-legend-count">{item.count}</span>
+                                <span className="pie-legend-pct">{((item.count / total) * 100).toFixed(0)}%</span>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </section>
+
+              <div className="railway-card activity-feed-card">
+                <div className="card-header">
+                  <h3>Activity Feed</h3>
+                  <span className="card-badge"><i className="fa-solid fa-clock" /> Live</span>
+                </div>
+                <div className="activity-feed">
+                  {activityFeed.map((item, i) => (
+                    <div key={i} className="activity-item">
+                      <div className="activity-icon" style={{ background: `${item.color}14`, color: item.color }}>
+                        <i className={item.iconClass} />
+                      </div>
+                      <div className="activity-content">
+                        <p>{item.action}</p>
+                        <small><i className="fa-solid fa-user" /> {item.user} &middot; <i className="fa-regular fa-clock" /> {item.time}</small>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Workflow Pipeline */}
+              <div className="railway-card workflow-overview-card">
+                <div className="card-header">
+                  <h3>Workflow Pipeline</h3>
+                  <span className="card-badge">81 Total</span>
+                </div>
+                <div className="workflow-overview-grid">
+                    {workflowStages.filter(s => s.id !== 'total').map(stage => (
+                      <div key={stage.id} className="workflow-overview-item">
+                        <div className="workflow-overview-icon" style={{ background: '#f2f2f2', color: stage.color }}>
+                          <i className={stage.iconClass} />
+                        </div>
+                        <div className="workflow-overview-info">
+                          <span className="workflow-overview-label">{stage.label}</span>
+                          <span className="workflow-overview-count" style={{ color: stage.color }}>{stage.count}</span>
+                          {stage.pending > 0 && (
+                            <span className="workflow-overview-pending">{stage.pending} pending</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ============ WORKFLOW ============ */}
+          {activeNav === 'workflow' && (
+            <>
+              <div className="workflow-overview-grid" style={{ marginBottom: 16 }}>
+                {workflowStages.filter(s => s.id !== 'total').map(stage => (
+                  <div key={stage.id} className="workflow-overview-item" style={{ cursor: 'pointer', borderLeft: `3px solid ${stage.color}` }} onClick={() => setActiveStage(activeStage === stage.id ? null : stage.id)}>
+                     <div className="workflow-overview-icon" style={{ background: '#f2f2f2', color: stage.color }}>
+                       <i className={stage.iconClass} />
+                     </div>
+                     <div className="workflow-overview-info">
+                       <span className="workflow-overview-label">{stage.label}</span>
+                       <span className="workflow-overview-count" style={{ color: stage.color }}>{stage.count}</span>
+                       {stage.pending > 0 && (
+                         <span className="workflow-overview-pending">{stage.pending} pending</span>
+                       )}
+                     </div>
+                  </div>
+                ))}
+              </div>
+              <div className="workflow-details-grid">
+                <div className="railway-card">
+                  <div className="card-header">
+                    <h3><i className="fa-solid fa-chart-pie" /> Stage Breakdown</h3>
+                  </div>
+                  <div className="breakdown-list">
+                    {workflowStages.map(stage => {
+                      const pct = totalInspections > 0 ? ((stage.count / totalInspections) * 100) : 0;
+                      return (
+                        <div key={stage.id} className="breakdown-item">
+                          <div className="breakdown-label">
+                            <i className={stage.iconClass} style={{ color: stage.color, fontSize: '13px' }} />
+                            <span>{stage.label}</span>
+                          </div>
+                          <div className="breakdown-bar-track">
+                            <div className="breakdown-bar" style={{ width: `${pct}%`, background: stage.color }} />
+                          </div>
+                          <span className="breakdown-count">{stage.count}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="railway-card">
+                  <div className="card-header">
+                    <h3><i className="fa-solid fa-chart-simple" /> Weekly Activity</h3>
+                    <span className="card-badge"><i className="fa-solid fa-calendar-days" /> This Week</span>
+                  </div>
+                  <div className="trend-bars">
+                    {weeklyTrend.map(d => (
+                      <div key={d.day} className="trend-day">
+                          <div className="trend-bar-stack">
+                            <div className="trend-bar" style={{ height: `${(d.submitted / maxTrendVal) * 100}%`, background: '#DB2828' }} title={`Submitted: ${d.submitted}`} />
+                            <div className="trend-bar" style={{ height: `${(d.approved / maxTrendVal) * 100}%`, background: '#4d9dd9' }} title={`Approved: ${d.approved}`} />
+                            <div className="trend-bar" style={{ height: `${(d.rework / maxTrendVal) * 100}%`, background: '#DB2828' }} title={`Rework: ${d.rework}`} />
+                            <div className="trend-bar" style={{ height: `${(d.pending / maxTrendVal) * 100}%`, background: '#f2711c' }} title={`Pending: ${d.pending}`} />
+                            <div className="trend-bar" style={{ height: `${(d.review / maxTrendVal) * 100}%`, background: '#fcd76a' }} title={`Review: ${d.review}`} />
+                            <div className="trend-bar" style={{ height: `${(d.confirmed / maxTrendVal) * 100}%`, background: '#79d58f' }} title={`Confirmed: ${d.confirmed}`} />
+                          </div>
+                        <span className="trend-label">{d.day}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="trend-legend">
+                    <span><i className="dot" style={{ background: '#DB2828' }} /> Submitted</span>
+                    <span><i className="dot" style={{ background: '#4d9dd9' }} /> Approved</span>
+                    <span><i className="dot" style={{ background: '#DB2828' }} /> Rework</span>
+                    <span><i className="dot" style={{ background: '#f2711c' }} /> Pending</span>
+                    <span><i className="dot" style={{ background: '#fcd76a' }} /> Review</span>
+                    <span><i className="dot" style={{ background: '#79d58f' }} /> Confirmed</span>
+                  </div>
+                </div>
+
+                <div className="railway-card activity-feed-card">
+                  <div className="card-header">
+                    <h3><i className="fa-solid fa-timeline" /> Activity Feed</h3>
+                    <span className="card-badge"><i className="fa-solid fa-clock" /> Live</span>
+                  </div>
+                  <div className="activity-feed">
+                    {activityFeed.map((item, i) => (
+                      <div key={i} className="activity-item">
+                        <div className="activity-icon" style={{ background: `${item.color}14`, color: item.color }}>
+                          <i className={item.iconClass} />
+                        </div>
+                        <div className="activity-content">
+                          <p>{item.action}</p>
+                          <small><i className="fa-solid fa-user" /> {item.user} &middot; <i className="fa-regular fa-clock" /> {item.time}</small>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeNav === 'reports' && (
+            <div className="reports-panel">
+              <div className="card-header">
+                <h3><i className="fa-solid fa-chart-column" /> Inspection Reports</h3>
+                <div className="report-actions">
+                  <button type="button" onClick={() => window.print()} title="Download Report as PDF"><i className="fa-solid fa-file-pdf" /> PDF</button>
+                  <button type="button" onClick={() => downloadExcel('Reports-Overview.xls')} title="Download Report as Excel"><i className="fa-solid fa-file-excel" /> Excel</button>
+                </div>
+              </div>
+
+              <div className="tolerance-report-grid">
+                <div className="tolerance-panel">
+                  <h3>Overall Compliance</h3>
+                  <div className="tolerance-summary">
+                    <div className="pie-chart" style={{ background: `conic-gradient(rgb(219, 40, 40) 0 ${(((workflowStages.find(s=>s.id==='inspector')?.count||0) + (workflowStages.find(s=>s.id==='pmc-response')?.count||0)) / Math.max(totalInspections,1)) * 360}deg rgb(45, 106, 225) 0deg)` }}>
+                      <div className="pie-chart-hole">
+                        <span className="pie-total">{totalInspections}</span>
+                        <span className="pie-total-label">Total</span>
+                      </div>
+                    </div>
+                    <div className="tolerance-legend">
+                      <span><i className="pie-dot" style={{ background: 'rgb(219, 40, 40)' }} /> Inspector</span>
+                      <span><i className="pie-dot" style={{ background: '#f2711c' }} /> PMC Review</span>
+                      <span><i className="pie-dot" style={{ background: '#4d9dd9' }} /> Rework</span>
+                      <span><i className="pie-dot" style={{ background: '#79d58f' }} /> ITC Review</span>
+                      <span><i className="pie-dot" style={{ background: '#212121' }} /> PMC Response</span>
+                      <span><i className="pie-dot" style={{ background: '#79d58f' }} /> Final Approved</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="tolerance-panel">
+                  <h3>Stage Breakdown</h3>
+                  <div className="breakdown-list">
+                    {workflowStages.filter(s => s.id !== 'total').map(stage => {
+                      const pct = totalInspections > 0 ? ((stage.count / totalInspections) * 100) : 0;
+                      return (
+                        <div key={stage.id} className="breakdown-item">
+                          <div className="breakdown-label">
+                            <i className={stage.iconClass} style={{ color: stage.color, fontSize: '13px' }} />
+                            <span>{stage.label}</span>
+                          </div>
+                          <div className="breakdown-bar-track">
+                            <div className="breakdown-bar" style={{ width: `${pct}%`, background: stage.color }} />
+                          </div>
+                          <span className="breakdown-count">{stage.count}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="railway-card" style={{ marginTop: '18px' }}>
+                <div className="card-header">
+                  <h3><i className="fa-solid fa-triangle-exclamation" /> Urgent Items</h3>
+                </div>
+                {recentInspections.filter(i => i.priority === 'urgent').length > 0 ? (
+                  <div className="inspections-table-wrap">
+                    <table className="inspections-table">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Form</th>
+                          <th>Title</th>
+                          <th>Chainage</th>
+                          <th>Inspector</th>
+                          <th>Stage</th>
+                          <th>Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {recentInspections.filter(i => i.priority === 'urgent').map(item => (
+                          <tr key={item.id}>
+                            <td><strong>{item.id}</strong></td>
+                            <td><span className={`form-badge ${item.form.startsWith('T') ? 'track' : 'civil'}`}>{item.form}</span></td>
+                            <td>{item.title}</td>
+                            <td className="chainage-cell">{item.chainage}</td>
+                            <td>{item.inspector}</td>
+                            <td><span className={`stage-tag tone-amber`}>Urgent</span></td>
+                            <td className="date-cell">{item.date}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p style={{ padding: '20px', textAlign: 'center', color: 'var(--text-muted)' }}>No urgent items at this time.</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ============ DEFECTS ============ */}
+          {activeNav === 'defects' && (
+            <div className="railway-card">
+              <div className="card-header">
+                <h3><i className="fa-solid fa-triangle-exclamation" /> Defects Register</h3>
+                <span className="card-badge"><i className="fa-solid fa-flag" /> {defectsData.length} Items</span>
+              </div>
+              <div className="inspections-table-wrap">
+                <table className="inspections-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Form</th>
+                      <th>Defect Description</th>
+                      <th>Chainage</th>
+                      <th>Severity</th>
+                      <th>Inspector</th>
+                      <th>Date</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...defectsData].sort((a, b) => a.inspector.localeCompare(b.inspector)).map(defect => (
+                      <tr key={defect.id}>
+                        <td><strong>{defect.id}</strong></td>
+                        <td><span className={`form-badge ${defect.form.startsWith('T') ? 'track' : 'civil'}`}>{defect.form}</span></td>
+                        <td>{defect.description}</td>
+                        <td className="chainage-cell">{defect.chainage}</td>
+                        <td><span className={`stage-tag ${defect.severity === 'critical' ? 'tone-amber' : defect.severity === 'major' ? 'tone-red' : 'tone-blue'}`}>{defect.severity}</span></td>
+                        <td>{defect.inspector}</td>
+                        <td className="date-cell">{defect.date}</td>
+                        <td>
+                          <button type="button" className="view-btn" title="View Details"><i className="fa-solid fa-eye" /></button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ============ FORMS ============ */}
+          {activeNav === 'forms' && (
+            <div className="railway-card">
+              <div className="card-header">
+                <h3><i className="fa-solid fa-table-list" /> Form-wise Inspection Summary</h3>
+                <span className="card-badge"><i className="fa-solid fa-file-lines" /> {formStats.length} Forms</span>
+              </div>
+               <div className="forms-grid">
+                  {formStats.map(f => {
+                    const passRate = f.total > 0 ? ((f.passed / f.total) * 100).toFixed(0) : 0;
+                    return (
+                      <div 
+                        key={f.code} 
+                        className="form-summary-item"
+                        onClick={() => navigate(f.path)}
+                      >
+                        <div className="form-summary-header">
+                          <span className={`form-badge ${f.code.startsWith('T') ? 'track' : 'civil'}`}>{f.code}</span>
+                          <span className="form-pass-rate" style={{ color: passRate >= 80 ? '#4d9dd9' : '#f2711c' }}>{passRate}%</span>
+                        </div>
+                        <span className="form-summary-name">{f.name}</span>
+                        <div className="form-summary-bar-track">
+                          <div className="form-summary-bar" style={{ width: `${passRate}%` }} />
+                        </div>
+                        <div className="form-summary-meta">
+                          <span><i className="fa-solid fa-circle-check" /> {f.passed} passed</span>
+                          <span><i className="fa-solid fa-clock" /> {f.pending} pending</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
+
+          {/* ============ LOGS ============ */}
+          {activeNav === 'logs' && (
+            <div className="railway-card">
+              <div className="card-header">
+                <h3><i className="fa-solid fa-clock-rotate-left" /> Inspection Logs</h3>
+              </div>
+              <div className="inspections-table-wrap">
+                <table className="inspections-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Form</th>
+                      <th>Description</th>
+                      <th>Chainage</th>
+                      <th>Inspector</th>
+                      <th>Stage</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentInspections.map(item => {
+                      const st = stageLabels[item.stage];
+                      return (
+                        <tr key={item.id}>
+                          <td><strong>{item.id}</strong></td>
+                          <td><span className={`form-badge ${item.form.startsWith('T') ? 'track' : 'civil'}`}>{item.form}</span></td>
+                          <td>{item.title}</td>
+                          <td className="chainage-cell">{item.chainage}</td>
+                          <td>{item.inspector}</td>
+                          <td><span className={`stage-tag tone-${st.tone}`}>{st.label}</span></td>
+                          <td className="date-cell">{item.date}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+        </main>
       </div>
-    </main>
-  </div>;
+    </div>
+  );
 }

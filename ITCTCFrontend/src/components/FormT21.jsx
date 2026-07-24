@@ -1,15 +1,25 @@
 import useStickyHeaders from '../hooks/useStickyHeaders';
 import formT21Diagram from '../assets/images/Form_T-21.png';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
+import useDownloadExcel from '../hooks/useDownloadExcel';
 
 export default function FormT21() {
+  const navigate = useNavigate();
   useStickyHeaders();
+  const downloadExcel = useDownloadExcel();
 
   return (
     <div className="container-fluid py-3">
       <div className="panel-heading d-flex align-items-center justify-content-between mb-3">
+        <button type="button" onClick={() => navigate(-1)} title="Back" style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer' }}><ArrowLeft aria-hidden="true" /></button>
         <h1 className="h6 mb-0">Form T-21</h1>
         <span className="title-main text-center flex-grow-1 mx-3">Measurement record of Track effective length in stations and depots</span>
         <span>Date: <input type="text" className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
+        <div className="form-export-actions">
+          <button type="button" onClick={() => window.print()} title="Download as PDF"><i className="fa-solid fa-file-pdf" /></button>
+          <button type="button" onClick={() => downloadExcel('Form-T-21.xls')} title="Download as Excel"><i className="fa-solid fa-file-excel" /></button>
+        </div>
       </div>
       <style>{'.compact-table td { padding: 6px 4px !important; font-size: 12px; line-height: 1.4; } .compact-table { font-size: 12px; } .compact-table thead tr:first-child th, .compact-table thead tr:first-child td { padding: 4px 4px !important; } .compact-table th { background: none !important; background-color: transparent !important; }'}</style>
 
