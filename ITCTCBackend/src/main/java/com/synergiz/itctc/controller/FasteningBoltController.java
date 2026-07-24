@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/fastening-bolt")
-@CrossOrigin("*")
+//@CrossOrigin("*")
 public class FasteningBoltController {
 
     private final FasteningBoltService fasteningBoltService;
