@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/cam-measurements")
-@CrossOrigin("*")
+//@CrossOrigin("*")
 public class CamMeasurementController {
 
     private final CamMeasurementService camMeasurementService;

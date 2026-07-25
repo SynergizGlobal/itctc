@@ -15,7 +15,7 @@ import com.synergiz.itctc.service.NoiseBarrierMeasurementService;
 
 @RestController
 @RequestMapping("/api/noise-barrier-measurements")
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 public class NoiseBarrierMeasurementController {
 
     private final NoiseBarrierMeasurementService noiseBarrierMeasurementService;

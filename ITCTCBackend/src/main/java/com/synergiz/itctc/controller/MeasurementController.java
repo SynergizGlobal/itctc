@@ -13,7 +13,7 @@ import com.synergiz.itctc.service.MeasurementService;
 
 @RestController
 @RequestMapping("/api/measurements")
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 public class MeasurementController {
 
     private final MeasurementService measurementService;

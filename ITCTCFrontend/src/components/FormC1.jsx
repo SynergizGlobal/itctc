@@ -3,6 +3,8 @@ import useStickyHeaders from '../hooks/useStickyHeaders';
 import { ArrowLeft } from 'lucide-react';
 import useDownloadExcel from '../hooks/useDownloadExcel';
 import formC1Diagram from '../assets/images/Form_C-1.png';
+import { useEffect, useState } from 'react';
+import { getAllMeasurements } from '../services/measurementService';
 
 const formC1Columns = [
   'chainageKm', 'chainageSeparator', 'chainageM',
@@ -13,23 +15,36 @@ const formC1Columns = [
   'dStandard', 'dMeasured', 'remarks'
 ];
 
-const sampleData = {
-  chainageKm: '1.50', chainageSeparator: '', chainageM: '250.00',
-  typeOfStructure: 'Earthwork A (Cutting Section)',
-  straightCurve: 'Curve R=750',
-  typeOfTrack: 'Down Line',
-  appliedCant: '120.00',
-  aMeasured: '100.00', xCalculatedForA: '750.00', aStandard: '850.00', aMeasuredFinal: '850.00',
-  bMeasured: '100.00', bDashMeasured: '5205.00', bStandard: '5200.00', bMeasuredFinal: '5205.00',
-  cMeasured: '100.00', xCalculatedForC: '750.00', cStandard: '850.00', cMeasuredFinal: '850.00',
-  dStandard: '800.00', dMeasured: '795.00',
-  remarks: 'Testing Save API'
-};
+
 
 export default function FormC1() {
   const navigate = useNavigate();
   useStickyHeaders();
   const downloadExcel = useDownloadExcel();
+  const [measurements, setMeasurements] = useState([]);
+
+  useEffect(() => {
+
+    loadMeasurements();
+
+}, []);
+
+const loadMeasurements = async () => {
+
+    try {
+
+        const data = await getAllMeasurements();
+
+        console.log("Measurements :", data);
+
+        setMeasurements(data);
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+};
 
   const columnHeaders = [
     { label: 'Chainage', colSpan: 3, rowSpan: 2 },
@@ -122,17 +137,223 @@ export default function FormC1() {
               <td width="61">Measured value</td>
             </tr>
           </thead>
-          <tbody>
-            {Array.from({ length: 10 }, (_, i) => (
-              <tr key={i}>
-                {formC1Columns.map((col, j) => (
-                  <td key={j}>
-                    <input type="text" className="form-control form-control-sm table-input" name={`${col}[]`} defaultValue={i === 0 && sampleData[col] ? sampleData[col] : ''} />
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
+         <tbody>
+  {measurements.length > 0 ? (
+    measurements.flatMap((measurement) =>
+      measurement.details.map((detail) => (
+        <tr key={detail.measurementDetailId}>
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={measurement.chainageKm ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value=""
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={measurement.chainageM ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={measurement.structureTypeName ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={
+                measurement.isCurve
+                  ? `Curve R=${measurement.curveRadius}`
+                  : "Straight"
+              }
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={measurement.trackTypeName ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={measurement.appliedCantValueMm ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={detail.aMeasured ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={detail.x1Calculated ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={detail.aStandard ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={detail.aMeasuredTotal ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={detail.bMeasured ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={detail.bPrimeMeasured ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={detail.bStandard ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={detail.bTotalMeasured ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={detail.cMeasured ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={detail.x2Calculated ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={detail.cStandard ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={detail.cTotalMeasured ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={detail.dStandard ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={detail.dMeasured ?? ""}
+              readOnly
+            />
+          </td>
+
+          <td>
+            <input
+              type="text"
+              className="form-control form-control-sm table-input"
+              value={measurement.remarks ?? ""}
+              readOnly
+            />
+          </td>
+        </tr>
+      ))
+    )
+  ) : (
+    <tr>
+      <td colSpan="22" className="text-center">
+        No Records Found
+      </td>
+    </tr>
+  )}
+</tbody>
         </table>
       </div>
     </div>

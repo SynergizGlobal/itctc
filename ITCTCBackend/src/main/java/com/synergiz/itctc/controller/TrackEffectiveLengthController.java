@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/track-effective-length")
-@CrossOrigin("*")
+//@CrossOrigin("*")
 public class TrackEffectiveLengthController {
 
     private final TrackEffectiveLengthService trackEffectiveLengthService;

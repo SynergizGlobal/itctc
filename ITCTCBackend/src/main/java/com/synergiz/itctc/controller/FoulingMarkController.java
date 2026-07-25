@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/fouling-mark")
-@CrossOrigin("*")
+//@CrossOrigin("*")
 public class FoulingMarkController {
 
     private final FoulingMarkService foulingMarkService;

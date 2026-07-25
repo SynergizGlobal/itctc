@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/sleeper-spacing")
-@CrossOrigin("*")
+//@CrossOrigin("*")
 public class SleeperSpacingController {
 
     private final SleeperSpacingService sleeperSpacingService;

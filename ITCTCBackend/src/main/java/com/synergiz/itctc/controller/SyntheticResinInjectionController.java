@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/synthetic-resin-injection")
-@CrossOrigin("*")
+//@CrossOrigin("*")
 public class SyntheticResinInjectionController {
 
     private final SyntheticResinInjectionService syntheticResinInjectionService;
