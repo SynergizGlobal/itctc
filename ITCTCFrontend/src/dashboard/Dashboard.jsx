@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { logout } from "../services/authService";
 import './dashboard.css';
 
 const sidebarNav = [
@@ -204,12 +205,12 @@ export default function Dashboard() {
                 <span className="topbar-user-name">David</span>
               </button>
               {showLogout && (
-                <div className="topbar-dropdown">
-                  <button onClick={() => window.location.href = '/'}>
-                    <i className="fa-solid fa-right-from-bracket" /> Logout
-                  </button>
-                </div>
-              )}
+              <div className="topbar-dropdown">
+               <button onClick={logout}>
+                <i className="fa-solid fa-right-from-bracket" /> Logout
+              </button>
+               </div>
+                )}
             </div>
           </div>
         </header>
