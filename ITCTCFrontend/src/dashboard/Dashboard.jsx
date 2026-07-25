@@ -3,13 +3,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import './dashboard.css';
 
 const sidebarNav = [
-  { id: 'overview', label: 'Overview', icon: 'fa-solid fa-gauge-high' },
-  { id: 'sections', label: 'Sections', icon: 'fa-solid fa-table-cells-large' },
-  { id: 'workflow', label: 'Workflow', icon: 'fa-solid fa-diagram-project' },
-  { id: 'defects', label: 'Defects', icon: 'fa-solid fa-triangle-exclamation' },
-  { id: 'reports', label: 'Reports', icon: 'fa-solid fa-chart-column' },
-  { id: 'forms', label: 'Forms', icon: 'fa-solid fa-table-list' },
-  { id: 'logs', label: 'Inspection Logs', icon: 'fa-solid fa-clock-rotate-left' },
+  { id: 'overview', label: 'Overview', icon: 'fa-solid fa-train-subway' },
+  { id: 'sections', label: 'Sections', icon: 'fa-solid fa-route' },
+  { id: 'workflow', label: 'Workflow', icon: 'fa-solid fa-arrows-spin' },
+  { id: 'defects', label: 'Defects', icon: 'fa-solid fa-circle-exclamation' },
+  { id: 'reports', label: 'Reports', icon: 'fa-solid fa-file-lines' },
+  { id: 'forms', label: 'Forms', icon: 'fa-solid fa-clipboard-list' },
+  { id: 'logs', label: 'Inspection Logs', icon: 'fa-solid fa-history' },
 ];
 
 const formLinks = [
@@ -27,12 +27,12 @@ const formLinks = [
 ];
 
 const workflowStages = [
-  { id: 'inspector', label: 'Inspector', subtitle: 'Create & Submit', desc: 'Creates a new inspection record. Completes all required inspection details, observations, measurements, photographs, and attachments. Submits the inspection to the PMC for review.', iconClass: 'fa-solid fa-clipboard-list', color: '#DB2828', count: 12, pending: 3 },
-  { id: 'pmc-review', label: 'PMC Review', subtitle: 'Review & Forward', desc: 'Reviews the inspection details submitted by the Inspector. Approve and forward to ITC Preconfirmation Engineer, or return to Inspector with comments.', iconClass: 'fa-solid fa-magnifying-glass', color: '#f2711c', count: 8, pending: 2 },
-  { id: 'inspector-rework', label: 'Inspector Rework', subtitle: 'Update & Resubmit', desc: 'Reviews the PMC comments. Updates the inspection record as required. Resubmits the inspection to the PMC for review.', iconClass: 'fa-solid fa-rotate', color: '#4d9dd9', count: 5, pending: 1 },
-  { id: 'itc-engineer', label: 'ITC Preconfirmation Engineer', subtitle: 'Final Review', desc: 'Reviews the inspection after PMC approval. Approve (final approved), return to PMC with comments, or return directly to Inspector for correction.', iconClass: 'fa-solid fa-shield-halved', color: '#79d58f', count: 6, pending: 2 },
-  { id: 'pmc-response', label: 'PMC Response to ITC Comments', subtitle: 'Address ITC Comments', desc: 'If the inspection is returned by the ITC Preconfirmation Engineer to the PMC: The PMC reviews the comments and has two options — Address the comments and resubmit to the ITC Preconfirmation Engineer, or Return the inspection to the Inspector if changes require modification of the inspection data or form.', iconClass: 'fa-solid fa-paper-plane', color: '#212121', count: 3, pending: 1 },
-  { id: 'final-approved', label: 'Final Approval', subtitle: 'Completed', desc: 'When the ITC Preconfirmation Engineer approves the inspection, the workflow is complete. The inspection status changes to Approved, and no further review is required unless reopened through a separate administrative process.', iconClass: 'fa-solid fa-circle-check', color: '#79d58f', count: 1, pending: 0 },
+  { id: 'inspector', label: 'Inspector', subtitle: 'Create & Submit', desc: 'Creates a new inspection record. Completes all required inspection details, observations, measurements, photographs, and attachments. Submits the inspection to the PMC for review.', iconClass: 'fa-solid fa-id-badge', color: '#de3d3d', count: 12, pending: 3 },
+  { id: 'pmc-review', label: 'PMC Review', subtitle: 'Review & Forward', desc: 'Reviews the inspection details submitted by the Inspector. Approve and forward to ITC Preconfirmation Engineer, or return to Inspector with comments.', iconClass: 'fa-solid fa-user-tie', color: '#f2711c', count: 8, pending: 2 },
+  { id: 'inspector-rework', label: 'Inspector Rework', subtitle: 'Update & Resubmit', desc: 'Reviews the PMC comments. Updates the inspection record as required. Resubmits the inspection to the PMC for review.', iconClass: 'fa-solid fa-wrench', color: '#70b0e0', count: 5, pending: 1 },
+  { id: 'itc-engineer', label: 'ITC Preconfirmation Engineer', subtitle: 'Final Review', desc: 'Reviews the inspection after PMC approval. Approve (final approved), return to PMC with comments, or return directly to Inspector for correction.', iconClass: 'fa-solid fa-user-shield', color: '#79d58f', count: 6, pending: 2 },
+  { id: 'pmc-response', label: 'PMC Response to ITC Comments', subtitle: 'Address ITC Comments', desc: 'If the inspection is returned by the ITC Preconfirmation Engineer to the PMC: The PMC reviews the comments and has two options — Address the comments and resubmit to the ITC Preconfirmation Engineer, or Return the inspection to the Inspector if changes require modification of the inspection data or form.', iconClass: 'fa-solid fa-comments', color: '#212121', count: 3, pending: 1 },
+  { id: 'final-approved', label: 'Final Approval', subtitle: 'Completed', desc: 'When the ITC Preconfirmation Engineer approves the inspection, the workflow is complete. The inspection status changes to Approved, and no further review is required unless reopened through a separate administrative process.', iconClass: 'fa-solid fa-award', color: '#79d58f', count: 1, pending: 0 },
   { id: 'total', label: 'Total', subtitle: 'All Inspections', desc: 'Combined total of all inspections across every workflow stage.', iconClass: 'fa-solid fa-layer-group', color: '#212121', count: 81, pending: 9 },
 ];
 
@@ -89,12 +89,12 @@ const defectsData = [
 ];
 
 const activityFeed = [
-  { time: '10:24 AM', action: 'Inspection INS-2026-0471 forwarded to PMC', user: 'Rajesh Kumar', iconClass: 'fa-solid fa-share', color: '#212121' },
+  { time: '10:24 AM', action: 'Inspection INS-2026-0471 forwarded to PMC', user: 'Rajesh Kumar', iconClass: 'fa-solid fa-share-nodes', color: '#212121' },
   { time: '09:48 AM', action: 'INS-2026-0470 returned to Inspector with comments', user: 'PMC Review', iconClass: 'fa-solid fa-rotate-left', color: '#f2711c' },
-  { time: '09:15 AM', action: 'INS-2026-0469 escalated to ITC Engineer', user: 'PMC Team', iconClass: 'fa-solid fa-arrow-up-right-dots', color: '#4d9dd9' },
-  { time: '08:52 AM', action: 'INS-2026-0468 approved — Final clearance granted', user: 'ITC Engineer', iconClass: 'fa-solid fa-circle-check', color: '#4d9dd9' },
-  { time: '08:30 AM', action: 'INS-2026-0467 resubmitted after rework', user: 'Manoj Verma', iconClass: 'fa-solid fa-pen-to-square', color: '#DB2828' },
-  { time: 'Yesterday', action: 'INS-2026-0466 approved — Final clearance granted', user: 'ITC Engineer', iconClass: 'fa-solid fa-circle-check', color: '#4d9dd9' },
+  { time: '09:15 AM', action: 'INS-2026-0469 escalated to ITC Engineer', user: 'PMC Team', iconClass: 'fa-solid fa-arrow-up-right-from-square', color: '#70b0e0' },
+  { time: '08:52 AM', action: 'INS-2026-0468 approved — Final clearance granted', user: 'ITC Engineer', iconClass: 'fa-solid fa-check-double', color: '#70b0e0' },
+  { time: '08:30 AM', action: 'INS-2026-0467 resubmitted after rework', user: 'Manoj Verma', iconClass: 'fa-solid fa-pen-to-square', color: '#de3d3d' },
+  { time: 'Yesterday', action: 'INS-2026-0466 approved — Final clearance granted', user: 'ITC Engineer', iconClass: 'fa-solid fa-check-double', color: '#70b0e0' },
 ];
 
 export default function Dashboard() {
@@ -222,35 +222,35 @@ export default function Dashboard() {
             <>
               <section className="railway-stats-row">
                 <div className="railway-stat-card stat-blue">
-                  <div className="stat-card-icon"><i className="fa-solid fa-file-lines" /></div>
+                  <div className="stat-card-icon"><i className="fa-solid fa-clipboard-check" /></div>
                   <div className="stat-card-info">
                     <span className="stat-card-value">{totalInspections}</span>
                     <span className="stat-card-label">Total Inspections</span>
                   </div>
                 </div>
                 <div className="railway-stat-card stat-amber">
-                  <div className="stat-card-icon"><i className="fa-solid fa-clock-rotate-left" /></div>
+                  <div className="stat-card-icon"><i className="fa-solid fa-hourglass-half" /></div>
                   <div className="stat-card-info">
                     <span className="stat-card-value">{pendingTotal}</span>
                     <span className="stat-card-label">Pending Review</span>
                   </div>
                 </div>
                 <div className="railway-stat-card stat-green">
-                  <div className="stat-card-icon" style={{ color: '#79d58f' }}><i className="fa-solid fa-circle-check" /></div>
+                  <div className="stat-card-icon" style={{ color: '#79d58f' }}><i className="fa-solid fa-stamp" /></div>
                   <div className="stat-card-info">
                     <span className="stat-card-value">{approvedCount}</span>
                     <span className="stat-card-label">Final Approved</span>
                   </div>
                 </div>
                 <div className="railway-stat-card stat-purple">
-                  <div className="stat-card-icon"><i className="fa-solid fa-chart-line" /></div>
+                  <div className="stat-card-icon"><i className="fa-solid fa-gauge-high" /></div>
                   <div className="stat-card-info">
                     <span className="stat-card-value">{approvalRate}%</span>
                     <span className="stat-card-label">Approval Rate</span>
                   </div>
                 </div>
                 <div className="railway-stat-card stat-red">
-                  <div className="stat-card-icon"><i className="fa-solid fa-triangle-exclamation" /></div>
+                  <div className="stat-card-icon"><i className="fa-solid fa-bell" /></div>
                   <div className="stat-card-info">
                     <span className="stat-card-value">2</span>
                     <span className="stat-card-label">Urgent Items</span>
@@ -266,10 +266,10 @@ export default function Dashboard() {
                   </div>
                   <div className="km-sections-grid">
                     {[
-                      { section: 'Section A', range: '0 - 25 KM', km: 25, passed: 19, pending: 3, color: '#DB2828', pct: 76 },
+                      { section: 'Section A', range: '0 - 25 KM', km: 25, passed: 19, pending: 3, color: '#de3d3d', pct: 76 },
                       { section: 'Section B', range: '25 - 50 KM', km: 25, passed: 16, pending: 4, color: '#212121', pct: 64 },
                       { section: 'Section C', range: '50 - 75 KM', km: 25, passed: 14, pending: 4, color: '#f2711c', pct: 56 },
-                      { section: 'Section D', range: '75 - 100 KM', km: 25, passed: 18, pending: 3, color: '#4d9dd9', pct: 72 },
+                      { section: 'Section D', range: '75 - 100 KM', km: 25, passed: 18, pending: 3, color: '#70b0e0', pct: 72 },
                     ].map(s => (
                       <div key={s.section} className="km-box" style={{ borderLeft: `4px solid ${s.color}` }}>
                         <div className="km-box-top">
@@ -280,17 +280,23 @@ export default function Dashboard() {
                           <span className="km-box-pct" style={{ color: s.color }}>{s.pct}%</span>
                         </div>
                         <div className="km-box-range">{s.range}</div>
-                        <div className="km-box-bar-track">
-                          <div className="km-box-bar" style={{ width: `${s.pct}%`, background: s.color }} />
+                        <div className="km-box-track">
+                          <div className="track-rail top" />
+                          <div className="track-sleepers">
+                            {Array.from({ length: Math.round(s.pct / 5) }).map((_, i) => (
+                              <div key={i} className="track-sleeper" style={{ background: s.color }} />
+                            ))}
+                          </div>
+                          <div className="track-rail bottom" />
                         </div>
                         <div className="km-box-footer">
                           <div className="km-box-footer-item">
-                            <span className="km-box-footer-val" style={{ color: s.color }}>{s.passed}</span>
+                            <span className="km-box-footer-val" style={{ color: '#212121' }}>{s.passed}</span>
                             <span className="km-box-footer-label">Passed</span>
                           </div>
                           <div className="km-box-footer-divider" />
                           <div className="km-box-footer-item">
-                            <span className="km-box-footer-val" style={{ color: '#f2711c' }}>{s.pending}</span>
+                            <span className="km-box-footer-val" style={{ color: '#212121' }}>{s.pending}</span>
                             <span className="km-box-footer-label">Pending</span>
                           </div>
                         </div>
@@ -303,12 +309,12 @@ export default function Dashboard() {
                     </div>
                     <div className="key-metrics-grid">
                       {[
-                        { label: 'Total Sections', value: '4', sub: 'of 100 KM', color: '#DB2828' },
+                        { label: 'Total Sections', value: '4', sub: 'of 100 KM', color: '#de3d3d' },
                         { label: 'Completion', value: '77%', sub: 'overall', color: '#f2711c' },
-                        { label: 'Pass Rate', value: '82%', sub: 'per section', color: '#4d9dd9' },
+                        { label: 'Pass Rate', value: '82%', sub: 'per section', color: '#70b0e0' },
                         { label: 'Open Issues', value: '14', sub: 'needs attention', color: '#79d58f' },
                         { label: 'Forms Done', value: '11', sub: 'of 11', color: '#212121' },
-                        { label: 'Deadline', value: '18', sub: 'days left', color: '#DB2828' },
+                        { label: 'Deadline', value: '18', sub: 'days left', color: '#de3d3d' },
                       ].map(m => (
                         <div key={m.label} className="metric-card">
                           <div className="metric-info">
@@ -329,9 +335,9 @@ export default function Dashboard() {
                   <div className="pie-chart-container">
                     {(() => {
                       const statusData = [
-                        { label: 'Inspector', count: 12, color: '#DB2828' },
+                        { label: 'Inspector', count: 12, color: '#de3d3d' },
                         { label: 'PMC Review', count: 8, color: '#f2711c' },
-                        { label: 'Inspector Rework', count: 5, color: '#4d9dd9' },
+                        { label: 'Inspector Rework', count: 5, color: '#70b0e0' },
                         { label: 'ITC Preconfirmation', count: 6, color: '#79d58f' },
                         { label: 'PMC Response', count: 3, color: '#212121' },
                         { label: 'Final Approved', count: 47, color: '#79d58f' },
@@ -466,9 +472,9 @@ export default function Dashboard() {
                     {weeklyTrend.map(d => (
                       <div key={d.day} className="trend-day">
                           <div className="trend-bar-stack">
-                            <div className="trend-bar" style={{ height: `${(d.submitted / maxTrendVal) * 100}%`, background: '#DB2828' }} title={`Submitted: ${d.submitted}`} />
-                            <div className="trend-bar" style={{ height: `${(d.approved / maxTrendVal) * 100}%`, background: '#4d9dd9' }} title={`Approved: ${d.approved}`} />
-                            <div className="trend-bar" style={{ height: `${(d.rework / maxTrendVal) * 100}%`, background: '#DB2828' }} title={`Rework: ${d.rework}`} />
+                            <div className="trend-bar" style={{ height: `${(d.submitted / maxTrendVal) * 100}%`, background: '#de3d3d' }} title={`Submitted: ${d.submitted}`} />
+                            <div className="trend-bar" style={{ height: `${(d.approved / maxTrendVal) * 100}%`, background: '#70b0e0' }} title={`Approved: ${d.approved}`} />
+                            <div className="trend-bar" style={{ height: `${(d.rework / maxTrendVal) * 100}%`, background: '#de3d3d' }} title={`Rework: ${d.rework}`} />
                             <div className="trend-bar" style={{ height: `${(d.pending / maxTrendVal) * 100}%`, background: '#f2711c' }} title={`Pending: ${d.pending}`} />
                             <div className="trend-bar" style={{ height: `${(d.review / maxTrendVal) * 100}%`, background: '#fcd76a' }} title={`Review: ${d.review}`} />
                             <div className="trend-bar" style={{ height: `${(d.confirmed / maxTrendVal) * 100}%`, background: '#79d58f' }} title={`Confirmed: ${d.confirmed}`} />
@@ -478,9 +484,9 @@ export default function Dashboard() {
                     ))}
                   </div>
                   <div className="trend-legend">
-                    <span><i className="dot" style={{ background: '#DB2828' }} /> Submitted</span>
-                    <span><i className="dot" style={{ background: '#4d9dd9' }} /> Approved</span>
-                    <span><i className="dot" style={{ background: '#DB2828' }} /> Rework</span>
+                    <span><i className="dot" style={{ background: '#de3d3d' }} /> Submitted</span>
+                    <span><i className="dot" style={{ background: '#70b0e0' }} /> Approved</span>
+                    <span><i className="dot" style={{ background: '#de3d3d' }} /> Rework</span>
                     <span><i className="dot" style={{ background: '#f2711c' }} /> Pending</span>
                     <span><i className="dot" style={{ background: '#fcd76a' }} /> Review</span>
                     <span><i className="dot" style={{ background: '#79d58f' }} /> Confirmed</span>
@@ -533,7 +539,7 @@ export default function Dashboard() {
                     <div className="tolerance-legend">
                       <span><i className="pie-dot" style={{ background: 'rgb(219, 40, 40)' }} /> Inspector</span>
                       <span><i className="pie-dot" style={{ background: '#f2711c' }} /> PMC Review</span>
-                      <span><i className="pie-dot" style={{ background: '#4d9dd9' }} /> Rework</span>
+                      <span><i className="pie-dot" style={{ background: '#70b0e0' }} /> Rework</span>
                       <span><i className="pie-dot" style={{ background: '#79d58f' }} /> ITC Review</span>
                       <span><i className="pie-dot" style={{ background: '#212121' }} /> PMC Response</span>
                       <span><i className="pie-dot" style={{ background: '#79d58f' }} /> Final Approved</span>
@@ -663,11 +669,17 @@ export default function Dashboard() {
                       >
                         <div className="form-summary-header">
                           <span className={`form-badge ${f.code.startsWith('T') ? 'track' : 'civil'}`}>{f.code}</span>
-                          <span className="form-pass-rate" style={{ color: passRate >= 80 ? '#4d9dd9' : '#f2711c' }}>{passRate}%</span>
+                          <span className="form-pass-rate" style={{ color: passRate >= 80 ? '#70b0e0' : '#f2711c' }}>{passRate}%</span>
                         </div>
                         <span className="form-summary-name">{f.name}</span>
-                        <div className="form-summary-bar-track">
-                          <div className="form-summary-bar" style={{ width: `${passRate}%` }} />
+                        <div className="km-box-track">
+                          <div className="track-rail top" />
+                          <div className="track-sleepers">
+                            {Array.from({ length: Math.round(passRate / 5) }).map((_, i) => (
+                              <div key={i} className="track-sleeper" style={{ background: '#212121' }} />
+                            ))}
+                          </div>
+                          <div className="track-rail bottom" />
                         </div>
                         <div className="form-summary-meta">
                           <span><i className="fa-solid fa-circle-check" /> {f.passed} passed</span>
