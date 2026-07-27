@@ -1,0 +1,201 @@
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f2f2f2;
+}
+
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: 380px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.12);
+  overflow: hidden;
+}
+
+.login-brand {
+  padding: 28px 28px 20px;
+  border-bottom: 1px solid #f2f2f2;
+}
+
+.login-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.login-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #212121;
+  display: grid;
+  place-items: center;
+  color: #d4a843;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.login-brand-text h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #212121;
+  letter-spacing: 2px;
+}
+
+.login-brand-text p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #212121;
+  font-weight: 500;
+}
+
+.login-form {
+  padding: 24px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  border-bottom: 1px solid #e0e0e0;
+  border-radius: 0;
+  padding: 10px 4px;
+  background: transparent;
+  transition: .2s;
+}
+
+.input-group:focus-within {
+  border-bottom-color: #212121;
+}
+
+.input-group i {
+  color: #999;
+  font-size: 14px;
+  width: 18px;
+  text-align: center;
+}
+
+.input-group input {
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-size: 14px;
+  color: #212121;
+  font-family: inherit;
+}
+
+.input-group input::placeholder {
+  color: #999;
+}
+
+.login-error {
+  color: #de3d3d;
+  font-size: 13px;
+  margin: 0;
+  text-align: center;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #212121;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: .2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 44px;
+}
+
+.login-btn:hover {
+  background: #de3d3d;
+}
+
+.login-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Train Loader Animation */
+.train-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.train-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: trainBounce 0.6s ease-in-out infinite;
+}
+
+.train-body {
+  display: flex;
+  gap: 3px;
+}
+
+.train-window {
+  width: 8px;
+  height: 6px;
+  background: #f2711c;
+  border-radius: 2px;
+}
+
+.train-lights {
+  display: flex;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.train-light {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #79d58f;
+}
+
+.track-wrapper {
+  display: flex;
+  gap: 3px;
+}
+
+.track-line {
+  width: 6px;
+  height: 1px;
+  background: #f2711c;
+  animation: trackScroll 0.4s linear infinite;
+}
+
+.track-line:nth-child(2) { animation-delay: 0.08s; }
+.track-line:nth-child(3) { animation-delay: 0.16s; }
+.track-line:nth-child(4) { animation-delay: 0.24s; }
+.track-line:nth-child(5) { animation-delay: 0.32s; }
+
+@keyframes trainBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes trackScroll {
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
+}

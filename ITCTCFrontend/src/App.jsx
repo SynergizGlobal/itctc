@@ -42,6 +42,13 @@ export default function App() {
       <Route
         path="/login"
         element={<Login />}
+        
+      />
+      
+      <Route
+        path="/dashboard"
+        element={<Dashboard />}
+        
       />
 
       {/* Redirect Root */}
@@ -56,10 +63,12 @@ export default function App() {
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
+          // <ProtectedRoute>
+          //
+          // </ProtectedRoute>
+             <Dashboard />
         }
+        
       />
 
       {/* Protected Forms */}

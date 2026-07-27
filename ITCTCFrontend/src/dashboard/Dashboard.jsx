@@ -31,7 +31,7 @@ const workflowStages = [
   { id: 'inspector', label: 'Inspector', subtitle: 'Create & Submit', desc: 'Creates a new inspection record. Completes all required inspection details, observations, measurements, photographs, and attachments. Submits the inspection to the PMC for review.', iconClass: 'fa-solid fa-id-badge', color: '#de3d3d', count: 12, pending: 3 },
   { id: 'pmc-review', label: 'PMC Review', subtitle: 'Review & Forward', desc: 'Reviews the inspection details submitted by the Inspector. Approve and forward to ITC Preconfirmation Engineer, or return to Inspector with comments.', iconClass: 'fa-solid fa-user-tie', color: '#f2711c', count: 8, pending: 2 },
   { id: 'inspector-rework', label: 'Inspector Rework', subtitle: 'Update & Resubmit', desc: 'Reviews the PMC comments. Updates the inspection record as required. Resubmits the inspection to the PMC for review.', iconClass: 'fa-solid fa-wrench', color: '#70b0e0', count: 5, pending: 1 },
-  { id: 'itc-engineer', label: 'ITC Preconfirmation Engineer', subtitle: 'Final Review', desc: 'Reviews the inspection after PMC approval. Approve (final approved), return to PMC with comments, or return directly to Inspector for correction.', iconClass: 'fa-solid fa-user-shield', color: '#79d58f', count: 6, pending: 2 },
+  { id: 'itc-engineer', label: 'ITC Preconfirmation Engineer', subtitle: 'Final Review', desc: 'Reviews the inspection after PMC approval. Approve (final approved), return to PMC with comments, or return directly to Inspector for correction.', iconClass: 'fa-solid fa-user-shield', color: '#fcd76a', count: 6, pending: 2 },
   { id: 'pmc-response', label: 'PMC Response to ITC Comments', subtitle: 'Address ITC Comments', desc: 'If the inspection is returned by the ITC Preconfirmation Engineer to the PMC: The PMC reviews the comments and has two options — Address the comments and resubmit to the ITC Preconfirmation Engineer, or Return the inspection to the Inspector if changes require modification of the inspection data or form.', iconClass: 'fa-solid fa-comments', color: '#212121', count: 3, pending: 1 },
   { id: 'final-approved', label: 'Final Approval', subtitle: 'Completed', desc: 'When the ITC Preconfirmation Engineer approves the inspection, the workflow is complete. The inspection status changes to Approved, and no further review is required unless reopened through a separate administrative process.', iconClass: 'fa-solid fa-award', color: '#79d58f', count: 1, pending: 0 },
   { id: 'total', label: 'Total', subtitle: 'All Inspections', desc: 'Combined total of all inspections across every workflow stage.', iconClass: 'fa-solid fa-layer-group', color: '#212121', count: 81, pending: 9 },
@@ -49,10 +49,10 @@ const recentInspections = [
 ];
 
 const stageLabels = {
-  'inspector': { label: 'Submitted', tone: 'blue' },
+  'inspector': { label: 'Submitted', tone: 'red' },
   'pmc-review': { label: 'PMC Review', tone: 'purple' },
-  'inspector-rework': { label: 'Rework', tone: 'amber' },
-  'itc-engineer': { label: 'ITC Review', tone: 'teal' },
+  'inspector-rework': { label: 'Rework', tone: 'blue' },
+  'itc-engineer': { label: 'ITC Review', tone: 'gold' },
   'pmc-response': { label: 'PMC Response', tone: 'cyan' },
   'final-approved': { label: 'Approved', tone: 'green' },
 };
@@ -126,6 +126,19 @@ export default function Dashboard() {
   });
 
   const maxTrendVal = Math.max(...weeklyTrend.map(d => Math.max(d.submitted || 1, d.approved || 1, d.rework || 1, d.pending || 1, d.review || 1, d.confirmed || 1)));
+
+  const downloadExcel = (filename) => {
+    const headers = ['ID', 'Form', 'Title', 'Chainage', 'Inspector', 'Stage', 'Date'];
+    const rows = recentInspections.map(item => [item.id, item.form, item.title, item.chainage, item.inspector, item.stage, item.date]);
+    const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="railway-layout">
@@ -330,16 +343,14 @@ export default function Dashboard() {
                 </div>
 
                 <div className="overview-right railway-card pie-card">
-                  <div className="card-header">
-                    <h3>Inspection Status Overview</h3>
-                  </div>
+                  <h3 className="section-title"><i className="fa-solid fa-chart-pie" /> Inspection Status Overview</h3>
                   <div className="pie-chart-container">
                     {(() => {
                       const statusData = [
                         { label: 'Inspector', count: 12, color: '#de3d3d' },
                         { label: 'PMC Review', count: 8, color: '#f2711c' },
                         { label: 'Inspector Rework', count: 5, color: '#70b0e0' },
-                        { label: 'ITC Preconfirmation', count: 6, color: '#79d58f' },
+                        { label: 'ITC Preconfirmation', count: 6, color: '#fcd76a' },
                         { label: 'PMC Response', count: 3, color: '#212121' },
                         { label: 'Final Approved', count: 47, color: '#79d58f' },
                       ];
@@ -376,10 +387,6 @@ export default function Dashboard() {
               </section>
 
               <div className="railway-card activity-feed-card">
-                <div className="card-header">
-                  <h3>Activity Feed</h3>
-                  <span className="card-badge"><i className="fa-solid fa-clock" /> Live</span>
-                </div>
                 <div className="activity-feed">
                   {activityFeed.map((item, i) => (
                     <div key={i} className="activity-item">
@@ -397,10 +404,7 @@ export default function Dashboard() {
 
               {/* Workflow Pipeline */}
               <div className="railway-card workflow-overview-card">
-                <div className="card-header">
-                  <h3>Workflow Pipeline</h3>
-                  <span className="card-badge">81 Total</span>
-                </div>
+                <h3 className="section-title">Workflow Pipeline</h3>
                 <div className="workflow-overview-grid">
                     {workflowStages.filter(s => s.id !== 'total').map(stage => (
                       <div key={stage.id} className="workflow-overview-item">
@@ -442,9 +446,7 @@ export default function Dashboard() {
               </div>
               <div className="workflow-details-grid">
                 <div className="railway-card">
-                  <div className="card-header">
-                    <h3><i className="fa-solid fa-chart-pie" /> Stage Breakdown</h3>
-                  </div>
+                  <h3 className="section-title"><i className="fa-solid fa-chart-pie" /> Stage Breakdown</h3>
                   <div className="breakdown-list">
                     {workflowStages.map(stage => {
                       const pct = totalInspections > 0 ? ((stage.count / totalInspections) * 100) : 0;
@@ -465,17 +467,14 @@ export default function Dashboard() {
                 </div>
 
                 <div className="railway-card">
-                  <div className="card-header">
-                    <h3><i className="fa-solid fa-chart-simple" /> Weekly Activity</h3>
-                    <span className="card-badge"><i className="fa-solid fa-calendar-days" /> This Week</span>
-                  </div>
+                  <h3 className="section-title"><i className="fa-solid fa-chart-simple" /> Weekly Activity</h3>
                   <div className="trend-bars">
                     {weeklyTrend.map(d => (
                       <div key={d.day} className="trend-day">
                           <div className="trend-bar-stack">
                             <div className="trend-bar" style={{ height: `${(d.submitted / maxTrendVal) * 100}%`, background: '#de3d3d' }} title={`Submitted: ${d.submitted}`} />
-                            <div className="trend-bar" style={{ height: `${(d.approved / maxTrendVal) * 100}%`, background: '#70b0e0' }} title={`Approved: ${d.approved}`} />
-                            <div className="trend-bar" style={{ height: `${(d.rework / maxTrendVal) * 100}%`, background: '#de3d3d' }} title={`Rework: ${d.rework}`} />
+                            <div className="trend-bar" style={{ height: `${(d.approved / maxTrendVal) * 100}%`, background: '#79d58f' }} title={`Approved: ${d.approved}`} />
+                            <div className="trend-bar" style={{ height: `${(d.rework / maxTrendVal) * 100}%`, background: '#70b0e0' }} title={`Rework: ${d.rework}`} />
                             <div className="trend-bar" style={{ height: `${(d.pending / maxTrendVal) * 100}%`, background: '#f2711c' }} title={`Pending: ${d.pending}`} />
                             <div className="trend-bar" style={{ height: `${(d.review / maxTrendVal) * 100}%`, background: '#fcd76a' }} title={`Review: ${d.review}`} />
                             <div className="trend-bar" style={{ height: `${(d.confirmed / maxTrendVal) * 100}%`, background: '#79d58f' }} title={`Confirmed: ${d.confirmed}`} />
@@ -486,8 +485,8 @@ export default function Dashboard() {
                   </div>
                   <div className="trend-legend">
                     <span><i className="dot" style={{ background: '#de3d3d' }} /> Submitted</span>
-                    <span><i className="dot" style={{ background: '#70b0e0' }} /> Approved</span>
-                    <span><i className="dot" style={{ background: '#de3d3d' }} /> Rework</span>
+                    <span><i className="dot" style={{ background: '#79d58f' }} /> Approved</span>
+                    <span><i className="dot" style={{ background: '#70b0e0' }} /> Rework</span>
                     <span><i className="dot" style={{ background: '#f2711c' }} /> Pending</span>
                     <span><i className="dot" style={{ background: '#fcd76a' }} /> Review</span>
                     <span><i className="dot" style={{ background: '#79d58f' }} /> Confirmed</span>
@@ -495,10 +494,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="railway-card activity-feed-card">
-                  <div className="card-header">
-                    <h3><i className="fa-solid fa-timeline" /> Activity Feed</h3>
-                    <span className="card-badge"><i className="fa-solid fa-clock" /> Live</span>
-                  </div>
+                  <h3 className="section-title"><i className="fa-solid fa-timeline" /> Activity Feed</h3>
                   <div className="activity-feed">
                     {activityFeed.map((item, i) => (
                       <div key={i} className="activity-item">
@@ -519,9 +515,9 @@ export default function Dashboard() {
 
           {activeNav === 'reports' && (
             <div className="reports-panel">
-              <div className="card-header">
-                <h3><i className="fa-solid fa-chart-column" /> Inspection Reports</h3>
-                <div className="report-actions">
+              <div className="reports-header">
+                <h3 className="section-title"><i className="fa-solid fa-chart-column" /> Inspection Reports</h3>
+                <div className="report-actions report-actions-right">
                   <button type="button" onClick={() => window.print()} title="Download Report as PDF"><i className="fa-solid fa-file-pdf" /> PDF</button>
                   <button type="button" onClick={() => downloadExcel('Reports-Overview.xls')} title="Download Report as Excel"><i className="fa-solid fa-file-excel" /> Excel</button>
                 </div>
@@ -570,10 +566,8 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="railway-card" style={{ marginTop: '18px' }}>
-                <div className="card-header">
-                  <h3><i className="fa-solid fa-triangle-exclamation" /> Urgent Items</h3>
-                </div>
+              <div className="railway-card urgent-panel" style={{ marginTop: '18px' }}>
+                <h3 className="section-title"><i className="fa-solid fa-triangle-exclamation" /> Urgent Items</h3>
                 {recentInspections.filter(i => i.priority === 'urgent').length > 0 ? (
                   <div className="inspections-table-wrap">
                     <table className="inspections-table">
@@ -613,10 +607,7 @@ export default function Dashboard() {
           {/* ============ DEFECTS ============ */}
           {activeNav === 'defects' && (
             <div className="railway-card">
-              <div className="card-header">
-                <h3><i className="fa-solid fa-triangle-exclamation" /> Defects Register</h3>
-                <span className="card-badge"><i className="fa-solid fa-flag" /> {defectsData.length} Items</span>
-              </div>
+              <h3 className="section-title"><i className="fa-solid fa-triangle-exclamation" /> Defects Register</h3>
               <div className="inspections-table-wrap">
                 <table className="inspections-table">
                   <thead>
@@ -638,7 +629,7 @@ export default function Dashboard() {
                         <td><span className={`form-badge ${defect.form.startsWith('T') ? 'track' : 'civil'}`}>{defect.form}</span></td>
                         <td>{defect.description}</td>
                         <td className="chainage-cell">{defect.chainage}</td>
-                        <td><span className={`stage-tag ${defect.severity === 'critical' ? 'tone-amber' : defect.severity === 'major' ? 'tone-red' : 'tone-blue'}`}>{defect.severity}</span></td>
+                        <td><span className={`stage-tag ${defect.severity === 'critical' ? 'tone-red' : defect.severity === 'major' ? 'tone-caution' : 'tone-blue'}`}>{defect.severity}</span></td>
                         <td>{defect.inspector}</td>
                         <td className="date-cell">{defect.date}</td>
                         <td>
@@ -655,10 +646,7 @@ export default function Dashboard() {
           {/* ============ FORMS ============ */}
           {activeNav === 'forms' && (
             <div className="railway-card">
-              <div className="card-header">
-                <h3><i className="fa-solid fa-table-list" /> Form-wise Inspection Summary</h3>
-                <span className="card-badge"><i className="fa-solid fa-file-lines" /> {formStats.length} Forms</span>
-              </div>
+              <h3 className="section-title"><i className="fa-solid fa-table-list" /> Form-wise Inspection Summary</h3>
                <div className="forms-grid">
                   {formStats.map(f => {
                     const passRate = f.total > 0 ? ((f.passed / f.total) * 100).toFixed(0) : 0;
@@ -696,9 +684,7 @@ export default function Dashboard() {
           {/* ============ LOGS ============ */}
           {activeNav === 'logs' && (
             <div className="railway-card">
-              <div className="card-header">
-                <h3><i className="fa-solid fa-clock-rotate-left" /> Inspection Logs</h3>
-              </div>
+              <h3 className="section-title"><i className="fa-solid fa-clock-rotate-left" /> Inspection Logs</h3>
               <div className="inspections-table-wrap">
                 <table className="inspections-table">
                   <thead>
