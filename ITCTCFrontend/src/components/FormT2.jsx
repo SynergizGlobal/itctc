@@ -2,6 +2,8 @@ import useStickyHeaders from '../hooks/useStickyHeaders';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import useDownloadExcel from '../hooks/useDownloadExcel';
+import { useEffect, useState } from 'react';
+import { getAllTrackIrregularities } from '../services/trackIrregularityService';
 
 const MEASUREMENT_ROWS = 18;
 
@@ -29,15 +31,114 @@ export default function FormT2() {
   const navigate = useNavigate();
   useStickyHeaders();
   const downloadExcel = useDownloadExcel();
+  const [trackIrregularities, setTrackIrregularities] = useState([]);
+
+  useEffect(() => {
+    loadTrackIrregularities();
+  }, []);
+
+  const loadTrackIrregularities = async () => {
+
+    try {
+
+      const response = await getAllTrackIrregularities();
+
+      console.log("Track Irregularities");
+
+      console.log(response);
+
+      setTrackIrregularities(response);
+
+    } catch (error) {
+
+      console.error("Failed to load Track Irregularities", error);
+
+    }
+
+  };
+
+  const buildRow = (record) => {
+
+    const detailMap = {};
+
+    record.details.forEach(detail => {
+      detailMap[`${detail.directionName}_${detail.measurementName}`] = detail;
+    });
+
+    return [
+
+      "",
+
+      "",
+
+      detailMap["Down Line_Twist"]?.designValue ?? "",
+      detailMap["Down Line_Twist"]?.measuredValue ?? "",
+      detailMap["Down Line_Twist"]?.irregularityValue ?? "",
+
+      detailMap["Down Line_Lateral Alignment"]?.designValue ?? "",
+      detailMap["Down Line_Lateral Alignment"]?.measuredValue ?? "",
+      detailMap["Down Line_Lateral Alignment"]?.irregularityValue ?? "",
+
+      detailMap["Down Line_Longitudinal Alignment"]?.designValue ?? "",
+      detailMap["Down Line_Longitudinal Alignment"]?.measuredValue ?? "",
+      detailMap["Down Line_Longitudinal Alignment"]?.irregularityValue ?? "",
+
+      detailMap["Down Line_Cross Level"]?.designValue ?? "",
+      detailMap["Down Line_Cross Level"]?.measuredValue ?? "",
+      detailMap["Down Line_Cross Level"]?.irregularityValue ?? "",
+
+      detailMap["Down Line_Gauge"]?.designValue ?? "",
+      detailMap["Down Line_Gauge"]?.measuredValue ?? "",
+      detailMap["Down Line_Gauge"]?.irregularityValue ?? "",
+
+      record.measuringPointDown,
+
+      record.chainageKm,
+      "+",
+      record.chainageM,
+
+      record.measuringPointUp,
+
+      detailMap["Up Line_Gauge"]?.designValue ?? "",
+      detailMap["Up Line_Gauge"]?.measuredValue ?? "",
+      detailMap["Up Line_Gauge"]?.irregularityValue ?? "",
+
+      detailMap["Up Line_Cross Level"]?.designValue ?? "",
+      detailMap["Up Line_Cross Level"]?.measuredValue ?? "",
+      detailMap["Up Line_Cross Level"]?.irregularityValue ?? "",
+
+      detailMap["Up Line_Longitudinal Alignment"]?.designValue ?? "",
+      detailMap["Up Line_Longitudinal Alignment"]?.measuredValue ?? "",
+      detailMap["Up Line_Longitudinal Alignment"]?.irregularityValue ?? "",
+
+      detailMap["Up Line_Lateral Alignment"]?.designValue ?? "",
+      detailMap["Up Line_Lateral Alignment"]?.measuredValue ?? "",
+      detailMap["Up Line_Lateral Alignment"]?.irregularityValue ?? "",
+
+      detailMap["Up Line_Twist"]?.designValue ?? "",
+      detailMap["Up Line_Twist"]?.measuredValue ?? "",
+      detailMap["Up Line_Twist"]?.irregularityValue ?? "",
+
+      "",
+
+      ""
+
+    ];
+  };
 
   return (
     <div className="container-fluid py-3">
       <div className="panel-heading d-flex align-items-center justify-content-between mb-3">
-<button type="button" onClick={() => navigate(-1)} title="Back" style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer' }}><ArrowLeft aria-hidden="true" /></button>
+        <button type="button" onClick={() => navigate(-1)} title="Back" style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer' }}><ArrowLeft aria-hidden="true" /></button>
         <h1 className="h6 mb-0">Form T-2</h1>
         <span className="title-main text-center flex-grow-1 mx-3">Measurement record of Finished state of track Irregularity</span>
-        <span>No. <input type="text" defaultValue="T2-001" className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
-        <span className="ms-2">Date: <input type="text" defaultValue="17/07/2026" className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
+        <span>No. <input type="text" value={trackIrregularities[0]?.formNumber ?? ""} readOnly className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
+        <span className="ms-2">Date: <input value={
+          trackIrregularities[0]?.measurementDate
+            ? new Date(trackIrregularities[0].measurementDate)
+              .toLocaleDateString("en-GB")
+            : ""
+        } readOnly className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
         <div className="form-export-actions">
           <button type="button" onClick={() => window.print()} title="Download as PDF"><i className="fa-solid fa-file-pdf" /></button>
           <button type="button" onClick={() => downloadExcel('Form-T-2.xls')} title="Download as Excel"><i className="fa-solid fa-file-excel" /></button>
@@ -137,20 +238,46 @@ export default function FormT2() {
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: MEASUREMENT_ROWS }, (_, i) => (
-              <tr key={i}>
-                {Array.from({ length: 39 }, (_, j) => {
-                  const row = measurementRow(i);
-                  if (i === 0 && (j === 0 || j === 1 || j === 37 || j === 38)) {
-                    return <td key={j} rowSpan={MEASUREMENT_ROWS}>&nbsp;</td>;
-                  }
-                  if (i > 0 && (j === 0 || j === 1 || j === 37 || j === 38)) {
-                    return null;
-                  }
-                  return <td key={j}>{row[j] || '\u00a0'}</td>;
-                })}
-              </tr>
-            ))}
+
+            {trackIrregularities.map((record, index) => {
+
+              const row = buildRow(record);
+
+              return (
+
+                <tr key={record.trackIrregularityId}>
+
+                  {Array.from({ length: 39 }, (_, j) => {
+
+                    if (index === 0 && (j === 0 || j === 1 || j === 37 || j === 38)) {
+                      return (
+                        <td
+                          key={j}
+                          rowSpan={trackIrregularities.length}
+                        >
+                          &nbsp;
+                        </td>
+                      );
+                    }
+
+                    if (index > 0 && (j === 0 || j === 1 || j === 37 || j === 38)) {
+                      return null;
+                    }
+
+                    return (
+                      <td key={j}>
+                        {row[j]}
+                      </td>
+                    );
+
+                  })}
+
+                </tr>
+
+              );
+
+            })}
+
           </tbody>
         </table>
       </div>
