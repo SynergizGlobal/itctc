@@ -45,11 +45,7 @@ export default function App() {
         
       />
       
-      <Route
-        path="/dashboard"
-        element={<Dashboard />}
-        
-      />
+      
 
       {/* Redirect Root */}
 
@@ -64,9 +60,9 @@ export default function App() {
         path="/dashboard"
         element={
           // <ProtectedRoute>
-          //
+          //  
           // </ProtectedRoute>
-             <Dashboard />
+            <Dashboard />
         }
         
       />

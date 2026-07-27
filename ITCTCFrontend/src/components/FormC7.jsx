@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import formC7Diagram from '../assets/images/Form_C-7.png';
 import useDownloadExcel from '../hooks/useDownloadExcel';
+import { useEffect, useState } from 'react';
+import { getAllNoiseBarrierMeasurements } from '../services/noiseBarrierService';
 
 const fieldNames = [
   'chainageKm', 'chainageSeparator', 'chainageM',
@@ -20,6 +22,31 @@ export default function FormC7() {
   const navigate = useNavigate();
   useStickyHeaders();
   const downloadExcel = useDownloadExcel();
+  const [measurements, setMeasurements] = useState([]);
+
+  useEffect(() => {
+    loadMeasurements();
+  }, []);
+
+  const loadMeasurements = async () => {
+
+    try {
+
+      const response = await getAllNoiseBarrierMeasurements();
+
+      console.log("Noise Barrier Measurements");
+
+      console.log(response);
+
+      setMeasurements(response);
+
+    } catch (error) {
+
+      console.error("Failed to load Noise Barrier Measurements", error);
+
+    }
+
+  };
 
   return (
     <div className="container-fluid py-3">
@@ -98,15 +125,100 @@ export default function FormC7() {
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: ROWS }, (_, i) => (
-              <tr key={i}>
-                {fieldNames.map((name, j) => (
-                  <td key={j}>
-                    <input type="text" className="form-control form-control-sm table-input" name={`${name}[]`} defaultValue="" />
+            {measurements.flatMap((measurement) =>
+              measurement.details.map((detail) => (
+                <tr key={detail.noiseBarrierMeasurementDetailId}>
+
+                  <td>
+                    <input
+                      type="text"
+                      className="form-control form-control-sm table-input"
+                      value={measurement.chainageKm ?? ""}
+                      readOnly
+                    />
                   </td>
-                ))}
-              </tr>
-            ))}
+
+                  <td>
+                    <input
+                      type="text"
+                      className="form-control form-control-sm table-input"
+                      value=""
+                      readOnly
+                    />
+                  </td>
+
+                  <td>
+                    <input
+                      type="text"
+                      className="form-control form-control-sm table-input"
+                      value={measurement.chainageM ?? ""}
+                      readOnly
+                    />
+                  </td>
+
+                  <td>
+                    <input
+                      type="text"
+                      className="form-control form-control-sm table-input"
+                      value={
+                        measurement.isCurve
+                          ? `Curve R=${measurement.curveRadius}`
+                          : "Straight"
+                      }
+                      readOnly
+                    />
+                  </td>
+
+                  <td>
+                    <input
+                      type="text"
+                      className="form-control form-control-sm table-input"
+                      value={measurement.appliedCantValueMm ?? ""}
+                      readOnly
+                    />
+                  </td>
+
+                  <td>
+                    <input
+                      type="text"
+                      className="form-control form-control-sm table-input"
+                      value={measurement.trackTypeName ?? ""}
+                      readOnly
+                    />
+                  </td>
+
+                  <td><input className="form-control form-control-sm table-input" value={detail.h1MeasuredValue ?? ""} readOnly /></td>
+
+                  <td><input className="form-control form-control-sm table-input" value={detail.h2MeasuredValue ?? ""} readOnly /></td>
+
+                  <td><input className="form-control form-control-sm table-input" value={detail.h3MeasuredValue ?? ""} readOnly /></td>
+
+                  <td><input className="form-control form-control-sm table-input" value={detail.h4MeasuredValue ?? ""} readOnly /></td>
+
+                  <td><input className="form-control form-control-sm table-input" value={detail.h5MeasuredValue ?? ""} readOnly /></td>
+
+                  <td><input className="form-control form-control-sm table-input" value={detail.h6MeasuredValue ?? ""} readOnly /></td>
+
+                  <td><input className="form-control form-control-sm table-input" value={detail.aStandardValue ?? ""} readOnly /></td>
+
+                  <td><input className="form-control form-control-sm table-input" value={detail.aMeasuredValue ?? ""} readOnly /></td>
+
+                  <td><input className="form-control form-control-sm table-input" value={detail.bStandardValue ?? ""} readOnly /></td>
+
+                  <td><input className="form-control form-control-sm table-input" value={detail.bMeasuredValue ?? ""} readOnly /></td>
+
+                  <td>
+                    <input
+                      type="text"
+                      className="form-control form-control-sm table-input"
+                      value={measurement.remarks ?? ""}
+                      readOnly
+                    />
+                  </td>
+
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
