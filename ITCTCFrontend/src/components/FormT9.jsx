@@ -2,11 +2,31 @@ import useStickyHeaders from '../hooks/useStickyHeaders';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import useDownloadExcel from '../hooks/useDownloadExcel';
+import { useState, useEffect } from 'react';
+import { getAllSyntheticResinInjections } from "../services/syntheticResinInjectionService";
 
 export default function FormT9() {
   const navigate = useNavigate();
   useStickyHeaders();
   const downloadExcel = useDownloadExcel();
+  const [syntheticResinInjections, setSyntheticResinInjections] = useState([]);
+  useEffect(() => {
+    loadSyntheticResinInjections();
+  }, []);
+
+  const loadSyntheticResinInjections = async () => {
+    try {
+
+      const response = await getAllSyntheticResinInjections();
+
+      setSyntheticResinInjections(response);
+
+    } catch (error) {
+
+      console.error("Failed to load Synthetic Resin Injection", error);
+
+    }
+  };
 
   const renderDataTable = (key) => (
     <div style={{ overflow: 'auto', minWidth: 0, flex: '1 1 calc(50% - 12px)' }} key={key}>
@@ -31,13 +51,34 @@ export default function FormT9() {
           </tr>
         </thead>
         <tbody>
-          {Array.from({ length: 7 }, (_, r) => (
-            <tr key={r}>
-              {Array.from({ length: 11 }, (_, c) => (
-                <td key={c}>&nbsp;</td>
-              ))}
-            </tr>
-          ))}
+          {syntheticResinInjections.flatMap((header) =>
+            header.details.map((detail, index) => (
+              <tr key={`${header.syntheticResinInjectionHeaderId}-${detail.syntheticResinInjectionDetailId}`}>
+                <td>{detail.trackDirectionName}</td>
+
+                <td>{detail.chainageKm}</td>
+
+                <td>{detail.chainageM}</td>
+
+                <td>{detail.chainageCm}</td>
+
+                <td>{detail.sleeperNumber}</td>
+
+                <td>{detail.injectionLeft}</td>
+
+                <td>{detail.injectionCentre}</td>
+
+                <td>{detail.injectionRight}</td>
+
+                <td>{detail.injectionAverage}</td>
+
+                <td>{detail.gap}</td>
+
+                <td>{detail.remarks}</td>
+              </tr>
+            ))
+          )}
+
           <tr>
             <td colSpan={11}>&nbsp;</td>
           </tr>
@@ -52,8 +93,15 @@ export default function FormT9() {
         <button type="button" onClick={() => navigate(-1)} title="Back" style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer' }}><ArrowLeft aria-hidden="true" /></button>
         <h1 className="h6 mb-0">Form T-9</h1>
         <span className="title-main text-center flex-grow-1 mx-3">Measurement record of Synthetic Resin injection thickness with Synthetic Sleepers</span>
-        <span>No. <input type="text" className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
-        <span className="ms-2">Date: <input type="text" className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
+        <span>No. <input type="text"
+          value={syntheticResinInjections[0]?.formNo ?? ""}
+          readOnly className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
+        <span className="ms-2">Date: <input type="text" value={
+          syntheticResinInjections[0]?.inspectionDate
+            ? new Date(syntheticResinInjections[0].inspectionDate).toLocaleDateString("en-GB")
+            : ""
+        }
+          readOnly className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
         <div className="form-export-actions">
           <button type="button" onClick={() => window.print()} title="Download as PDF"><i className="fa-solid fa-file-pdf" /></button>
           <button type="button" onClick={() => downloadExcel('Form-T-9.xls')} title="Download as Excel"><i className="fa-solid fa-file-excel" /></button>
