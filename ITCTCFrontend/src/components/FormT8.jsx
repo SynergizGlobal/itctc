@@ -2,25 +2,58 @@ import useStickyHeaders from '../hooks/useStickyHeaders';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import useDownloadExcel from '../hooks/useDownloadExcel';
+import { useEffect, useState } from "react";
+import { getAllSleeperSpacing } from "../services/sleeperSpacingService";
 
 export default function FormT8() {
   const navigate = useNavigate();
   useStickyHeaders();
   const downloadExcel = useDownloadExcel();
+  const [sleeperSpacing, setSleeperSpacing] = useState([]);
 
+  useEffect(() => {
+    loadSleeperSpacing();
+  }, []);
+
+  const loadSleeperSpacing = async () => {
+    try {
+
+      const response = await getAllSleeperSpacing();
+
+      setSleeperSpacing(response);
+
+    } catch (error) {
+
+      console.error("Failed to load Sleeper Spacing", error);
+
+    }
+  };
+
+  const rows = sleeperSpacing.flatMap(header =>
+    header.details.map(detail => ({
+      formNo: header.formNo,
+      inspectionDate: header.inspectionDate,
+      ...detail
+    }))
+  );
   return (
     <div className="container-fluid py-3">
       <div className="panel-heading d-flex align-items-center justify-content-between mb-3">
         <button type="button" onClick={() => navigate(-1)} title="Back" style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer' }}><ArrowLeft aria-hidden="true" /></button>
         <h1 className="h6 mb-0">Form T-8</h1>
         <span className="title-main text-center flex-grow-1 mx-3">Measurement record of Sleeper's spacing and squareness with Synthetic Sleepers</span>
-        <span>Date: <input type="text" className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
+        <span>No. <input type="text"
+          value={rows[0]?.formNo || ""}
+          readOnly className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
+        <span>Date: <input type="text"
+          value={rows[0]?.inspectionDate || ""}
+          readOnly className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
         <div className="form-export-actions">
           <button type="button" onClick={() => window.print()} title="Download as PDF"><i className="fa-solid fa-file-pdf" /></button>
           <button type="button" onClick={() => downloadExcel('Form-T-8.xls')} title="Download as Excel"><i className="fa-solid fa-file-excel" /></button>
         </div>
       </div>
-        <style>{'.compact-table td { padding: 2px 1px !important; font-size: 10px; line-height: 1.3; } .compact-table { font-size: 10px; } .compact-table thead tr:first-child th, .compact-table thead tr:first-child td { padding: 0 1px !important; } .compact-table th { background: none !important; background-color: transparent !important; }'}</style>
+      <style>{'.compact-table td { padding: 2px 1px !important; font-size: 10px; line-height: 1.3; } .compact-table { font-size: 10px; } .compact-table thead tr:first-child th, .compact-table thead tr:first-child td { padding: 0 1px !important; } .compact-table th { background: none !important; background-color: transparent !important; }'}</style>
       <div className="d-flex justify-content-between align-items-center mb-2">
         <div className="fw-bold" style={{ textDecoration: 'underline' }}>Solid-bed Track</div>
         <table className="table table-bordered table-sm align-middle mb-0" border="1" style={{ width: 300, fontSize: '12px' }}>
@@ -62,14 +95,21 @@ export default function FormT8() {
               </tr>
             </thead>
             <tbody>
-              {Array.from({ length: 9 }, (_, r) => (
-                <tr key={r} style={{ height: '35px' }}>
-                  {Array.from({ length: 10 }, (_, c) => (
-                    <td key={c} style={{ height: '35px' }}>&nbsp;</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
+  {rows.map((row, r) => (
+    <tr key={row.sleeperSpacingDetailId || r} style={{ height: '35px' }}>
+      <td style={{ height: '35px' }}>{row.trackDirectionName}</td>
+      <td style={{ height: '35px' }}>{row.chainageKm}</td>
+      <td style={{ height: '35px' }}>{row.chainageM}</td>
+      <td style={{ height: '35px' }}>{row.chainageCm}</td>
+      <td style={{ height: '35px' }}>{row.sleeperNumber}</td>
+      <td style={{ height: '35px' }}>{row.squareness}</td>
+      <td style={{ height: '35px' }}>{row.spacingDesignValue}</td>
+      <td style={{ height: '35px' }}>{row.spacingMeasuredValue}</td>
+      <td style={{ height: '35px' }}>{row.spacingIrregularity}</td>
+      <td style={{ height: '35px' }}>{row.remarks}</td>
+    </tr>
+  ))}
+</tbody>
           </table>
         </div>
         <div style={{ overflow: 'auto', flexGrow: 1, minWidth: 0 }}>
