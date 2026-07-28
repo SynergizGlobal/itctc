@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useStickyHeaders from '../hooks/useStickyHeaders';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import useDownloadExcel from '../hooks/useDownloadExcel';
+import { getAllCamMeasurements } from '../services/camMeasurementService';
 
 function ImageDropZone({ height = '55px' }) {
   const [image, setImage] = useState(null);
@@ -23,6 +24,23 @@ export default function FormT72() {
   useStickyHeaders();
   const downloadExcel = useDownloadExcel();
 
+  const [camMeasurements, setCamMeasurements] = useState([]);
+
+  useEffect(() => {
+    loadCamMeasurements();
+  }, []);
+
+  const loadCamMeasurements = async () => {
+    try {
+      const response = await getAllCamMeasurements();
+
+      setCamMeasurements(response);
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className="container-fluid py-3">
       <style>{`.tolerance-table th:last-child, .tolerance-table td:last-child { border: none !important; background: none !important; }`}</style>
@@ -30,8 +48,12 @@ export default function FormT72() {
         <button type="button" onClick={() => navigate(-1)} title="Back" style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer' }}><ArrowLeft aria-hidden="true" /></button>
         <h1 className="h6 mb-0">Form T-7-2</h1>
         <span className="title-main text-center flex-grow-1 mx-3">Measurement record of CAM injected thickness</span>
-        <span>No. <input type="text" className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
-        <span className="ms-2">Date: <input type="text" className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
+        <span>No. <input type="text"
+          value={camMeasurements[0]?.formNo || ""}
+          readOnly className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
+        <span className="ms-2">Date: <input type="text"
+          value={camMeasurements[0]?.inspectionDate || ""}
+          readOnly className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
         <div className="form-export-actions">
           <button type="button" onClick={() => window.print()} title="Download as PDF"><i className="fa-solid fa-file-pdf" /></button>
           <button type="button" onClick={() => downloadExcel('Form-T-7-2.xls')} title="Download as Excel"><i className="fa-solid fa-file-excel" /></button>
@@ -93,22 +115,94 @@ export default function FormT72() {
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: 10 }, (_, i) => (
-              <tr key={i}>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                {i === 0 ? <td>( )</td> : <td>&nbsp;</td>}
-                {i === 0 ? <td>( )</td> : <td>&nbsp;</td>}
-                <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
-                <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
-                {i === 0 ? <td rowSpan={10} style={{ padding: '2px', verticalAlign: 'top', fontSize: '10px' }}><div style={{ marginBottom: '4px', textAlign: 'center' }}>RC anchor measurement range</div><ImageDropZone height="55px" /><div style={{ height: '4px' }}></div><ImageDropZone height="35px" /></td> : null}
-              </tr>
-            ))}
+
+            {camMeasurements.flatMap((header) =>
+
+              header.details.map((detail, index) => (
+
+                <tr key={detail.camMeasurementDetailId}>
+
+                  <td>{detail.trackDirectionName}</td>
+
+                  <td>{detail.rcAnchorSerialNo}</td>
+
+                  <td>{detail.chainageKm}</td>
+
+                  <td>+</td>
+
+                  <td>{detail.chainageM}</td>
+
+                  <td>{detail.trackSlabNumber}</td>
+
+                  <td>{detail.trackSlabType}</td>
+
+                  <td>{detail.resinOriginThickness}</td>
+
+                  <td>{detail.resinEndThickness}</td>
+
+                  <td>{detail.camThickness1}</td>
+
+                  <td>{detail.camThickness2}</td>
+
+                  <td>{detail.camThickness3}</td>
+
+                  <td>{detail.camThickness4}</td>
+
+                  <td>{detail.camThickness5}</td>
+
+                  <td>{detail.camThickness6}</td>
+
+                  <td>{detail.camThickness7}</td>
+
+                  <td>{detail.camThickness8}</td>
+
+                  <td>{detail.camAverageThickness}</td>
+
+                  <td>{detail.gapOrigin}</td>
+
+                  <td>{detail.gapEnd}</td>
+
+                  <td>{detail.referencePinOrigin}</td>
+
+                  <td>{detail.referencePinEnd}</td>
+
+                  <td>{detail.remarks}</td>
+
+                  {index === 0 && (
+
+                    <td
+                      rowSpan={header.details.length}
+                      style={{
+                        padding: "2px",
+                        verticalAlign: "top",
+                        fontSize: "10px"
+                      }}
+                    >
+                      <div
+                        style={{
+                          marginBottom: "4px",
+                          textAlign: "center"
+                        }}
+                      >
+                        RC anchor measurement range
+                      </div>
+
+                      <ImageDropZone height="55px" />
+
+                      <div style={{ height: "4px" }} />
+
+                      <ImageDropZone height="35px" />
+
+                    </td>
+
+                  )}
+
+                </tr>
+
+              ))
+
+            )}
+
           </tbody>
         </table>
       </div>
