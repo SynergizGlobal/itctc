@@ -3,11 +3,36 @@ import formT21Diagram from '../assets/images/Form_T-21.png';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import useDownloadExcel from '../hooks/useDownloadExcel';
+import { useEffect, useState } from "react";
+import { getAllTrackEffectiveLengths } from "../services/trackEffectiveLengthService";
 
 export default function FormT21() {
   const navigate = useNavigate();
   useStickyHeaders();
   const downloadExcel = useDownloadExcel();
+
+  const [trackEffectiveLengths, setTrackEffectiveLengths] = useState([]);
+
+  useEffect(() => {
+    loadTrackEffectiveLengths();
+  }, []);
+
+  const loadTrackEffectiveLengths = async () => {
+
+    try {
+
+      const response = await getAllTrackEffectiveLengths();
+      setTrackEffectiveLengths(response);
+
+    } catch (error) {
+
+      console.error("Failed to load Track Effective Length", error);
+
+    }
+
+  };
+
+  const records = trackEffectiveLengths;
 
   return (
     <div className="container-fluid py-3">
@@ -15,7 +40,11 @@ export default function FormT21() {
         <button type="button" onClick={() => navigate(-1)} title="Back" style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer' }}><ArrowLeft aria-hidden="true" /></button>
         <h1 className="h6 mb-0">Form T-21</h1>
         <span className="title-main text-center flex-grow-1 mx-3">Measurement record of Track effective length in stations and depots</span>
-        <span>Date: <input type="text" className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
+        <span>Date: <input type="text" value={
+          records[0]?.inspectionDate
+            ? new Date(records[0].inspectionDate).toLocaleDateString("en-GB")
+            : ""
+        } readOnly className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
         <div className="form-export-actions">
           <button type="button" onClick={() => window.print()} title="Download as PDF"><i className="fa-solid fa-file-pdf" /></button>
           <button type="button" onClick={() => downloadExcel('Form-T-21.xls')} title="Download as Excel"><i className="fa-solid fa-file-excel" /></button>
@@ -25,7 +54,7 @@ export default function FormT21() {
 
       <div className="mb-3">
         <span className="me-1">Location:</span>
-        <input type="text" className="d-inline-block" style={{ width: '300px', border: 'none', borderBottom: '1px solid #000', background: 'transparent', outline: 'none' }} />
+        <input type="text" value={records[0]?.location ?? ""} readOnly className="d-inline-block" style={{ width: '300px', border: 'none', borderBottom: '1px solid #000', background: 'transparent', outline: 'none' }} />
       </div>
 
       <div style={{ overflow: 'auto' }}>
@@ -50,20 +79,47 @@ export default function FormT21() {
             <tr>
               <td>&nbsp;</td>
               <td>&nbsp;</td>
-              <td><div align="center" style={{ color: 'blue' }}>5.0 m or more</div></td>
+              <td>
+                <div align="center" style={{ color: "blue" }}>
+                  5.0 m or more
+                </div>
+              </td>
               <td>&nbsp;</td>
-              <td><div align="center" style={{ color: 'blue' }}>332.0 m</div></td>
+              <td>
+                <div align="center" style={{ color: "blue" }}>
+                  332.0 m
+                </div>
+              </td>
               <td>&nbsp;</td>
               <td>&nbsp;</td>
               <td>&nbsp;</td>
             </tr>
-            {Array.from({ length: 7 }, (_, r) => (
-              <tr key={r}>
-                {Array.from({ length: 8 }, (_, c) => (
-                  <td key={c}>&nbsp;</td>
-                ))}
-              </tr>
-            ))}
+
+            {records.flatMap((record, headerIndex) =>
+              record.details.map((detail, detailIndex) => (
+                <tr key={`${headerIndex}-${detailIndex}`}>
+
+                  <td>{detail.lineName}</td>
+
+                  <td>
+                    {detail.chainageKm}+{detail.chainageM}
+                  </td>
+
+                  <td>{detail.distanceDesignValue}</td>
+
+                  <td>{detail.distanceMeasuredValue}</td>
+
+                  <td>{detail.effectiveLengthDesign}</td>
+
+                  <td>{detail.effectiveLengthMeasured}</td>
+
+                  <td>{detail.irregularity}</td>
+
+                  <td>{detail.remarks}</td>
+
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

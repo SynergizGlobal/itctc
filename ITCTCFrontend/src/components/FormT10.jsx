@@ -2,6 +2,8 @@ import useStickyHeaders from '../hooks/useStickyHeaders';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import useDownloadExcel from '../hooks/useDownloadExcel';
+import { useState, useEffect } from 'react';
+import { getAllFasteningBolts } from "../services/fasteningBoltService";
 
 const tableHeaders = (
   <thead>
@@ -22,31 +24,62 @@ const tableHeaders = (
   </thead>
 );
 
-const tableBody = (
-  <tbody>
-    {Array.from({ length: 6 }, (_, r) => (
-      <tr key={r} style={{ height: '35px' }}>
-        {Array.from({ length: 8 }, (_, c) => (
-          <td key={c} style={{ height: '35px' }}>&nbsp;</td>
-        ))}
-      </tr>
-    ))}
-  </tbody>
-);
-
-const renderTable = (key) => (
-  <div style={{ overflow: 'auto', minWidth: 0 }} key={key}>
-    <table className="table table-bordered align-middle form-table export-table compact-table mb-0" style={{ width: '100%', borderCollapse: 'collapse' }}>
-      {tableHeaders}
-      {tableBody}
-    </table>
-  </div>
-);
 
 export default function FormT10() {
   const navigate = useNavigate();
   useStickyHeaders();
   const downloadExcel = useDownloadExcel();
+
+  const [fasteningBolts, setFasteningBolts] = useState([]);
+
+  useEffect(() => {
+    loadFasteningBolts();
+  }, []);
+
+  const loadFasteningBolts = async () => {
+    try {
+
+      const response = await getAllFasteningBolts();
+
+      setFasteningBolts(response);
+
+    } catch (error) {
+
+      console.error("Failed to load Fastening Bolt", error);
+
+    }
+  };
+
+  const records = fasteningBolts;
+
+
+  const renderTable = (key) => (
+    <div style={{ overflow: 'auto', minWidth: 0 }} key={key}>
+      <table
+        className="table table-bordered align-middle form-table export-table compact-table mb-0"
+        style={{ width: "100%", borderCollapse: "collapse" }}
+      >
+        {tableHeaders}
+
+        <tbody>
+          {records.flatMap((record, headerIndex) =>
+            record.details.map((detail, detailIndex) => (
+              <tr key={`${headerIndex}-${detailIndex}`} style={{ height: "35px" }}>
+                <td>{detail.trackDirectionName}</td>
+                <td>{detail.chainageKm}</td>
+                <td>{detail.chainageM}</td>
+                <td>{detail.chainageCm}</td>
+                <td>{detail.sleeperNumber}</td>
+                <td>{detail.measuredLeft}</td>
+                <td>{detail.measuredRight}</td>
+                <td>{detail.remarks}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
 
   return (
     <div className="container-fluid py-3">
@@ -54,8 +87,14 @@ export default function FormT10() {
         <button type="button" onClick={() => navigate(-1)} title="Back" style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer' }}><ArrowLeft aria-hidden="true" /></button>
         <h1 className="h6 mb-0">Form T-10</h1>
         <span className="title-main text-center flex-grow-1 mx-3">Measurement record of Fastening Bolt with Synthetic Sleepers</span>
-        <span>No. <input type="text" className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
-        <span className="ms-2">Date: <input type="text" className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
+        <span>No. <input type="text"
+          value={records[0]?.formNo ?? ""}
+          readOnly className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
+        <span className="ms-2">Date: <input type="text" value={
+          records[0]?.inspectionDate
+            ? new Date(records[0].inspectionDate).toLocaleDateString("en-GB")
+            : ""
+        } readOnly className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
         <div className="form-export-actions">
           <button type="button" onClick={() => window.print()} title="Download as PDF"><i className="fa-solid fa-file-pdf" /></button>
           <button type="button" onClick={() => downloadExcel('Form-T-10.xls')} title="Download as Excel"><i className="fa-solid fa-file-excel" /></button>

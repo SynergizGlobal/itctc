@@ -3,6 +3,9 @@ import formT13Diagram from '../assets/images/Form_T-13.png';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import useDownloadExcel from '../hooks/useDownloadExcel';
+import { useEffect, useState } from "react";
+import { getAllFoulingMarks } from "../services/foulingMarkService";
+
 
 function StaticDiagram() {
   return <div style={{ width: '914px', height: '188px', border: '1px solid #ccc', borderRadius: '4px', background: `#fff url(${formT13Diagram}) center/contain no-repeat` }} />;
@@ -20,22 +23,35 @@ const tableHeaders = (
   </thead>
 );
 
-const tableBody = (
-  <tbody>
-    {Array.from({ length: 10 }, (_, r) => (
-      <tr key={r}>
-        {Array.from({ length: 5 }, (_, c) => (
-          <td key={c}>&nbsp;</td>
-        ))}
-      </tr>
-    ))}
-  </tbody>
-);
 
 export default function FormT13() {
   const navigate = useNavigate();
   useStickyHeaders();
   const downloadExcel = useDownloadExcel();
+
+  const [foulingMarks, setFoulingMarks] = useState([]);
+
+  useEffect(() => {
+    loadFoulingMarks();
+  }, []);
+
+  const loadFoulingMarks = async () => {
+
+    try {
+
+      const response = await getAllFoulingMarks();
+
+      setFoulingMarks(response);
+
+    } catch (error) {
+
+      console.error("Failed to load Fouling Mark", error);
+
+    }
+
+  };
+
+  const records = foulingMarks;
 
   return (
     <div className="container-fluid py-3">
@@ -52,7 +68,8 @@ export default function FormT13() {
 
       <div className="mb-2">
         <span className="me-1">Line:</span>
-        <input type="text" className="d-inline-block" style={{ width: '120px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} />
+        <input type="text" value={records[0]?.lineName ?? ""}
+          readOnly className="d-inline-block" style={{ width: '120px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} />
       </div>
       <div className="mb-3 d-flex justify-content-center">
         <StaticDiagram />
@@ -61,7 +78,25 @@ export default function FormT13() {
       <div style={{ overflow: 'auto' }}>
         <table border="1" className="table table-bordered align-middle form-table export-table compact-table mb-0" style={{ width: '100%', borderCollapse: 'collapse' }}>
           {tableHeaders}
-          {tableBody}
+          <tbody>
+            {records.flatMap((record, headerIndex) =>
+              record.details.map((detail, detailIndex) => (
+                <tr key={`${headerIndex}-${detailIndex}`}>
+
+                  <td>{detail.chainageLocation}</td>
+
+                  <td>{detail.designValue}</td>
+
+                  <td>{detail.measuredValue}</td>
+
+                  <td>{detail.differenceValue}</td>
+
+                  <td>{detail.remarks}</td>
+
+                </tr>
+              ))
+            )}
+          </tbody>
         </table>
       </div>
     </div>
