@@ -6,23 +6,25 @@ import java.util.List;
 
 public class SleeperSpacingResponse {
 
-    private Long sleeperSpacingHeaderId;
+	private Long sleeperSpacingHeaderId;
 
-    private Integer projectId;
-    
-    private String formNo;
+	private Integer projectId;
 
-    private String recordNo;
+	private String formNo;
 
-    private LocalDate inspectionDate;
+	private String recordNo;
 
-    private String createdBy;
+	private LocalDate inspectionDate;
 
-    private LocalDateTime createdDate;
+	private String createdBy;
 
-    private List<SleeperSpacingDetailResponse> details;
+	private LocalDateTime createdDate;
 
-    public Long getSleeperSpacingHeaderId() {
+	private List<SleeperSpacingDetailResponse> details;
+
+	private InspectionWorkflowResponse workflow;
+
+	public Long getSleeperSpacingHeaderId() {
 		return sleeperSpacingHeaderId;
 	}
 
@@ -86,5 +88,12 @@ public class SleeperSpacingResponse {
 		this.details = details;
 	}
 
-	
+	public InspectionWorkflowResponse getWorkflow() {
+		return workflow;
+	}
+
+	public void setWorkflow(InspectionWorkflowResponse workflow) {
+		this.workflow = workflow;
+	}
+
 }

@@ -105,5 +105,26 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+    
+    
+    /**
+     * 400 - Invalid Workflow Status
+     */
+    @ExceptionHandler(InvalidWorkflowStatusException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidWorkflowStatus(
+            InvalidWorkflowStatusException ex,
+            HttpServletRequest request) {
+
+        ApiErrorResponse response = new ApiErrorResponse(
+                false,
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
 
 }

@@ -10,8 +10,10 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.synergiz.itctc.constants.WorkflowConstants;
 import com.synergiz.itctc.dto.request.TrackIrregularityDetailRequest;
 import com.synergiz.itctc.dto.request.TrackIrregularityRequest;
+import com.synergiz.itctc.dto.response.InspectionWorkflowResponse;
 import com.synergiz.itctc.dto.response.TrackIrregularityDetailResponse;
 import com.synergiz.itctc.dto.response.TrackIrregularityResponse;
 import com.synergiz.itctc.entity.TrackDirection;
@@ -23,6 +25,7 @@ import com.synergiz.itctc.repository.TrackDirectionRepository;
 import com.synergiz.itctc.repository.TrackIrregularityDetailRepository;
 import com.synergiz.itctc.repository.TrackIrregularityHeaderRepository;
 import com.synergiz.itctc.repository.TrackIrregularityTypeRepository;
+import com.synergiz.itctc.service.InspectionWorkflowService;
 import com.synergiz.itctc.service.TrackIrregularityService;
 
 @Service
@@ -32,15 +35,18 @@ public class TrackIrregularityServiceImpl implements TrackIrregularityService {
 	private final TrackIrregularityDetailRepository detailRepository;
 	private final TrackDirectionRepository directionRepository;
 	private final TrackIrregularityTypeRepository typeRepository;
+	private final InspectionWorkflowService inspectionWorkflowService;
 
 	public TrackIrregularityServiceImpl(TrackIrregularityHeaderRepository headerRepository,
 			TrackIrregularityDetailRepository detailRepository, TrackDirectionRepository directionRepository,
-			TrackIrregularityTypeRepository typeRepository) {
+			TrackIrregularityTypeRepository typeRepository, InspectionWorkflowService inspectionWorkflowService) {
 
 		this.headerRepository = headerRepository;
 		this.detailRepository = detailRepository;
 		this.directionRepository = directionRepository;
 		this.typeRepository = typeRepository;
+		this.inspectionWorkflowService = inspectionWorkflowService;
+
 	}
 
 	@Override
@@ -166,6 +172,20 @@ public class TrackIrregularityServiceImpl implements TrackIrregularityService {
 		}
 
 		response.setDetails(detailResponses);
+		
+		try {
+
+		    InspectionWorkflowResponse workflow =
+		            inspectionWorkflowService.getWorkflow(
+		                    WorkflowConstants.TRACK_IRREGULARITY_FORM_ID,
+		                    header.getTrackIrregularityId());
+
+		    response.setWorkflow(workflow);
+
+		} catch (RuntimeException ex) {
+
+		    response.setWorkflow(null);
+		}
 
 		return response;
 	}
@@ -239,6 +259,20 @@ public class TrackIrregularityServiceImpl implements TrackIrregularityService {
 			}
 
 			response.setDetails(detailResponses);
+			try {
+
+			    InspectionWorkflowResponse workflow =
+			            inspectionWorkflowService.getWorkflow(
+			                    WorkflowConstants.TRACK_IRREGULARITY_FORM_ID,
+			                    header.getTrackIrregularityId());
+
+			    response.setWorkflow(workflow);
+
+			} catch (RuntimeException ex) {
+
+			    response.setWorkflow(null);
+			}
+
 
 			responses.add(response);
 		}

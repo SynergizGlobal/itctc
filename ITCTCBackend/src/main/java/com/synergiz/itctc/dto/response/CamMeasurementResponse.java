@@ -6,11 +6,25 @@ import java.util.List;
 
 public class CamMeasurementResponse {
 
-    private Long camMeasurementHeaderId;
+	private Long camMeasurementHeaderId;
 
-    private Integer projectId;
+	private Integer projectId;
 
-    public Long getCamMeasurementHeaderId() {
+	private String formNo;
+
+	private String recordNo;
+
+	private LocalDate inspectionDate;
+
+	private String createdBy;
+
+	private LocalDateTime createdDate;
+
+	private List<CamMeasurementDetailResponse> details;
+
+	private InspectionWorkflowResponse workflow;
+
+	public Long getCamMeasurementHeaderId() {
 		return camMeasurementHeaderId;
 	}
 
@@ -74,15 +88,12 @@ public class CamMeasurementResponse {
 		this.details = details;
 	}
 
-	private String formNo;
+	public InspectionWorkflowResponse getWorkflow() {
+		return workflow;
+	}
 
-    private String recordNo;
+	public void setWorkflow(InspectionWorkflowResponse workflow) {
+		this.workflow = workflow;
+	}
 
-    private LocalDate inspectionDate;
-
-    private String createdBy;
-
-    private LocalDateTime createdDate;
-
-    private List<CamMeasurementDetailResponse> details;
 }

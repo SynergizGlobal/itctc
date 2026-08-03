@@ -7,9 +7,11 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.synergiz.itctc.constants.WorkflowConstants;
 import com.synergiz.itctc.dto.request.NoiseBarrierMeasurementDetailRequest;
 import com.synergiz.itctc.dto.request.NoiseBarrierMeasurementRequest;
 import com.synergiz.itctc.dto.request.NoiseBarrierMeasurementUpdateRequest;
+import com.synergiz.itctc.dto.response.InspectionWorkflowResponse;
 import com.synergiz.itctc.dto.response.NoiseBarrierMeasurementDetailResponse;
 import com.synergiz.itctc.dto.response.NoiseBarrierMeasurementResponse;
 import com.synergiz.itctc.entity.NoiseBarrierMeasurementDetail;
@@ -20,6 +22,7 @@ import com.synergiz.itctc.exception.ResourceNotFoundException;
 import com.synergiz.itctc.repository.NoiseBarrierMeasurementHeaderRepository;
 import com.synergiz.itctc.repository.StructureTypeRepository;
 import com.synergiz.itctc.repository.TrackTypeRepository;
+import com.synergiz.itctc.service.InspectionWorkflowService;
 import com.synergiz.itctc.service.NoiseBarrierMeasurementService;
 
 @Service
@@ -29,14 +32,17 @@ public class NoiseBarrierMeasurementServiceImpl implements NoiseBarrierMeasureme
 	private final NoiseBarrierMeasurementHeaderRepository noiseBarrierMeasurementHeaderRepository;
 	private final StructureTypeRepository structureTypeRepository;
 	private final TrackTypeRepository trackTypeRepository;
+	private final InspectionWorkflowService inspectionWorkflowService;
 
 	public NoiseBarrierMeasurementServiceImpl(
 			NoiseBarrierMeasurementHeaderRepository noiseBarrierMeasurementHeaderRepository,
-			StructureTypeRepository structureTypeRepository, TrackTypeRepository trackTypeRepository) {
+			StructureTypeRepository structureTypeRepository, TrackTypeRepository trackTypeRepository,
+			InspectionWorkflowService inspectionWorkflowService) {
 
 		this.noiseBarrierMeasurementHeaderRepository = noiseBarrierMeasurementHeaderRepository;
 		this.structureTypeRepository = structureTypeRepository;
 		this.trackTypeRepository = trackTypeRepository;
+		this.inspectionWorkflowService = inspectionWorkflowService;
 	}
 
 	@Override
@@ -163,6 +169,18 @@ public class NoiseBarrierMeasurementServiceImpl implements NoiseBarrierMeasureme
 		}
 
 		response.setDetails(detailResponses);
+
+		try {
+
+			InspectionWorkflowResponse workflow = inspectionWorkflowService
+					.getWorkflow(WorkflowConstants.NOISE_BARRIER_FORM_ID, header.getNoiseBarrierMeasurementId());
+
+			response.setWorkflow(workflow);
+
+		} catch (RuntimeException ex) {
+
+			response.setWorkflow(null);
+		}
 
 		return response;
 	}

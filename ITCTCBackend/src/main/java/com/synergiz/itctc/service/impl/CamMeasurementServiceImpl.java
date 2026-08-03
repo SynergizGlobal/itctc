@@ -1,9 +1,11 @@
 package com.synergiz.itctc.service.impl;
 
+import com.synergiz.itctc.constants.WorkflowConstants;
 import com.synergiz.itctc.dto.request.CamMeasurementDetailRequest;
 import com.synergiz.itctc.dto.request.CamMeasurementRequest;
 import com.synergiz.itctc.dto.response.CamMeasurementDetailResponse;
 import com.synergiz.itctc.dto.response.CamMeasurementResponse;
+import com.synergiz.itctc.dto.response.InspectionWorkflowResponse;
 import com.synergiz.itctc.entity.CamMeasurementDetail;
 import com.synergiz.itctc.entity.CamMeasurementHeader;
 import com.synergiz.itctc.entity.TrackDirection;
@@ -12,6 +14,8 @@ import com.synergiz.itctc.repository.CamMeasurementDetailRepository;
 import com.synergiz.itctc.repository.CamMeasurementHeaderRepository;
 import com.synergiz.itctc.repository.TrackDirectionRepository;
 import com.synergiz.itctc.service.CamMeasurementService;
+import com.synergiz.itctc.service.InspectionWorkflowService;
+
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -25,480 +29,426 @@ import java.util.stream.Collectors;
 @Service
 public class CamMeasurementServiceImpl implements CamMeasurementService {
 
-    private final CamMeasurementHeaderRepository headerRepository;
+	private final CamMeasurementHeaderRepository headerRepository;
 
-    private final CamMeasurementDetailRepository detailRepository;
+	private final CamMeasurementDetailRepository detailRepository;
 
-    private final TrackDirectionRepository trackDirectionRepository;
+	private final TrackDirectionRepository trackDirectionRepository;
 
-    public CamMeasurementServiceImpl(
-            CamMeasurementHeaderRepository headerRepository,
-            CamMeasurementDetailRepository detailRepository,
-            TrackDirectionRepository trackDirectionRepository) {
+	private final InspectionWorkflowService inspectionWorkflowService;
 
-        this.headerRepository = headerRepository;
-        this.detailRepository = detailRepository;
-        this.trackDirectionRepository = trackDirectionRepository;
-    }
-    
-    @Override
-    @Transactional
-    public Long saveCamMeasurement(CamMeasurementRequest request) {
+	public CamMeasurementServiceImpl(CamMeasurementHeaderRepository headerRepository,
+			CamMeasurementDetailRepository detailRepository, TrackDirectionRepository trackDirectionRepository,
+			InspectionWorkflowService inspectionWorkflowService) {
 
-        CamMeasurementHeader header = new CamMeasurementHeader();
+		this.headerRepository = headerRepository;
+		this.detailRepository = detailRepository;
+		this.trackDirectionRepository = trackDirectionRepository;
+		this.inspectionWorkflowService = inspectionWorkflowService;
+	}
 
-       
+	@Override
+	@Transactional
+	public Long saveCamMeasurement(CamMeasurementRequest request) {
 
-        header.setProjectId(request.getProjectId());
-        header.setFormNo(request.getFormNo());
-        header.setRecordNo(request.getRecordNo());
-        header.setInspectionDate(request.getInspectionDate());
+		CamMeasurementHeader header = new CamMeasurementHeader();
 
-        header.setIsActive(true);
+		header.setProjectId(request.getProjectId());
+		header.setFormNo(request.getFormNo());
+		header.setRecordNo(request.getRecordNo());
+		header.setInspectionDate(request.getInspectionDate());
 
-        header.setCreatedBy(request.getCreatedBy());
-        header.setCreatedDate(LocalDateTime.now());
+		header.setIsActive(true);
 
-       
+		header.setCreatedBy(request.getCreatedBy());
+		header.setCreatedDate(LocalDateTime.now());
 
-        if (request.getDetails() != null) {
+		if (request.getDetails() != null) {
 
-            for (CamMeasurementDetailRequest dto : request.getDetails()) {
+			for (CamMeasurementDetailRequest dto : request.getDetails()) {
 
-                TrackDirection trackDirection = trackDirectionRepository
-                        .findById(dto.getTrackDirectionId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Invalid Track Direction Id : "
-                                                + dto.getTrackDirectionId()));
+				TrackDirection trackDirection = trackDirectionRepository.findById(dto.getTrackDirectionId())
+						.orElseThrow(() -> new ResourceNotFoundException(
+								"Invalid Track Direction Id : " + dto.getTrackDirectionId()));
 
-                CamMeasurementDetail detail = new CamMeasurementDetail();
+				CamMeasurementDetail detail = new CamMeasurementDetail();
 
-                detail.setTrackDirection(trackDirection);
+				detail.setTrackDirection(trackDirection);
 
-                detail.setRcAnchorSerialNo(dto.getRcAnchorSerialNo());
+				detail.setRcAnchorSerialNo(dto.getRcAnchorSerialNo());
 
-                detail.setChainageKm(dto.getChainageKm());
-                detail.setChainageM(dto.getChainageM());
+				detail.setChainageKm(dto.getChainageKm());
+				detail.setChainageM(dto.getChainageM());
 
-                detail.setTrackSlabNumber(dto.getTrackSlabNumber());
-                detail.setTrackSlabType(dto.getTrackSlabType());
+				detail.setTrackSlabNumber(dto.getTrackSlabNumber());
+				detail.setTrackSlabType(dto.getTrackSlabType());
 
-                detail.setResinOriginThickness(dto.getResinOriginThickness());
-                detail.setResinEndThickness(dto.getResinEndThickness());
+				detail.setResinOriginThickness(dto.getResinOriginThickness());
+				detail.setResinEndThickness(dto.getResinEndThickness());
 
-                detail.setCamThickness1(dto.getCamThickness1());
-                detail.setCamThickness2(dto.getCamThickness2());
-                detail.setCamThickness3(dto.getCamThickness3());
-                detail.setCamThickness4(dto.getCamThickness4());
-                detail.setCamThickness5(dto.getCamThickness5());
-                detail.setCamThickness6(dto.getCamThickness6());
-                detail.setCamThickness7(dto.getCamThickness7());
-                detail.setCamThickness8(dto.getCamThickness8());
+				detail.setCamThickness1(dto.getCamThickness1());
+				detail.setCamThickness2(dto.getCamThickness2());
+				detail.setCamThickness3(dto.getCamThickness3());
+				detail.setCamThickness4(dto.getCamThickness4());
+				detail.setCamThickness5(dto.getCamThickness5());
+				detail.setCamThickness6(dto.getCamThickness6());
+				detail.setCamThickness7(dto.getCamThickness7());
+				detail.setCamThickness8(dto.getCamThickness8());
 
-                detail.setCamAverageThickness(dto.getCamAverageThickness());
+				detail.setCamAverageThickness(dto.getCamAverageThickness());
 
-                detail.setGapOrigin(dto.getGapOrigin());
-                detail.setGapEnd(dto.getGapEnd());
+				detail.setGapOrigin(dto.getGapOrigin());
+				detail.setGapEnd(dto.getGapEnd());
 
-                detail.setReferencePinOrigin(dto.getReferencePinOrigin());
-                detail.setReferencePinEnd(dto.getReferencePinEnd());
+				detail.setReferencePinOrigin(dto.getReferencePinOrigin());
+				detail.setReferencePinEnd(dto.getReferencePinEnd());
 
-                detail.setRemarks(dto.getRemarks());
+				detail.setRemarks(dto.getRemarks());
 
-                detail.setCamMeasurementHeader(header);
+				detail.setCamMeasurementHeader(header);
 
-                detail.setIsActive(true);
+				detail.setIsActive(true);
 
-                detail.setCreatedBy(request.getCreatedBy());
-                detail.setCreatedDate(LocalDateTime.now());
+				detail.setCreatedBy(request.getCreatedBy());
+				detail.setCreatedDate(LocalDateTime.now());
 
-                header.getDetails().add(detail);
-            }
-        }
+				header.getDetails().add(detail);
+			}
+		}
 
-        headerRepository.save(header);
+		headerRepository.save(header);
 
-        return header.getCamMeasurementHeaderId();
-    }
-    
-    @Override
-    public CamMeasurementResponse getCamMeasurement(Long camMeasurementHeaderId) {
+		return header.getCamMeasurementHeaderId();
+	}
 
-        CamMeasurementHeader header = headerRepository
-                .findById(camMeasurementHeaderId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "CAM Measurement not found with Id : "
-                                        + camMeasurementHeaderId));
+	@Override
+	public CamMeasurementResponse getCamMeasurement(Long camMeasurementHeaderId) {
 
-        CamMeasurementResponse response = new CamMeasurementResponse();
+		CamMeasurementHeader header = headerRepository.findById(camMeasurementHeaderId).orElseThrow(
+				() -> new ResourceNotFoundException("CAM Measurement not found with Id : " + camMeasurementHeaderId));
 
+		CamMeasurementResponse response = new CamMeasurementResponse();
 
-        response.setCamMeasurementHeaderId(
-                header.getCamMeasurementHeaderId());
+		response.setCamMeasurementHeaderId(header.getCamMeasurementHeaderId());
 
-        response.setProjectId(header.getProjectId());
-        response.setFormNo(header.getFormNo());
-        response.setRecordNo(header.getRecordNo());
-        response.setInspectionDate(header.getInspectionDate());
+		response.setProjectId(header.getProjectId());
+		response.setFormNo(header.getFormNo());
+		response.setRecordNo(header.getRecordNo());
+		response.setInspectionDate(header.getInspectionDate());
 
-        response.setCreatedBy(header.getCreatedBy());
-        response.setCreatedDate(header.getCreatedDate());
+		response.setCreatedBy(header.getCreatedBy());
+		response.setCreatedDate(header.getCreatedDate());
 
+		List<CamMeasurementDetailResponse> detailResponses = new ArrayList<>();
 
+		if (header.getDetails() != null) {
 
-        List<CamMeasurementDetailResponse> detailResponses =
-                new ArrayList<>();
+			for (CamMeasurementDetail detail : header.getDetails()) {
 
-        if (header.getDetails() != null) {
+				if (!Boolean.TRUE.equals(detail.getIsActive())) {
+					continue;
+				}
 
-            for (CamMeasurementDetail detail : header.getDetails()) {
+				CamMeasurementDetailResponse dto = new CamMeasurementDetailResponse();
 
-                if (!Boolean.TRUE.equals(detail.getIsActive())) {
-                    continue;
-                }
+				dto.setCamMeasurementDetailId(detail.getCamMeasurementDetailId());
 
-                CamMeasurementDetailResponse dto =
-                        new CamMeasurementDetailResponse();
+				dto.setTrackDirectionId(detail.getTrackDirection().getTrackDirectionId());
 
-                dto.setCamMeasurementDetailId(
-                        detail.getCamMeasurementDetailId());
+				dto.setTrackDirectionName(detail.getTrackDirection().getDirectionName());
 
-                dto.setTrackDirectionId(
-                        detail.getTrackDirection().getTrackDirectionId());
+				dto.setRcAnchorSerialNo(detail.getRcAnchorSerialNo());
 
-                dto.setTrackDirectionName(
-                        detail.getTrackDirection().getDirectionName());
+				dto.setChainageKm(detail.getChainageKm());
+				dto.setChainageM(detail.getChainageM());
 
-                dto.setRcAnchorSerialNo(
-                        detail.getRcAnchorSerialNo());
+				dto.setTrackSlabNumber(detail.getTrackSlabNumber());
 
-                dto.setChainageKm(detail.getChainageKm());
-                dto.setChainageM(detail.getChainageM());
+				dto.setTrackSlabType(detail.getTrackSlabType());
 
-                dto.setTrackSlabNumber(
-                        detail.getTrackSlabNumber());
+				dto.setResinOriginThickness(detail.getResinOriginThickness());
 
-                dto.setTrackSlabType(
-                        detail.getTrackSlabType());
+				dto.setResinEndThickness(detail.getResinEndThickness());
 
-                dto.setResinOriginThickness(
-                        detail.getResinOriginThickness());
+				dto.setCamThickness1(detail.getCamThickness1());
+				dto.setCamThickness2(detail.getCamThickness2());
+				dto.setCamThickness3(detail.getCamThickness3());
+				dto.setCamThickness4(detail.getCamThickness4());
+				dto.setCamThickness5(detail.getCamThickness5());
+				dto.setCamThickness6(detail.getCamThickness6());
+				dto.setCamThickness7(detail.getCamThickness7());
+				dto.setCamThickness8(detail.getCamThickness8());
 
-                dto.setResinEndThickness(
-                        detail.getResinEndThickness());
+				dto.setCamAverageThickness(detail.getCamAverageThickness());
 
-                dto.setCamThickness1(detail.getCamThickness1());
-                dto.setCamThickness2(detail.getCamThickness2());
-                dto.setCamThickness3(detail.getCamThickness3());
-                dto.setCamThickness4(detail.getCamThickness4());
-                dto.setCamThickness5(detail.getCamThickness5());
-                dto.setCamThickness6(detail.getCamThickness6());
-                dto.setCamThickness7(detail.getCamThickness7());
-                dto.setCamThickness8(detail.getCamThickness8());
+				dto.setGapOrigin(detail.getGapOrigin());
+				dto.setGapEnd(detail.getGapEnd());
 
-                dto.setCamAverageThickness(
-                        detail.getCamAverageThickness());
+				dto.setReferencePinOrigin(detail.getReferencePinOrigin());
 
-                dto.setGapOrigin(detail.getGapOrigin());
-                dto.setGapEnd(detail.getGapEnd());
+				dto.setReferencePinEnd(detail.getReferencePinEnd());
 
-                dto.setReferencePinOrigin(
-                        detail.getReferencePinOrigin());
+				dto.setRemarks(detail.getRemarks());
 
-                dto.setReferencePinEnd(
-                        detail.getReferencePinEnd());
+				detailResponses.add(dto);
+			}
+		}
 
-                dto.setRemarks(detail.getRemarks());
+		response.setDetails(detailResponses);
 
-                detailResponses.add(dto);
-            }
-        }
+		try {
 
-        response.setDetails(detailResponses);
+			InspectionWorkflowResponse workflow = inspectionWorkflowService
+					.getWorkflow(WorkflowConstants.CAM_MEASUREMENT_FORM_ID, header.getCamMeasurementHeaderId());
 
-        return response;
-    }
-    
-    @Override
-    public List<CamMeasurementResponse> getAllCamMeasurements() {
+			response.setWorkflow(workflow);
 
-        List<CamMeasurementHeader> headers = headerRepository.findAll();
+		} catch (RuntimeException ex) {
 
-        List<CamMeasurementResponse> responses = new ArrayList<>();
+			response.setWorkflow(null);
+		}
 
-        for (CamMeasurementHeader header : headers) {
+		return response;
+	}
 
-            if (!Boolean.TRUE.equals(header.getIsActive())) {
-                continue;
-            }
+	@Override
+	public List<CamMeasurementResponse> getAllCamMeasurements() {
 
-            CamMeasurementResponse response = new CamMeasurementResponse();
+		List<CamMeasurementHeader> headers = headerRepository.findAll();
 
-          
+		List<CamMeasurementResponse> responses = new ArrayList<>();
 
-            response.setCamMeasurementHeaderId(
-                    header.getCamMeasurementHeaderId());
+		for (CamMeasurementHeader header : headers) {
 
-            response.setProjectId(header.getProjectId());
-            response.setFormNo(header.getFormNo());
-            response.setRecordNo(header.getRecordNo());
-            response.setInspectionDate(header.getInspectionDate());
+			if (!Boolean.TRUE.equals(header.getIsActive())) {
+				continue;
+			}
 
-            response.setCreatedBy(header.getCreatedBy());
-            response.setCreatedDate(header.getCreatedDate());
+			CamMeasurementResponse response = new CamMeasurementResponse();
 
-   
+			response.setCamMeasurementHeaderId(header.getCamMeasurementHeaderId());
 
-            List<CamMeasurementDetailResponse> detailResponses =
-                    new ArrayList<>();
+			response.setProjectId(header.getProjectId());
+			response.setFormNo(header.getFormNo());
+			response.setRecordNo(header.getRecordNo());
+			response.setInspectionDate(header.getInspectionDate());
 
-            if (header.getDetails() != null) {
+			response.setCreatedBy(header.getCreatedBy());
+			response.setCreatedDate(header.getCreatedDate());
 
-                for (CamMeasurementDetail detail : header.getDetails()) {
+			List<CamMeasurementDetailResponse> detailResponses = new ArrayList<>();
 
-                    if (!Boolean.TRUE.equals(detail.getIsActive())) {
-                        continue;
-                    }
+			if (header.getDetails() != null) {
 
-                    CamMeasurementDetailResponse dto =
-                            new CamMeasurementDetailResponse();
+				for (CamMeasurementDetail detail : header.getDetails()) {
 
-                    dto.setCamMeasurementDetailId(
-                            detail.getCamMeasurementDetailId());
+					if (!Boolean.TRUE.equals(detail.getIsActive())) {
+						continue;
+					}
 
-                    dto.setTrackDirectionId(
-                            detail.getTrackDirection().getTrackDirectionId());
+					CamMeasurementDetailResponse dto = new CamMeasurementDetailResponse();
 
-                    dto.setTrackDirectionName(
-                            detail.getTrackDirection().getDirectionName());
+					dto.setCamMeasurementDetailId(detail.getCamMeasurementDetailId());
 
-                    dto.setRcAnchorSerialNo(
-                            detail.getRcAnchorSerialNo());
+					dto.setTrackDirectionId(detail.getTrackDirection().getTrackDirectionId());
 
-                    dto.setChainageKm(detail.getChainageKm());
-                    dto.setChainageM(detail.getChainageM());
+					dto.setTrackDirectionName(detail.getTrackDirection().getDirectionName());
 
-                    dto.setTrackSlabNumber(
-                            detail.getTrackSlabNumber());
+					dto.setRcAnchorSerialNo(detail.getRcAnchorSerialNo());
 
-                    dto.setTrackSlabType(
-                            detail.getTrackSlabType());
+					dto.setChainageKm(detail.getChainageKm());
+					dto.setChainageM(detail.getChainageM());
 
-                    dto.setResinOriginThickness(
-                            detail.getResinOriginThickness());
+					dto.setTrackSlabNumber(detail.getTrackSlabNumber());
 
-                    dto.setResinEndThickness(
-                            detail.getResinEndThickness());
+					dto.setTrackSlabType(detail.getTrackSlabType());
 
-                    dto.setCamThickness1(detail.getCamThickness1());
-                    dto.setCamThickness2(detail.getCamThickness2());
-                    dto.setCamThickness3(detail.getCamThickness3());
-                    dto.setCamThickness4(detail.getCamThickness4());
-                    dto.setCamThickness5(detail.getCamThickness5());
-                    dto.setCamThickness6(detail.getCamThickness6());
-                    dto.setCamThickness7(detail.getCamThickness7());
-                    dto.setCamThickness8(detail.getCamThickness8());
+					dto.setResinOriginThickness(detail.getResinOriginThickness());
 
-                    dto.setCamAverageThickness(
-                            detail.getCamAverageThickness());
+					dto.setResinEndThickness(detail.getResinEndThickness());
 
-                    dto.setGapOrigin(detail.getGapOrigin());
-                    dto.setGapEnd(detail.getGapEnd());
+					dto.setCamThickness1(detail.getCamThickness1());
+					dto.setCamThickness2(detail.getCamThickness2());
+					dto.setCamThickness3(detail.getCamThickness3());
+					dto.setCamThickness4(detail.getCamThickness4());
+					dto.setCamThickness5(detail.getCamThickness5());
+					dto.setCamThickness6(detail.getCamThickness6());
+					dto.setCamThickness7(detail.getCamThickness7());
+					dto.setCamThickness8(detail.getCamThickness8());
 
-                    dto.setReferencePinOrigin(
-                            detail.getReferencePinOrigin());
+					dto.setCamAverageThickness(detail.getCamAverageThickness());
 
-                    dto.setReferencePinEnd(
-                            detail.getReferencePinEnd());
+					dto.setGapOrigin(detail.getGapOrigin());
+					dto.setGapEnd(detail.getGapEnd());
 
-                    dto.setRemarks(detail.getRemarks());
+					dto.setReferencePinOrigin(detail.getReferencePinOrigin());
 
-                    detailResponses.add(dto);
-                }
-            }
+					dto.setReferencePinEnd(detail.getReferencePinEnd());
 
-            response.setDetails(detailResponses);
+					dto.setRemarks(detail.getRemarks());
 
-            responses.add(response);
-        }
+					detailResponses.add(dto);
+				}
+			}
 
-        return responses;
-    }
-    
-    @Override
-    @Transactional
-    public Long updateCamMeasurement(
-            Long camMeasurementHeaderId,
-            CamMeasurementRequest request) {
+			response.setDetails(detailResponses);
+			
+			try {
 
-        CamMeasurementHeader header = headerRepository
-                .findById(camMeasurementHeaderId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "CAM Measurement not found with Id : "
-                                        + camMeasurementHeaderId));
+				InspectionWorkflowResponse workflow = inspectionWorkflowService
+						.getWorkflow(WorkflowConstants.CAM_MEASUREMENT_FORM_ID, header.getCamMeasurementHeaderId());
 
- 
-        // Update Header
+				response.setWorkflow(workflow);
 
+			} catch (RuntimeException ex) {
 
-        header.setProjectId(request.getProjectId());
-        header.setFormNo(request.getFormNo());
-        header.setRecordNo(request.getRecordNo());
-        header.setInspectionDate(request.getInspectionDate());
+				response.setWorkflow(null);
+			}
 
-        header.setUpdatedBy(request.getUpdatedBy());
-        header.setUpdatedDate(LocalDateTime.now());
 
-  
-        // Soft Delete Removed Details
+			responses.add(response);
+		}
 
+		return responses;
+	}
 
-        Set<Long> requestDetailIds = request.getDetails().stream()
-                .map(CamMeasurementDetailRequest::getCamMeasurementDetailId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+	@Override
+	@Transactional
+	public Long updateCamMeasurement(Long camMeasurementHeaderId, CamMeasurementRequest request) {
 
-        for (CamMeasurementDetail existingDetail : header.getDetails()) {
+		CamMeasurementHeader header = headerRepository.findById(camMeasurementHeaderId).orElseThrow(
+				() -> new ResourceNotFoundException("CAM Measurement not found with Id : " + camMeasurementHeaderId));
 
-            if (!requestDetailIds.contains(
-                    existingDetail.getCamMeasurementDetailId())) {
+		// Update Header
 
-                existingDetail.setIsActive(false);
-                existingDetail.setUpdatedBy(request.getUpdatedBy());
-                existingDetail.setUpdatedDate(LocalDateTime.now());
-            }
-        }
+		header.setProjectId(request.getProjectId());
+		header.setFormNo(request.getFormNo());
+		header.setRecordNo(request.getRecordNo());
+		header.setInspectionDate(request.getInspectionDate());
 
+		header.setUpdatedBy(request.getUpdatedBy());
+		header.setUpdatedDate(LocalDateTime.now());
 
-        // Insert / Update Details
+		// Soft Delete Removed Details
 
+		Set<Long> requestDetailIds = request.getDetails().stream()
+				.map(CamMeasurementDetailRequest::getCamMeasurementDetailId).filter(Objects::nonNull)
+				.collect(Collectors.toSet());
 
-        for (CamMeasurementDetailRequest dto : request.getDetails()) {
+		for (CamMeasurementDetail existingDetail : header.getDetails()) {
 
-            TrackDirection trackDirection = trackDirectionRepository
-                    .findById(dto.getTrackDirectionId())
-                    .orElseThrow(() ->
-                            new ResourceNotFoundException(
-                                    "Invalid Track Direction Id"));
+			if (!requestDetailIds.contains(existingDetail.getCamMeasurementDetailId())) {
 
-            CamMeasurementDetail detail;
+				existingDetail.setIsActive(false);
+				existingDetail.setUpdatedBy(request.getUpdatedBy());
+				existingDetail.setUpdatedDate(LocalDateTime.now());
+			}
+		}
 
+		// Insert / Update Details
 
-            // UPDATE EXISTING DETAIL
-   
+		for (CamMeasurementDetailRequest dto : request.getDetails()) {
 
-            if (dto.getCamMeasurementDetailId() != null) {
+			TrackDirection trackDirection = trackDirectionRepository.findById(dto.getTrackDirectionId())
+					.orElseThrow(() -> new ResourceNotFoundException("Invalid Track Direction Id"));
 
-                detail = header.getDetails().stream()
-                        .filter(d -> d.getCamMeasurementDetailId()
-                                .equals(dto.getCamMeasurementDetailId()))
-                        .findFirst()
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "CAM Measurement Detail not found with Id : "
-                                                + dto.getCamMeasurementDetailId()));
+			CamMeasurementDetail detail;
 
-                detail.setUpdatedBy(request.getUpdatedBy());
-                detail.setUpdatedDate(LocalDateTime.now());
-            }
+			// UPDATE EXISTING DETAIL
 
+			if (dto.getCamMeasurementDetailId() != null) {
 
-            // INSERT NEW DETAIL
+				detail = header.getDetails().stream()
+						.filter(d -> d.getCamMeasurementDetailId().equals(dto.getCamMeasurementDetailId())).findFirst()
+						.orElseThrow(() -> new ResourceNotFoundException(
+								"CAM Measurement Detail not found with Id : " + dto.getCamMeasurementDetailId()));
 
+				detail.setUpdatedBy(request.getUpdatedBy());
+				detail.setUpdatedDate(LocalDateTime.now());
+			}
 
-            else {
+			// INSERT NEW DETAIL
 
-                detail = new CamMeasurementDetail();
+			else {
 
-                detail.setCamMeasurementHeader(header);
+				detail = new CamMeasurementDetail();
 
-                detail.setCreatedBy(request.getUpdatedBy());
-                detail.setCreatedDate(LocalDateTime.now());
+				detail.setCamMeasurementHeader(header);
 
-                detail.setIsActive(true);
+				detail.setCreatedBy(request.getUpdatedBy());
+				detail.setCreatedDate(LocalDateTime.now());
 
-                header.getDetails().add(detail);
-            }
+				detail.setIsActive(true);
 
-            detail.setTrackDirection(trackDirection);
+				header.getDetails().add(detail);
+			}
 
-            detail.setRcAnchorSerialNo(dto.getRcAnchorSerialNo());
+			detail.setTrackDirection(trackDirection);
 
-            detail.setChainageKm(dto.getChainageKm());
-            detail.setChainageM(dto.getChainageM());
+			detail.setRcAnchorSerialNo(dto.getRcAnchorSerialNo());
 
-            detail.setTrackSlabNumber(dto.getTrackSlabNumber());
-            detail.setTrackSlabType(dto.getTrackSlabType());
+			detail.setChainageKm(dto.getChainageKm());
+			detail.setChainageM(dto.getChainageM());
 
-            detail.setResinOriginThickness(dto.getResinOriginThickness());
-            detail.setResinEndThickness(dto.getResinEndThickness());
+			detail.setTrackSlabNumber(dto.getTrackSlabNumber());
+			detail.setTrackSlabType(dto.getTrackSlabType());
 
-            detail.setCamThickness1(dto.getCamThickness1());
-            detail.setCamThickness2(dto.getCamThickness2());
-            detail.setCamThickness3(dto.getCamThickness3());
-            detail.setCamThickness4(dto.getCamThickness4());
-            detail.setCamThickness5(dto.getCamThickness5());
-            detail.setCamThickness6(dto.getCamThickness6());
-            detail.setCamThickness7(dto.getCamThickness7());
-            detail.setCamThickness8(dto.getCamThickness8());
+			detail.setResinOriginThickness(dto.getResinOriginThickness());
+			detail.setResinEndThickness(dto.getResinEndThickness());
 
-            detail.setCamAverageThickness(dto.getCamAverageThickness());
+			detail.setCamThickness1(dto.getCamThickness1());
+			detail.setCamThickness2(dto.getCamThickness2());
+			detail.setCamThickness3(dto.getCamThickness3());
+			detail.setCamThickness4(dto.getCamThickness4());
+			detail.setCamThickness5(dto.getCamThickness5());
+			detail.setCamThickness6(dto.getCamThickness6());
+			detail.setCamThickness7(dto.getCamThickness7());
+			detail.setCamThickness8(dto.getCamThickness8());
 
-            detail.setGapOrigin(dto.getGapOrigin());
-            detail.setGapEnd(dto.getGapEnd());
+			detail.setCamAverageThickness(dto.getCamAverageThickness());
 
-            detail.setReferencePinOrigin(dto.getReferencePinOrigin());
-            detail.setReferencePinEnd(dto.getReferencePinEnd());
+			detail.setGapOrigin(dto.getGapOrigin());
+			detail.setGapEnd(dto.getGapEnd());
 
-            detail.setRemarks(dto.getRemarks());
+			detail.setReferencePinOrigin(dto.getReferencePinOrigin());
+			detail.setReferencePinEnd(dto.getReferencePinEnd());
 
-            detail.setIsActive(true);
-        }
+			detail.setRemarks(dto.getRemarks());
 
-        headerRepository.save(header);
+			detail.setIsActive(true);
+		}
 
-        return header.getCamMeasurementHeaderId();
-    }
-    
-    @Override
-    @Transactional
-    public void deleteCamMeasurement(
-            Long camMeasurementHeaderId,
-            String updatedBy) {
+		headerRepository.save(header);
 
-        CamMeasurementHeader header = headerRepository
-                .findById(camMeasurementHeaderId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "CAM Measurement not found with Id : "
-                                        + camMeasurementHeaderId));
+		return header.getCamMeasurementHeaderId();
+	}
 
+	@Override
+	@Transactional
+	public void deleteCamMeasurement(Long camMeasurementHeaderId, String updatedBy) {
 
-        // Soft Delete Header
-    
+		CamMeasurementHeader header = headerRepository.findById(camMeasurementHeaderId).orElseThrow(
+				() -> new ResourceNotFoundException("CAM Measurement not found with Id : " + camMeasurementHeaderId));
 
-        header.setIsActive(false);
-        header.setUpdatedBy(updatedBy);
-        header.setUpdatedDate(LocalDateTime.now());
+		// Soft Delete Header
 
+		header.setIsActive(false);
+		header.setUpdatedBy(updatedBy);
+		header.setUpdatedDate(LocalDateTime.now());
 
-        // Soft Delete Details
+		// Soft Delete Details
 
+		if (header.getDetails() != null) {
 
-        if (header.getDetails() != null) {
+			for (CamMeasurementDetail detail : header.getDetails()) {
 
-            for (CamMeasurementDetail detail : header.getDetails()) {
+				detail.setIsActive(false);
+				detail.setUpdatedBy(updatedBy);
+				detail.setUpdatedDate(LocalDateTime.now());
+			}
+		}
 
-                detail.setIsActive(false);
-                detail.setUpdatedBy(updatedBy);
-                detail.setUpdatedDate(LocalDateTime.now());
-            }
-        }
-
-        headerRepository.save(header);
-    }
+		headerRepository.save(header);
+	}
 
 }

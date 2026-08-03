@@ -1,7 +1,5 @@
 package com.synergiz.itctc.dto.response;
 
-
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -9,9 +7,39 @@ import java.util.List;
 
 public class TrackIrregularityResponse {
 
-    private Long trackIrregularityId;
+	private Long trackIrregularityId;
 
-    public Long getTrackIrregularityId() {
+	private Integer projectId;
+
+	private String formNumber;
+
+	private LocalDate measurementDate;
+
+	private BigDecimal chainageKm;
+
+	private BigDecimal chainageM;
+
+	private String measuringPointDown;
+
+	private String measuringPointUp;
+
+	private String verticalCurveDiagramDown;
+
+	private String planeCurveDiagramDown;
+
+	private String verticalCurveDiagramUp;
+
+	private String planeCurveDiagramUp;
+
+	private String remarks;
+
+	private LocalDateTime createdDate;
+
+	private List<TrackIrregularityDetailResponse> details;
+
+	private InspectionWorkflowResponse workflow;
+
+	public Long getTrackIrregularityId() {
 		return trackIrregularityId;
 	}
 
@@ -131,33 +159,12 @@ public class TrackIrregularityResponse {
 		this.details = details;
 	}
 
-	private Integer projectId;
+	public InspectionWorkflowResponse getWorkflow() {
+		return workflow;
+	}
 
-    private String formNumber;
+	public void setWorkflow(InspectionWorkflowResponse workflow) {
+		this.workflow = workflow;
+	}
 
-    private LocalDate measurementDate;
-
-    private BigDecimal chainageKm;
-
-    private BigDecimal chainageM;
-
-    private String measuringPointDown;
-
-    private String measuringPointUp;
-
-    private String verticalCurveDiagramDown;
-
-    private String planeCurveDiagramDown;
-
-    private String verticalCurveDiagramUp;
-
-    private String planeCurveDiagramUp;
-
-    private String remarks;
-
-    private LocalDateTime createdDate;
-
-    private List<TrackIrregularityDetailResponse> details;
-
-    
 }

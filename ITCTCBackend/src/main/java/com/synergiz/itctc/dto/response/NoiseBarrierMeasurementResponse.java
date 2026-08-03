@@ -13,6 +13,33 @@ public class NoiseBarrierMeasurementResponse {
 
     private Integer projectId;
 
+    
+	private BigDecimal chainageKm;
+
+    private BigDecimal chainageM;
+
+    private Integer structureTypeId;
+
+    private String structureTypeName;
+
+    private Integer trackTypeId;
+
+    private String trackTypeName;
+
+    private Boolean isCurve;
+
+    private BigDecimal curveRadius;
+
+    private BigDecimal appliedCantValueMm;
+
+    private String remarks;
+
+    private LocalDateTime createdDate;
+
+    private List<NoiseBarrierMeasurementDetailResponse> details;
+    
+    private InspectionWorkflowResponse workflow;
+    
     public Long getNoiseBarrierMeasurementId() {
 		return noiseBarrierMeasurementId;
 	}
@@ -125,28 +152,13 @@ public class NoiseBarrierMeasurementResponse {
 		this.details = details;
 	}
 
-	private BigDecimal chainageKm;
+	public InspectionWorkflowResponse getWorkflow() {
+		return workflow;
+	}
 
-    private BigDecimal chainageM;
+	public void setWorkflow(InspectionWorkflowResponse workflow) {
+		this.workflow = workflow;
+	}
 
-    private Integer structureTypeId;
-
-    private String structureTypeName;
-
-    private Integer trackTypeId;
-
-    private String trackTypeName;
-
-    private Boolean isCurve;
-
-    private BigDecimal curveRadius;
-
-    private BigDecimal appliedCantValueMm;
-
-    private String remarks;
-
-    private LocalDateTime createdDate;
-
-    private List<NoiseBarrierMeasurementDetailResponse> details;
 
 }

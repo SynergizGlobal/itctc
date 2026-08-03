@@ -1,7 +1,9 @@
 package com.synergiz.itctc.service.impl;
 
+import com.synergiz.itctc.constants.WorkflowConstants;
 import com.synergiz.itctc.dto.request.SleeperSpacingDetailRequest;
 import com.synergiz.itctc.dto.request.SleeperSpacingRequest;
+import com.synergiz.itctc.dto.response.InspectionWorkflowResponse;
 import com.synergiz.itctc.dto.response.SleeperSpacingDetailResponse;
 import com.synergiz.itctc.dto.response.SleeperSpacingResponse;
 import com.synergiz.itctc.entity.SleeperSpacingDetail;
@@ -11,6 +13,7 @@ import com.synergiz.itctc.exception.ResourceNotFoundException;
 import com.synergiz.itctc.repository.SleeperSpacingDetailRepository;
 import com.synergiz.itctc.repository.SleeperSpacingHeaderRepository;
 import com.synergiz.itctc.repository.TrackDirectionRepository;
+import com.synergiz.itctc.service.InspectionWorkflowService;
 import com.synergiz.itctc.service.SleeperSpacingService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -25,413 +28,386 @@ import java.util.stream.Collectors;
 @Service
 public class SleeperSpacingServiceImpl implements SleeperSpacingService {
 
-    private final SleeperSpacingHeaderRepository headerRepository;
+	private final SleeperSpacingHeaderRepository headerRepository;
 
-    private final SleeperSpacingDetailRepository detailRepository;
+	private final SleeperSpacingDetailRepository detailRepository;
 
-    private final TrackDirectionRepository trackDirectionRepository;
+	private final TrackDirectionRepository trackDirectionRepository;
 
-    public SleeperSpacingServiceImpl(
-            SleeperSpacingHeaderRepository headerRepository,
-            SleeperSpacingDetailRepository detailRepository,
-            TrackDirectionRepository trackDirectionRepository) {
+	private final InspectionWorkflowService inspectionWorkflowService;
 
-        this.headerRepository = headerRepository;
-        this.detailRepository = detailRepository;
-        this.trackDirectionRepository = trackDirectionRepository;
-    }
-    
-    @Override
-    @Transactional
-    public Long saveSleeperSpacing(SleeperSpacingRequest request) {
+	public SleeperSpacingServiceImpl(SleeperSpacingHeaderRepository headerRepository,
+			SleeperSpacingDetailRepository detailRepository, TrackDirectionRepository trackDirectionRepository,
+			InspectionWorkflowService inspectionWorkflowService) {
 
-        SleeperSpacingHeader header = new SleeperSpacingHeader();
+		this.headerRepository = headerRepository;
+		this.detailRepository = detailRepository;
+		this.trackDirectionRepository = trackDirectionRepository;
+		this.inspectionWorkflowService = inspectionWorkflowService;
+	}
 
-        // Header
-  
+	@Override
+	@Transactional
+	public Long saveSleeperSpacing(SleeperSpacingRequest request) {
 
-        header.setProjectId(request.getProjectId());
-        header.setFormNo(request.getFormNo());
-        header.setRecordNo(request.getRecordNo());
-        header.setInspectionDate(request.getInspectionDate());
+		SleeperSpacingHeader header = new SleeperSpacingHeader();
 
-        header.setIsActive(true);
+		// Header
 
-        header.setCreatedBy(request.getCreatedBy());
-        header.setCreatedDate(LocalDateTime.now());
+		header.setProjectId(request.getProjectId());
+		header.setFormNo(request.getFormNo());
+		header.setRecordNo(request.getRecordNo());
+		header.setInspectionDate(request.getInspectionDate());
 
+		header.setIsActive(true);
 
-        // Details
+		header.setCreatedBy(request.getCreatedBy());
+		header.setCreatedDate(LocalDateTime.now());
 
+		// Details
 
-        if (request.getDetails() != null) {
+		if (request.getDetails() != null) {
 
-            for (SleeperSpacingDetailRequest dto : request.getDetails()) {
+			for (SleeperSpacingDetailRequest dto : request.getDetails()) {
 
-                TrackDirection trackDirection = trackDirectionRepository
-                        .findById(dto.getTrackDirectionId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Invalid Track Direction Id : "
-                                                + dto.getTrackDirectionId()));
+				TrackDirection trackDirection = trackDirectionRepository.findById(dto.getTrackDirectionId())
+						.orElseThrow(() -> new ResourceNotFoundException(
+								"Invalid Track Direction Id : " + dto.getTrackDirectionId()));
 
-                SleeperSpacingDetail detail = new SleeperSpacingDetail();
+				SleeperSpacingDetail detail = new SleeperSpacingDetail();
 
-                detail.setTrackDirection(trackDirection);
+				detail.setTrackDirection(trackDirection);
 
-                detail.setChainageKm(dto.getChainageKm());
-                detail.setChainageM(dto.getChainageM());
-                detail.setChainageCm(dto.getChainageCm());
+				detail.setChainageKm(dto.getChainageKm());
+				detail.setChainageM(dto.getChainageM());
+				detail.setChainageCm(dto.getChainageCm());
 
-                detail.setSleeperNumber(dto.getSleeperNumber());
+				detail.setSleeperNumber(dto.getSleeperNumber());
 
-                detail.setSquareness(dto.getSquareness());
+				detail.setSquareness(dto.getSquareness());
 
-                detail.setSpacingDesignValue(dto.getSpacingDesignValue());
-                detail.setSpacingMeasuredValue(dto.getSpacingMeasuredValue());
-                detail.setSpacingIrregularity(dto.getSpacingIrregularity());
+				detail.setSpacingDesignValue(dto.getSpacingDesignValue());
+				detail.setSpacingMeasuredValue(dto.getSpacingMeasuredValue());
+				detail.setSpacingIrregularity(dto.getSpacingIrregularity());
 
-                detail.setRemarks(dto.getRemarks());
+				detail.setRemarks(dto.getRemarks());
 
-                detail.setSleeperSpacingHeader(header);
+				detail.setSleeperSpacingHeader(header);
 
-                detail.setIsActive(true);
+				detail.setIsActive(true);
 
-                detail.setCreatedBy(request.getCreatedBy());
-                detail.setCreatedDate(LocalDateTime.now());
+				detail.setCreatedBy(request.getCreatedBy());
+				detail.setCreatedDate(LocalDateTime.now());
 
-                header.getDetails().add(detail);
-            }
-        }
+				header.getDetails().add(detail);
+			}
+		}
 
-        headerRepository.save(header);
+		headerRepository.save(header);
 
-        return header.getSleeperSpacingHeaderId();
-    }
-    
-    @Override
-    public SleeperSpacingResponse getSleeperSpacing(
-            Long sleeperSpacingHeaderId) {
+		return header.getSleeperSpacingHeaderId();
+	}
 
-        SleeperSpacingHeader header = headerRepository
-                .findById(sleeperSpacingHeaderId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Sleeper Spacing not found with Id : "
-                                        + sleeperSpacingHeaderId));
+	@Override
+	public SleeperSpacingResponse getSleeperSpacing(Long sleeperSpacingHeaderId) {
 
-        SleeperSpacingResponse response = new SleeperSpacingResponse();
+		SleeperSpacingHeader header = headerRepository.findById(sleeperSpacingHeaderId).orElseThrow(
+				() -> new ResourceNotFoundException("Sleeper Spacing not found with Id : " + sleeperSpacingHeaderId));
 
-       
-        // Header
- 
+		SleeperSpacingResponse response = new SleeperSpacingResponse();
 
-        response.setSleeperSpacingHeaderId(
-                header.getSleeperSpacingHeaderId());
+		// Header
 
-        response.setProjectId(header.getProjectId());
-        response.setFormNo(header.getFormNo());
-        response.setRecordNo(header.getRecordNo());
-        response.setInspectionDate(header.getInspectionDate());
+		response.setSleeperSpacingHeaderId(header.getSleeperSpacingHeaderId());
 
-        response.setCreatedBy(header.getCreatedBy());
-        response.setCreatedDate(header.getCreatedDate());
+		response.setProjectId(header.getProjectId());
+		response.setFormNo(header.getFormNo());
+		response.setRecordNo(header.getRecordNo());
+		response.setInspectionDate(header.getInspectionDate());
 
-        
-        // Details
-      
+		response.setCreatedBy(header.getCreatedBy());
+		response.setCreatedDate(header.getCreatedDate());
 
-        List<SleeperSpacingDetailResponse> detailResponses =
-                new ArrayList<>();
+		// Details
 
-        if (header.getDetails() != null) {
+		List<SleeperSpacingDetailResponse> detailResponses = new ArrayList<>();
 
-            for (SleeperSpacingDetail detail : header.getDetails()) {
+		if (header.getDetails() != null) {
 
-                if (!Boolean.TRUE.equals(detail.getIsActive())) {
-                    continue;
-                }
+			for (SleeperSpacingDetail detail : header.getDetails()) {
 
-                SleeperSpacingDetailResponse dto =
-                        new SleeperSpacingDetailResponse();
+				if (!Boolean.TRUE.equals(detail.getIsActive())) {
+					continue;
+				}
 
-                dto.setSleeperSpacingDetailId(
-                        detail.getSleeperSpacingDetailId());
+				SleeperSpacingDetailResponse dto = new SleeperSpacingDetailResponse();
 
-                dto.setTrackDirectionId(
-                        detail.getTrackDirection().getTrackDirectionId());
+				dto.setSleeperSpacingDetailId(detail.getSleeperSpacingDetailId());
 
-                dto.setTrackDirectionName(
-                        detail.getTrackDirection().getDirectionName());
+				dto.setTrackDirectionId(detail.getTrackDirection().getTrackDirectionId());
 
-                dto.setChainageKm(detail.getChainageKm());
-                dto.setChainageM(detail.getChainageM());
-                dto.setChainageCm(detail.getChainageCm());
+				dto.setTrackDirectionName(detail.getTrackDirection().getDirectionName());
 
-                dto.setSleeperNumber(detail.getSleeperNumber());
+				dto.setChainageKm(detail.getChainageKm());
+				dto.setChainageM(detail.getChainageM());
+				dto.setChainageCm(detail.getChainageCm());
 
-                dto.setSquareness(detail.getSquareness());
+				dto.setSleeperNumber(detail.getSleeperNumber());
 
-                dto.setSpacingDesignValue(
-                        detail.getSpacingDesignValue());
+				dto.setSquareness(detail.getSquareness());
 
-                dto.setSpacingMeasuredValue(
-                        detail.getSpacingMeasuredValue());
+				dto.setSpacingDesignValue(detail.getSpacingDesignValue());
 
-                dto.setSpacingIrregularity(
-                        detail.getSpacingIrregularity());
+				dto.setSpacingMeasuredValue(detail.getSpacingMeasuredValue());
 
-                dto.setRemarks(detail.getRemarks());
+				dto.setSpacingIrregularity(detail.getSpacingIrregularity());
 
-                detailResponses.add(dto);
-            }
-        }
+				dto.setRemarks(detail.getRemarks());
 
-        response.setDetails(detailResponses);
+				detailResponses.add(dto);
+			}
+		}
 
-        return response;
-    }
-    
-    @Override
-    public List<SleeperSpacingResponse> getAllSleeperSpacings() {
+		response.setDetails(detailResponses);
 
-        List<SleeperSpacingHeader> headers = headerRepository.findAll();
+		try {
 
-        List<SleeperSpacingResponse> responseList = new ArrayList<>();
+			InspectionWorkflowResponse workflow = inspectionWorkflowService
+					.getWorkflow(WorkflowConstants.SLEEPER_SPACING_FORM_ID, header.getSleeperSpacingHeaderId());
 
-        for (SleeperSpacingHeader header : headers) {
+			response.setWorkflow(workflow);
 
-            if (!Boolean.TRUE.equals(header.getIsActive())) {
-                continue;
-            }
+		} catch (RuntimeException ex) {
 
-            SleeperSpacingResponse response = new SleeperSpacingResponse();
+			response.setWorkflow(null);
+		}
 
-            // ===========================
-            // Header
-            // ===========================
+		return response;
+	}
 
-            response.setSleeperSpacingHeaderId(
-                    header.getSleeperSpacingHeaderId());
+	@Override
+	public List<SleeperSpacingResponse> getAllSleeperSpacings() {
 
-            response.setProjectId(header.getProjectId());
-            response.setFormNo(header.getFormNo());
-            response.setRecordNo(header.getRecordNo());
-            response.setInspectionDate(header.getInspectionDate());
+		List<SleeperSpacingHeader> headers = headerRepository.findAll();
 
-            response.setCreatedBy(header.getCreatedBy());
-            response.setCreatedDate(header.getCreatedDate());
+		List<SleeperSpacingResponse> responseList = new ArrayList<>();
 
-            // ===========================
-            // Details
-            // ===========================
+		for (SleeperSpacingHeader header : headers) {
 
-            List<SleeperSpacingDetailResponse> detailResponses =
-                    new ArrayList<>();
+			if (!Boolean.TRUE.equals(header.getIsActive())) {
+				continue;
+			}
 
-            if (header.getDetails() != null) {
+			SleeperSpacingResponse response = new SleeperSpacingResponse();
 
-                for (SleeperSpacingDetail detail : header.getDetails()) {
+			// ===========================
+			// Header
+			// ===========================
 
-                    if (!Boolean.TRUE.equals(detail.getIsActive())) {
-                        continue;
-                    }
+			response.setSleeperSpacingHeaderId(header.getSleeperSpacingHeaderId());
 
-                    SleeperSpacingDetailResponse dto =
-                            new SleeperSpacingDetailResponse();
+			response.setProjectId(header.getProjectId());
+			response.setFormNo(header.getFormNo());
+			response.setRecordNo(header.getRecordNo());
+			response.setInspectionDate(header.getInspectionDate());
 
-                    dto.setSleeperSpacingDetailId(
-                            detail.getSleeperSpacingDetailId());
+			response.setCreatedBy(header.getCreatedBy());
+			response.setCreatedDate(header.getCreatedDate());
 
-                    dto.setTrackDirectionId(
-                            detail.getTrackDirection().getTrackDirectionId());
+			// ===========================
+			// Details
+			// ===========================
 
-                    dto.setTrackDirectionName(
-                            detail.getTrackDirection().getDirectionName());
+			List<SleeperSpacingDetailResponse> detailResponses = new ArrayList<>();
 
-                    dto.setChainageKm(detail.getChainageKm());
-                    dto.setChainageM(detail.getChainageM());
-                    dto.setChainageCm(detail.getChainageCm());
+			if (header.getDetails() != null) {
 
-                    dto.setSleeperNumber(detail.getSleeperNumber());
+				for (SleeperSpacingDetail detail : header.getDetails()) {
 
-                    dto.setSquareness(detail.getSquareness());
+					if (!Boolean.TRUE.equals(detail.getIsActive())) {
+						continue;
+					}
 
-                    dto.setSpacingDesignValue(
-                            detail.getSpacingDesignValue());
+					SleeperSpacingDetailResponse dto = new SleeperSpacingDetailResponse();
 
-                    dto.setSpacingMeasuredValue(
-                            detail.getSpacingMeasuredValue());
+					dto.setSleeperSpacingDetailId(detail.getSleeperSpacingDetailId());
 
-                    dto.setSpacingIrregularity(
-                            detail.getSpacingIrregularity());
+					dto.setTrackDirectionId(detail.getTrackDirection().getTrackDirectionId());
 
-                    dto.setRemarks(detail.getRemarks());
+					dto.setTrackDirectionName(detail.getTrackDirection().getDirectionName());
 
-                    detailResponses.add(dto);
-                }
-            }
+					dto.setChainageKm(detail.getChainageKm());
+					dto.setChainageM(detail.getChainageM());
+					dto.setChainageCm(detail.getChainageCm());
 
-            response.setDetails(detailResponses);
+					dto.setSleeperNumber(detail.getSleeperNumber());
 
-            responseList.add(response);
-        }
+					dto.setSquareness(detail.getSquareness());
 
-        return responseList;
-    }
-    
-    @Override
-    @Transactional
-    public Long updateSleeperSpacing(
-            Long sleeperSpacingHeaderId,
-            SleeperSpacingRequest request) {
+					dto.setSpacingDesignValue(detail.getSpacingDesignValue());
 
-        SleeperSpacingHeader header = headerRepository
-                .findById(sleeperSpacingHeaderId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Sleeper Spacing not found with Id : "
-                                        + sleeperSpacingHeaderId));
+					dto.setSpacingMeasuredValue(detail.getSpacingMeasuredValue());
 
-        // ===========================
-        // Update Header
-        // ===========================
+					dto.setSpacingIrregularity(detail.getSpacingIrregularity());
 
-        header.setProjectId(request.getProjectId());
-        header.setFormNo(request.getFormNo());
-        header.setRecordNo(request.getRecordNo());
-        header.setInspectionDate(request.getInspectionDate());
+					dto.setRemarks(detail.getRemarks());
 
-        header.setUpdatedBy(request.getUpdatedBy());
-        header.setUpdatedDate(LocalDateTime.now());
+					detailResponses.add(dto);
+				}
+			}
 
-        // ==================================================
-        // Soft Delete Removed Details
-        // ==================================================
+			response.setDetails(detailResponses);
+			
+			try {
 
-        Set<Long> requestDetailIds = request.getDetails().stream()
-                .map(SleeperSpacingDetailRequest::getSleeperSpacingDetailId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+				InspectionWorkflowResponse workflow = inspectionWorkflowService
+						.getWorkflow(WorkflowConstants.SLEEPER_SPACING_FORM_ID, header.getSleeperSpacingHeaderId());
 
-        for (SleeperSpacingDetail existingDetail : header.getDetails()) {
+				response.setWorkflow(workflow);
 
-            if (!requestDetailIds.contains(
-                    existingDetail.getSleeperSpacingDetailId())) {
+			} catch (RuntimeException ex) {
 
-                existingDetail.setIsActive(false);
-                existingDetail.setUpdatedBy(request.getUpdatedBy());
-                existingDetail.setUpdatedDate(LocalDateTime.now());
-            }
-        }
+				response.setWorkflow(null);
+			}
 
-        // ==================================================
-        // Insert / Update Details
-        // ==================================================
+			responseList.add(response);
+		}
 
-        for (SleeperSpacingDetailRequest dto : request.getDetails()) {
+		return responseList;
+	}
 
-            TrackDirection direction = trackDirectionRepository
-                    .findById(dto.getTrackDirectionId())
-                    .orElseThrow(() ->
-                            new ResourceNotFoundException(
-                                    "Invalid Track Direction Id"));
+	@Override
+	@Transactional
+	public Long updateSleeperSpacing(Long sleeperSpacingHeaderId, SleeperSpacingRequest request) {
 
-            SleeperSpacingDetail detail;
+		SleeperSpacingHeader header = headerRepository.findById(sleeperSpacingHeaderId).orElseThrow(
+				() -> new ResourceNotFoundException("Sleeper Spacing not found with Id : " + sleeperSpacingHeaderId));
 
-            // ===========================
-            // UPDATE EXISTING DETAIL
-            // ===========================
+		// ===========================
+		// Update Header
+		// ===========================
 
-            if (dto.getSleeperSpacingDetailId() != null) {
+		header.setProjectId(request.getProjectId());
+		header.setFormNo(request.getFormNo());
+		header.setRecordNo(request.getRecordNo());
+		header.setInspectionDate(request.getInspectionDate());
 
-                detail = detailRepository
-                        .findById(dto.getSleeperSpacingDetailId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Sleeper Spacing Detail not found with Id : "
-                                                + dto.getSleeperSpacingDetailId()));
+		header.setUpdatedBy(request.getUpdatedBy());
+		header.setUpdatedDate(LocalDateTime.now());
 
-                detail.setUpdatedBy(request.getUpdatedBy());
-                detail.setUpdatedDate(LocalDateTime.now());
-            }
+		// ==================================================
+		// Soft Delete Removed Details
+		// ==================================================
 
-            // ===========================
-            // INSERT NEW DETAIL
-            // ===========================
+		Set<Long> requestDetailIds = request.getDetails().stream()
+				.map(SleeperSpacingDetailRequest::getSleeperSpacingDetailId).filter(Objects::nonNull)
+				.collect(Collectors.toSet());
 
-            else {
+		for (SleeperSpacingDetail existingDetail : header.getDetails()) {
 
-                detail = new SleeperSpacingDetail();
+			if (!requestDetailIds.contains(existingDetail.getSleeperSpacingDetailId())) {
 
-                detail.setSleeperSpacingHeader(header);
+				existingDetail.setIsActive(false);
+				existingDetail.setUpdatedBy(request.getUpdatedBy());
+				existingDetail.setUpdatedDate(LocalDateTime.now());
+			}
+		}
 
-                detail.setCreatedBy(request.getUpdatedBy());
-                detail.setCreatedDate(LocalDateTime.now());
+		// ==================================================
+		// Insert / Update Details
+		// ==================================================
 
-                detail.setIsActive(true);
+		for (SleeperSpacingDetailRequest dto : request.getDetails()) {
 
-                header.getDetails().add(detail);
-            }
+			TrackDirection direction = trackDirectionRepository.findById(dto.getTrackDirectionId())
+					.orElseThrow(() -> new ResourceNotFoundException("Invalid Track Direction Id"));
 
-            detail.setTrackDirection(direction);
+			SleeperSpacingDetail detail;
 
-            detail.setChainageKm(dto.getChainageKm());
-            detail.setChainageM(dto.getChainageM());
-            detail.setChainageCm(dto.getChainageCm());
+			// ===========================
+			// UPDATE EXISTING DETAIL
+			// ===========================
 
-            detail.setSleeperNumber(dto.getSleeperNumber());
+			if (dto.getSleeperSpacingDetailId() != null) {
 
-            detail.setSquareness(dto.getSquareness());
+				detail = detailRepository.findById(dto.getSleeperSpacingDetailId())
+						.orElseThrow(() -> new ResourceNotFoundException(
+								"Sleeper Spacing Detail not found with Id : " + dto.getSleeperSpacingDetailId()));
 
-            detail.setSpacingDesignValue(dto.getSpacingDesignValue());
-            detail.setSpacingMeasuredValue(dto.getSpacingMeasuredValue());
-            detail.setSpacingIrregularity(dto.getSpacingIrregularity());
+				detail.setUpdatedBy(request.getUpdatedBy());
+				detail.setUpdatedDate(LocalDateTime.now());
+			}
 
-            detail.setRemarks(dto.getRemarks());
+			// ===========================
+			// INSERT NEW DETAIL
+			// ===========================
 
-            detail.setIsActive(true);
-        }
+			else {
 
-        headerRepository.save(header);
+				detail = new SleeperSpacingDetail();
 
-        return header.getSleeperSpacingHeaderId();
-    }
-    
-    @Override
-    @Transactional
-    public void deleteSleeperSpacing(
-            Long sleeperSpacingHeaderId,
-            String updatedBy) {
+				detail.setSleeperSpacingHeader(header);
 
-        SleeperSpacingHeader header = headerRepository
-                .findById(sleeperSpacingHeaderId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Sleeper Spacing not found with Id : "
-                                        + sleeperSpacingHeaderId));
+				detail.setCreatedBy(request.getUpdatedBy());
+				detail.setCreatedDate(LocalDateTime.now());
 
-        // ===========================
-        // Soft Delete Header
-        // ===========================
+				detail.setIsActive(true);
 
-        header.setIsActive(false);
-        header.setUpdatedBy(updatedBy);
-        header.setUpdatedDate(LocalDateTime.now());
+				header.getDetails().add(detail);
+			}
 
-        // ===========================
-        // Soft Delete Details
-        // ===========================
+			detail.setTrackDirection(direction);
 
-        if (header.getDetails() != null) {
+			detail.setChainageKm(dto.getChainageKm());
+			detail.setChainageM(dto.getChainageM());
+			detail.setChainageCm(dto.getChainageCm());
 
-            for (SleeperSpacingDetail detail : header.getDetails()) {
+			detail.setSleeperNumber(dto.getSleeperNumber());
 
-                detail.setIsActive(false);
-                detail.setUpdatedBy(updatedBy);
-                detail.setUpdatedDate(LocalDateTime.now());
-            }
-        }
+			detail.setSquareness(dto.getSquareness());
+
+			detail.setSpacingDesignValue(dto.getSpacingDesignValue());
+			detail.setSpacingMeasuredValue(dto.getSpacingMeasuredValue());
+			detail.setSpacingIrregularity(dto.getSpacingIrregularity());
+
+			detail.setRemarks(dto.getRemarks());
+
+			detail.setIsActive(true);
+		}
+
+		headerRepository.save(header);
+
+		return header.getSleeperSpacingHeaderId();
+	}
+
+	@Override
+	@Transactional
+	public void deleteSleeperSpacing(Long sleeperSpacingHeaderId, String updatedBy) {
+
+		SleeperSpacingHeader header = headerRepository.findById(sleeperSpacingHeaderId).orElseThrow(
+				() -> new ResourceNotFoundException("Sleeper Spacing not found with Id : " + sleeperSpacingHeaderId));
+
+		// ===========================
+		// Soft Delete Header
+		// ===========================
+
+		header.setIsActive(false);
+		header.setUpdatedBy(updatedBy);
+		header.setUpdatedDate(LocalDateTime.now());
+
+		// ===========================
+		// Soft Delete Details
+		// ===========================
+
+		if (header.getDetails() != null) {
+
+			for (SleeperSpacingDetail detail : header.getDetails()) {
+
+				detail.setIsActive(false);
+				detail.setUpdatedBy(updatedBy);
+				detail.setUpdatedDate(LocalDateTime.now());
+			}
+		}
 
 		headerRepository.save(header);
 	}

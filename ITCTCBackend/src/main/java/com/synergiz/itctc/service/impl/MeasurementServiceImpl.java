@@ -7,9 +7,11 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.synergiz.itctc.constants.WorkflowConstants;
 import com.synergiz.itctc.dto.request.MeasurementDetailRequest;
 import com.synergiz.itctc.dto.request.MeasurementRequest;
 import com.synergiz.itctc.dto.request.MeasurementUpdateRequest;
+import com.synergiz.itctc.dto.response.InspectionWorkflowResponse;
 import com.synergiz.itctc.dto.response.MeasurementDetailResponse;
 import com.synergiz.itctc.dto.response.MeasurementResponse;
 import com.synergiz.itctc.entity.MeasurementDetail;
@@ -20,6 +22,7 @@ import com.synergiz.itctc.exception.ResourceNotFoundException;
 import com.synergiz.itctc.repository.MeasurementHeaderRepository;
 import com.synergiz.itctc.repository.StructureTypeRepository;
 import com.synergiz.itctc.repository.TrackTypeRepository;
+import com.synergiz.itctc.service.InspectionWorkflowService;
 import com.synergiz.itctc.service.MeasurementService;
 
 @Service
@@ -29,13 +32,16 @@ public class MeasurementServiceImpl implements MeasurementService {
 	private final MeasurementHeaderRepository measurementHeaderRepository;
 	private final StructureTypeRepository structureTypeRepository;
 	private final TrackTypeRepository trackTypeRepository;
+	private final InspectionWorkflowService inspectionWorkflowService;
 
 	public MeasurementServiceImpl(MeasurementHeaderRepository measurementHeaderRepository,
-			StructureTypeRepository structureTypeRepository, TrackTypeRepository trackTypeRepository) {
+			StructureTypeRepository structureTypeRepository, TrackTypeRepository trackTypeRepository,
+			InspectionWorkflowService inspectionWorkflowService) {
 
 		this.measurementHeaderRepository = measurementHeaderRepository;
 		this.structureTypeRepository = structureTypeRepository;
 		this.trackTypeRepository = trackTypeRepository;
+		this.inspectionWorkflowService = inspectionWorkflowService;
 	}
 
 	@Override
@@ -94,6 +100,18 @@ public class MeasurementServiceImpl implements MeasurementService {
 		}
 
 		response.setDetails(detailResponses);
+
+		try {
+
+			InspectionWorkflowResponse workflow = inspectionWorkflowService
+					.getWorkflow(WorkflowConstants.MEASUREMENT_FORM_ID, measurementId);
+
+			response.setWorkflow(workflow);
+
+		} catch (RuntimeException ex) {
+
+			response.setWorkflow(null);
+		}
 
 		return response;
 	}
@@ -157,6 +175,17 @@ public class MeasurementServiceImpl implements MeasurementService {
 			}
 
 			response.setDetails(detailResponses);
+
+			try {
+				InspectionWorkflowResponse workflow = inspectionWorkflowService
+						.getWorkflow(WorkflowConstants.MEASUREMENT_FORM_ID, header.getMeasurementId());
+
+				response.setWorkflow(workflow);
+
+			} catch (RuntimeException ex) {
+
+				response.setWorkflow(null);
+			}
 
 			responses.add(response);
 		}

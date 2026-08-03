@@ -12,6 +12,30 @@ public class MeasurementResponse {
 
     private BigDecimal chainageKm;
 
+	private BigDecimal chainageM;
+
+    private Integer structureTypeId;
+
+    private String structureTypeName;
+
+    private Integer trackTypeId;
+
+    private String trackTypeName;
+
+    private Boolean isCurve;
+
+    private BigDecimal curveRadius;
+
+    private BigDecimal appliedCantValueMm;
+
+    private String remarks;
+
+    private LocalDateTime createdDate;
+
+    private List<MeasurementDetailResponse> details;
+    
+    private InspectionWorkflowResponse workflow;
+    
     public Long getMeasurementId() {
 		return measurementId;
 	}
@@ -124,26 +148,14 @@ public class MeasurementResponse {
 		this.details = details;
 	}
 
-	private BigDecimal chainageM;
+	public InspectionWorkflowResponse getWorkflow() {
+		return workflow;
+	}
 
-    private Integer structureTypeId;
-
-    private String structureTypeName;
-
-    private Integer trackTypeId;
-
-    private String trackTypeName;
-
-    private Boolean isCurve;
-
-    private BigDecimal curveRadius;
-
-    private BigDecimal appliedCantValueMm;
-
-    private String remarks;
-
-    private LocalDateTime createdDate;
-
-    private List<MeasurementDetailResponse> details;
+	public void setWorkflow(InspectionWorkflowResponse workflow) {
+		this.workflow = workflow;
+	}
+	
+	
 
 }
