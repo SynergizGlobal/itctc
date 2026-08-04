@@ -6,21 +6,23 @@ import java.util.List;
 
 public class SyntheticResinInjectionResponse {
 
-    private Long syntheticResinInjectionHeaderId;
+	private Long syntheticResinInjectionHeaderId;
 
-    private Integer projectId;
+	private Integer projectId;
 
-    private String formNo;
+	private String formNo;
 
-    private String recordNo;
+	private String recordNo;
 
-    private LocalDate inspectionDate;
+	private LocalDate inspectionDate;
 
-    private String createdBy;
+	private String createdBy;
 
-    private LocalDateTime createdDate;
+	private LocalDateTime createdDate;
 
-    private List<SyntheticResinInjectionDetailResponse> details;
+	private List<SyntheticResinInjectionDetailResponse> details;
+
+	private InspectionWorkflowResponse workflow;
 
 	public Long getSyntheticResinInjectionHeaderId() {
 		return syntheticResinInjectionHeaderId;
@@ -85,6 +87,13 @@ public class SyntheticResinInjectionResponse {
 	public void setDetails(List<SyntheticResinInjectionDetailResponse> details) {
 		this.details = details;
 	}
-    
-    
+
+	public InspectionWorkflowResponse getWorkflow() {
+		return workflow;
+	}
+
+	public void setWorkflow(InspectionWorkflowResponse workflow) {
+		this.workflow = workflow;
+	}
+
 }

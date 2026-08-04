@@ -1,15 +1,19 @@
 package com.synergiz.itctc.service.impl;
 
+import com.synergiz.itctc.constants.WorkflowConstants;
 import com.synergiz.itctc.dto.request.FoulingMarkDetailRequest;
 import com.synergiz.itctc.dto.request.FoulingMarkRequest;
 import com.synergiz.itctc.dto.response.FoulingMarkDetailResponse;
 import com.synergiz.itctc.dto.response.FoulingMarkResponse;
+import com.synergiz.itctc.dto.response.InspectionWorkflowResponse;
 import com.synergiz.itctc.entity.FoulingMarkDetail;
 import com.synergiz.itctc.entity.FoulingMarkHeader;
 import com.synergiz.itctc.exception.ResourceNotFoundException;
 import com.synergiz.itctc.repository.FoulingMarkDetailRepository;
 import com.synergiz.itctc.repository.FoulingMarkHeaderRepository;
 import com.synergiz.itctc.service.FoulingMarkService;
+import com.synergiz.itctc.service.InspectionWorkflowService;
+
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -27,11 +31,14 @@ public class FoulingMarkServiceImpl implements FoulingMarkService {
 
 	private final FoulingMarkDetailRepository detailRepository;
 
+	private final InspectionWorkflowService inspectionWorkflowService;
+
 	public FoulingMarkServiceImpl(FoulingMarkHeaderRepository headerRepository,
-			FoulingMarkDetailRepository detailRepository) {
+			FoulingMarkDetailRepository detailRepository, InspectionWorkflowService inspectionWorkflowService) {
 
 		this.headerRepository = headerRepository;
 		this.detailRepository = detailRepository;
+		this.inspectionWorkflowService = inspectionWorkflowService;
 	}
 
 	@Override
@@ -88,8 +95,8 @@ public class FoulingMarkServiceImpl implements FoulingMarkService {
 	@Override
 	public FoulingMarkResponse getFoulingMark(Long foulingMarkHeaderId) {
 
-		FoulingMarkHeader header = headerRepository.findById(foulingMarkHeaderId)
-				.orElseThrow(() -> new ResourceNotFoundException("Fouling Mark not found with Id : " + foulingMarkHeaderId));
+		FoulingMarkHeader header = headerRepository.findById(foulingMarkHeaderId).orElseThrow(
+				() -> new ResourceNotFoundException("Fouling Mark not found with Id : " + foulingMarkHeaderId));
 
 		FoulingMarkResponse response = new FoulingMarkResponse();
 
@@ -137,6 +144,18 @@ public class FoulingMarkServiceImpl implements FoulingMarkService {
 		}
 
 		response.setDetails(detailResponses);
+
+		try {
+
+			InspectionWorkflowResponse workflow = inspectionWorkflowService
+					.getWorkflow(WorkflowConstants.FOULING_MARK_FORM_ID, header.getFoulingMarkHeaderId());
+
+			response.setWorkflow(workflow);
+
+		} catch (RuntimeException ex) {
+
+			response.setWorkflow(null);
+		}
 
 		return response;
 	}
@@ -201,6 +220,18 @@ public class FoulingMarkServiceImpl implements FoulingMarkService {
 
 			response.setDetails(detailResponses);
 
+			try {
+
+				InspectionWorkflowResponse workflow = inspectionWorkflowService
+						.getWorkflow(WorkflowConstants.FOULING_MARK_FORM_ID, header.getFoulingMarkHeaderId());
+
+				response.setWorkflow(workflow);
+
+			} catch (RuntimeException ex) {
+
+				response.setWorkflow(null);
+			}
+
 			responseList.add(response);
 		}
 
@@ -211,8 +242,8 @@ public class FoulingMarkServiceImpl implements FoulingMarkService {
 	@Transactional
 	public Long updateFoulingMark(Long foulingMarkHeaderId, FoulingMarkRequest request) {
 
-		FoulingMarkHeader header = headerRepository.findById(foulingMarkHeaderId)
-				.orElseThrow(() -> new ResourceNotFoundException("Fouling Mark not found with Id : " + foulingMarkHeaderId));
+		FoulingMarkHeader header = headerRepository.findById(foulingMarkHeaderId).orElseThrow(
+				() -> new ResourceNotFoundException("Fouling Mark not found with Id : " + foulingMarkHeaderId));
 
 		// Update Header
 
@@ -250,8 +281,9 @@ public class FoulingMarkServiceImpl implements FoulingMarkService {
 
 			if (dto.getFoulingMarkDetailId() != null) {
 
-				detail = detailRepository.findById(dto.getFoulingMarkDetailId()).orElseThrow(() -> new ResourceNotFoundException(
-						"Fouling Mark Detail not found with Id : " + dto.getFoulingMarkDetailId()));
+				detail = detailRepository.findById(dto.getFoulingMarkDetailId())
+						.orElseThrow(() -> new ResourceNotFoundException(
+								"Fouling Mark Detail not found with Id : " + dto.getFoulingMarkDetailId()));
 
 				detail.setUpdatedBy(request.getUpdatedBy());
 				detail.setUpdatedDate(LocalDateTime.now());
@@ -293,8 +325,8 @@ public class FoulingMarkServiceImpl implements FoulingMarkService {
 	@Transactional
 	public void deleteFoulingMark(Long foulingMarkHeaderId, String updatedBy) {
 
-		FoulingMarkHeader header = headerRepository.findById(foulingMarkHeaderId)
-				.orElseThrow(() -> new ResourceNotFoundException("Fouling Mark not found with Id : " + foulingMarkHeaderId));
+		FoulingMarkHeader header = headerRepository.findById(foulingMarkHeaderId).orElseThrow(
+				() -> new ResourceNotFoundException("Fouling Mark not found with Id : " + foulingMarkHeaderId));
 
 		// Soft Delete Header
 

@@ -1,15 +1,19 @@
 package com.synergiz.itctc.service.impl;
 
+import com.synergiz.itctc.constants.WorkflowConstants;
 import com.synergiz.itctc.dto.request.BufferStopDetailRequest;
 import com.synergiz.itctc.dto.request.BufferStopRequest;
 import com.synergiz.itctc.dto.response.BufferStopDetailResponse;
 import com.synergiz.itctc.dto.response.BufferStopResponse;
+import com.synergiz.itctc.dto.response.InspectionWorkflowResponse;
 import com.synergiz.itctc.entity.BufferStopDetail;
 import com.synergiz.itctc.entity.BufferStopHeader;
 import com.synergiz.itctc.exception.ResourceNotFoundException;
 import com.synergiz.itctc.repository.BufferStopDetailRepository;
 import com.synergiz.itctc.repository.BufferStopHeaderRepository;
 import com.synergiz.itctc.service.BufferStopService;
+import com.synergiz.itctc.service.InspectionWorkflowService;
+
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -23,339 +27,323 @@ import java.util.stream.Collectors;
 @Service
 public class BufferStopServiceImpl implements BufferStopService {
 
-    private final BufferStopHeaderRepository headerRepository;
+	private final BufferStopHeaderRepository headerRepository;
 
-    private final BufferStopDetailRepository detailRepository;
+	private final BufferStopDetailRepository detailRepository;
 
-    public BufferStopServiceImpl(
-            BufferStopHeaderRepository headerRepository,
-            BufferStopDetailRepository detailRepository) {
+	private final InspectionWorkflowService inspectionWorkflowService;
 
-        this.headerRepository = headerRepository;
-        this.detailRepository = detailRepository;
-    }
-    
-    @Override
-    @Transactional
-    public Long saveBufferStop(BufferStopRequest request) {
+	public BufferStopServiceImpl(BufferStopHeaderRepository headerRepository,
+			BufferStopDetailRepository detailRepository, InspectionWorkflowService inspectionWorkflowService) {
 
-        BufferStopHeader header = new BufferStopHeader();
+		this.headerRepository = headerRepository;
+		this.detailRepository = detailRepository;
+		this.inspectionWorkflowService = inspectionWorkflowService;
+	}
 
-        // Header
+	@Override
+	@Transactional
+	public Long saveBufferStop(BufferStopRequest request) {
 
-        header.setProjectId(request.getProjectId());
-        header.setFormNo(request.getFormNo());
-        header.setLineName(request.getLineName());
-        header.setInspectionDate(request.getInspectionDate());
+		BufferStopHeader header = new BufferStopHeader();
 
-        header.setIsActive(true);
-        header.setCreatedBy(request.getCreatedBy());
-        header.setCreatedDate(LocalDateTime.now());
+		// Header
 
-        // Details
+		header.setProjectId(request.getProjectId());
+		header.setFormNo(request.getFormNo());
+		header.setLineName(request.getLineName());
+		header.setInspectionDate(request.getInspectionDate());
 
-        if (request.getDetails() != null) {
+		header.setIsActive(true);
+		header.setCreatedBy(request.getCreatedBy());
+		header.setCreatedDate(LocalDateTime.now());
 
-            for (BufferStopDetailRequest dto : request.getDetails()) {
+		// Details
 
-                BufferStopDetail detail = new BufferStopDetail();
+		if (request.getDetails() != null) {
 
-                detail.setBufferStopHeader(header);
+			for (BufferStopDetailRequest dto : request.getDetails()) {
 
-                detail.setLocation(dto.getLocation());
+				BufferStopDetail detail = new BufferStopDetail();
 
-                detail.setMeasurementPoint1(dto.getMeasurementPoint1());
-                detail.setMeasurementPoint2(dto.getMeasurementPoint2());
-                detail.setMeasurementPoint3(dto.getMeasurementPoint3());
-                detail.setMeasurementPoint4(dto.getMeasurementPoint4());
-                detail.setMeasurementPoint5(dto.getMeasurementPoint5());
+				detail.setBufferStopHeader(header);
 
-                detail.setIsActive(true);
-                detail.setCreatedBy(request.getCreatedBy());
-                detail.setCreatedDate(LocalDateTime.now());
+				detail.setLocation(dto.getLocation());
 
-                header.getDetails().add(detail);
-            }
-        }
+				detail.setMeasurementPoint1(dto.getMeasurementPoint1());
+				detail.setMeasurementPoint2(dto.getMeasurementPoint2());
+				detail.setMeasurementPoint3(dto.getMeasurementPoint3());
+				detail.setMeasurementPoint4(dto.getMeasurementPoint4());
+				detail.setMeasurementPoint5(dto.getMeasurementPoint5());
 
-        headerRepository.save(header);
+				detail.setIsActive(true);
+				detail.setCreatedBy(request.getCreatedBy());
+				detail.setCreatedDate(LocalDateTime.now());
 
-        return header.getBufferStopHeaderId();
-    }
-    
-    @Override
-    public BufferStopResponse getBufferStop(
-            Long bufferStopHeaderId) {
+				header.getDetails().add(detail);
+			}
+		}
 
-        BufferStopHeader header = headerRepository
-                .findById(bufferStopHeaderId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Buffer Stop not found with Id : "
-                                        + bufferStopHeaderId));
+		headerRepository.save(header);
 
-        BufferStopResponse response = new BufferStopResponse();
+		return header.getBufferStopHeaderId();
+	}
 
-        // Header
+	@Override
+	public BufferStopResponse getBufferStop(Long bufferStopHeaderId) {
 
-        response.setBufferStopHeaderId(
-                header.getBufferStopHeaderId());
+		BufferStopHeader header = headerRepository.findById(bufferStopHeaderId).orElseThrow(
+				() -> new ResourceNotFoundException("Buffer Stop not found with Id : " + bufferStopHeaderId));
 
-        response.setProjectId(header.getProjectId());
-        response.setFormNo(header.getFormNo());
-        response.setLineName(header.getLineName());
-        response.setInspectionDate(header.getInspectionDate());
+		BufferStopResponse response = new BufferStopResponse();
 
-        response.setCreatedBy(header.getCreatedBy());
-        response.setCreatedDate(header.getCreatedDate());
+		// Header
 
-        // Details
+		response.setBufferStopHeaderId(header.getBufferStopHeaderId());
 
-        List<BufferStopDetailResponse> detailResponses =
-                new ArrayList<>();
+		response.setProjectId(header.getProjectId());
+		response.setFormNo(header.getFormNo());
+		response.setLineName(header.getLineName());
+		response.setInspectionDate(header.getInspectionDate());
 
-        if (header.getDetails() != null) {
+		response.setCreatedBy(header.getCreatedBy());
+		response.setCreatedDate(header.getCreatedDate());
 
-            for (BufferStopDetail detail : header.getDetails()) {
+		// Details
 
-                if (!Boolean.TRUE.equals(detail.getIsActive())) {
-                    continue;
-                }
+		List<BufferStopDetailResponse> detailResponses = new ArrayList<>();
 
-                BufferStopDetailResponse dto =
-                        new BufferStopDetailResponse();
+		if (header.getDetails() != null) {
 
-                dto.setBufferStopDetailId(
-                        detail.getBufferStopDetailId());
+			for (BufferStopDetail detail : header.getDetails()) {
 
-                dto.setLocation(detail.getLocation());
+				if (!Boolean.TRUE.equals(detail.getIsActive())) {
+					continue;
+				}
 
-                dto.setMeasurementPoint1(
-                        detail.getMeasurementPoint1());
+				BufferStopDetailResponse dto = new BufferStopDetailResponse();
 
-                dto.setMeasurementPoint2(
-                        detail.getMeasurementPoint2());
+				dto.setBufferStopDetailId(detail.getBufferStopDetailId());
 
-                dto.setMeasurementPoint3(
-                        detail.getMeasurementPoint3());
+				dto.setLocation(detail.getLocation());
 
-                dto.setMeasurementPoint4(
-                        detail.getMeasurementPoint4());
+				dto.setMeasurementPoint1(detail.getMeasurementPoint1());
 
-                dto.setMeasurementPoint5(
-                        detail.getMeasurementPoint5());
+				dto.setMeasurementPoint2(detail.getMeasurementPoint2());
 
-                detailResponses.add(dto);
-            }
-        }
+				dto.setMeasurementPoint3(detail.getMeasurementPoint3());
 
-        response.setDetails(detailResponses);
+				dto.setMeasurementPoint4(detail.getMeasurementPoint4());
 
-        return response;
-    }
+				dto.setMeasurementPoint5(detail.getMeasurementPoint5());
 
-    
-    @Override
-    public List<BufferStopResponse> getAllBufferStops() {
+				detailResponses.add(dto);
+			}
+		}
 
-        List<BufferStopHeader> headers = headerRepository.findAll();
+		response.setDetails(detailResponses);
+		
+		try {
 
-        List<BufferStopResponse> responseList = new ArrayList<>();
+			InspectionWorkflowResponse workflow = inspectionWorkflowService.getWorkflow(
+					WorkflowConstants.BUFFER_STOP_FORM_ID, header.getBufferStopHeaderId());
 
-        for (BufferStopHeader header : headers) {
+			response.setWorkflow(workflow);
 
-            if (!Boolean.TRUE.equals(header.getIsActive())) {
-                continue;
-            }
+		} catch (RuntimeException ex) {
 
-            BufferStopResponse response = new BufferStopResponse();
+			response.setWorkflow(null);
+		}
 
-            // Header
+		return response;
+	}
 
-            response.setBufferStopHeaderId(
-                    header.getBufferStopHeaderId());
+	@Override
+	public List<BufferStopResponse> getAllBufferStops() {
 
-            response.setProjectId(header.getProjectId());
-            response.setFormNo(header.getFormNo());
-            response.setLineName(header.getLineName());
-            response.setInspectionDate(header.getInspectionDate());
+		List<BufferStopHeader> headers = headerRepository.findAll();
 
-            response.setCreatedBy(header.getCreatedBy());
-            response.setCreatedDate(header.getCreatedDate());
+		List<BufferStopResponse> responseList = new ArrayList<>();
 
-            // Details
+		for (BufferStopHeader header : headers) {
 
-            List<BufferStopDetailResponse> detailResponses =
-                    new ArrayList<>();
+			if (!Boolean.TRUE.equals(header.getIsActive())) {
+				continue;
+			}
 
-            if (header.getDetails() != null) {
+			BufferStopResponse response = new BufferStopResponse();
 
-                for (BufferStopDetail detail : header.getDetails()) {
+			// Header
 
-                    if (!Boolean.TRUE.equals(detail.getIsActive())) {
-                        continue;
-                    }
+			response.setBufferStopHeaderId(header.getBufferStopHeaderId());
 
-                    BufferStopDetailResponse dto =
-                            new BufferStopDetailResponse();
+			response.setProjectId(header.getProjectId());
+			response.setFormNo(header.getFormNo());
+			response.setLineName(header.getLineName());
+			response.setInspectionDate(header.getInspectionDate());
 
-                    dto.setBufferStopDetailId(
-                            detail.getBufferStopDetailId());
+			response.setCreatedBy(header.getCreatedBy());
+			response.setCreatedDate(header.getCreatedDate());
 
-                    dto.setLocation(detail.getLocation());
+			// Details
 
-                    dto.setMeasurementPoint1(
-                            detail.getMeasurementPoint1());
+			List<BufferStopDetailResponse> detailResponses = new ArrayList<>();
 
-                    dto.setMeasurementPoint2(
-                            detail.getMeasurementPoint2());
+			if (header.getDetails() != null) {
 
-                    dto.setMeasurementPoint3(
-                            detail.getMeasurementPoint3());
+				for (BufferStopDetail detail : header.getDetails()) {
 
-                    dto.setMeasurementPoint4(
-                            detail.getMeasurementPoint4());
+					if (!Boolean.TRUE.equals(detail.getIsActive())) {
+						continue;
+					}
 
-                    dto.setMeasurementPoint5(
-                            detail.getMeasurementPoint5());
+					BufferStopDetailResponse dto = new BufferStopDetailResponse();
 
-                    detailResponses.add(dto);
-                }
-            }
+					dto.setBufferStopDetailId(detail.getBufferStopDetailId());
 
-            response.setDetails(detailResponses);
+					dto.setLocation(detail.getLocation());
 
-            responseList.add(response);
-        }
+					dto.setMeasurementPoint1(detail.getMeasurementPoint1());
 
-        return responseList;
-    }
-    
-    @Override
-    @Transactional
-    public Long updateBufferStop(
-            Long bufferStopHeaderId,
-            BufferStopRequest request) {
+					dto.setMeasurementPoint2(detail.getMeasurementPoint2());
 
-        BufferStopHeader header = headerRepository
-                .findById(bufferStopHeaderId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Buffer Stop not found with Id : "
-                                        + bufferStopHeaderId));
+					dto.setMeasurementPoint3(detail.getMeasurementPoint3());
 
-        // Update Header
+					dto.setMeasurementPoint4(detail.getMeasurementPoint4());
 
-        header.setProjectId(request.getProjectId());
-        header.setFormNo(request.getFormNo());
-        header.setLineName(request.getLineName());
-        header.setInspectionDate(request.getInspectionDate());
+					dto.setMeasurementPoint5(detail.getMeasurementPoint5());
 
-        header.setUpdatedBy(request.getUpdatedBy());
-        header.setUpdatedDate(LocalDateTime.now());
+					detailResponses.add(dto);
+				}
+			}
 
-        // Soft Delete Removed Details
+			response.setDetails(detailResponses);
+			
+			try {
 
-        Set<Long> requestDetailIds = request.getDetails().stream()
-                .map(BufferStopDetailRequest::getBufferStopDetailId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+				InspectionWorkflowResponse workflow = inspectionWorkflowService.getWorkflow(
+						WorkflowConstants.BUFFER_STOP_FORM_ID, header.getBufferStopHeaderId());
 
-        for (BufferStopDetail existingDetail : header.getDetails()) {
+				response.setWorkflow(workflow);
 
-            if (!requestDetailIds.contains(
-                    existingDetail.getBufferStopDetailId())) {
+			} catch (RuntimeException ex) {
 
-                existingDetail.setIsActive(false);
-                existingDetail.setUpdatedBy(request.getUpdatedBy());
-                existingDetail.setUpdatedDate(LocalDateTime.now());
-            }
-        }
+				response.setWorkflow(null);
+			}
 
-        // Insert / Update Details
+			responseList.add(response);
+		}
 
-        for (BufferStopDetailRequest dto : request.getDetails()) {
+		return responseList;
+	}
 
-            BufferStopDetail detail;
+	@Override
+	@Transactional
+	public Long updateBufferStop(Long bufferStopHeaderId, BufferStopRequest request) {
 
-            // UPDATE EXISTING DETAIL
+		BufferStopHeader header = headerRepository.findById(bufferStopHeaderId).orElseThrow(
+				() -> new ResourceNotFoundException("Buffer Stop not found with Id : " + bufferStopHeaderId));
 
-            if (dto.getBufferStopDetailId() != null) {
+		// Update Header
 
-                detail = detailRepository
-                        .findById(dto.getBufferStopDetailId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Buffer Stop Detail not found with Id : "
-                                                + dto.getBufferStopDetailId()));
+		header.setProjectId(request.getProjectId());
+		header.setFormNo(request.getFormNo());
+		header.setLineName(request.getLineName());
+		header.setInspectionDate(request.getInspectionDate());
 
-                detail.setUpdatedBy(request.getUpdatedBy());
-                detail.setUpdatedDate(LocalDateTime.now());
-            }
+		header.setUpdatedBy(request.getUpdatedBy());
+		header.setUpdatedDate(LocalDateTime.now());
 
-            // INSERT NEW DETAIL
+		// Soft Delete Removed Details
 
-            else {
+		Set<Long> requestDetailIds = request.getDetails().stream().map(BufferStopDetailRequest::getBufferStopDetailId)
+				.filter(Objects::nonNull).collect(Collectors.toSet());
 
-                detail = new BufferStopDetail();
+		for (BufferStopDetail existingDetail : header.getDetails()) {
 
-                detail.setBufferStopHeader(header);
+			if (!requestDetailIds.contains(existingDetail.getBufferStopDetailId())) {
 
-                detail.setCreatedBy(request.getUpdatedBy());
-                detail.setCreatedDate(LocalDateTime.now());
+				existingDetail.setIsActive(false);
+				existingDetail.setUpdatedBy(request.getUpdatedBy());
+				existingDetail.setUpdatedDate(LocalDateTime.now());
+			}
+		}
 
-                detail.setIsActive(true);
+		// Insert / Update Details
 
-                header.getDetails().add(detail);
-            }
+		for (BufferStopDetailRequest dto : request.getDetails()) {
 
-            detail.setLocation(dto.getLocation());
+			BufferStopDetail detail;
 
-            detail.setMeasurementPoint1(dto.getMeasurementPoint1());
-            detail.setMeasurementPoint2(dto.getMeasurementPoint2());
-            detail.setMeasurementPoint3(dto.getMeasurementPoint3());
-            detail.setMeasurementPoint4(dto.getMeasurementPoint4());
-            detail.setMeasurementPoint5(dto.getMeasurementPoint5());
+			// UPDATE EXISTING DETAIL
 
-            detail.setIsActive(true);
-        }
+			if (dto.getBufferStopDetailId() != null) {
 
-        headerRepository.save(header);
+				detail = detailRepository.findById(dto.getBufferStopDetailId())
+						.orElseThrow(() -> new ResourceNotFoundException(
+								"Buffer Stop Detail not found with Id : " + dto.getBufferStopDetailId()));
 
-        return header.getBufferStopHeaderId();
-    }
-    
-    @Override
-    @Transactional
-    public void deleteBufferStop(
-            Long bufferStopHeaderId,
-            String updatedBy) {
+				detail.setUpdatedBy(request.getUpdatedBy());
+				detail.setUpdatedDate(LocalDateTime.now());
+			}
 
-        BufferStopHeader header = headerRepository
-                .findById(bufferStopHeaderId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Buffer Stop not found with Id : "
-                                        + bufferStopHeaderId));
+			// INSERT NEW DETAIL
 
-        // Soft Delete Header
+			else {
 
-        header.setIsActive(false);
-        header.setUpdatedBy(updatedBy);
-        header.setUpdatedDate(LocalDateTime.now());
+				detail = new BufferStopDetail();
 
-        // Soft Delete Details
+				detail.setBufferStopHeader(header);
 
-        if (header.getDetails() != null) {
+				detail.setCreatedBy(request.getUpdatedBy());
+				detail.setCreatedDate(LocalDateTime.now());
 
-            for (BufferStopDetail detail : header.getDetails()) {
+				detail.setIsActive(true);
 
-                detail.setIsActive(false);
-                detail.setUpdatedBy(updatedBy);
-                detail.setUpdatedDate(LocalDateTime.now());
-            }
-        }
+				header.getDetails().add(detail);
+			}
 
-        headerRepository.save(header);
-    }
+			detail.setLocation(dto.getLocation());
+
+			detail.setMeasurementPoint1(dto.getMeasurementPoint1());
+			detail.setMeasurementPoint2(dto.getMeasurementPoint2());
+			detail.setMeasurementPoint3(dto.getMeasurementPoint3());
+			detail.setMeasurementPoint4(dto.getMeasurementPoint4());
+			detail.setMeasurementPoint5(dto.getMeasurementPoint5());
+
+			detail.setIsActive(true);
+		}
+
+		headerRepository.save(header);
+
+		return header.getBufferStopHeaderId();
+	}
+
+	@Override
+	@Transactional
+	public void deleteBufferStop(Long bufferStopHeaderId, String updatedBy) {
+
+		BufferStopHeader header = headerRepository.findById(bufferStopHeaderId).orElseThrow(
+				() -> new ResourceNotFoundException("Buffer Stop not found with Id : " + bufferStopHeaderId));
+
+		// Soft Delete Header
+
+		header.setIsActive(false);
+		header.setUpdatedBy(updatedBy);
+		header.setUpdatedDate(LocalDateTime.now());
+
+		// Soft Delete Details
+
+		if (header.getDetails() != null) {
+
+			for (BufferStopDetail detail : header.getDetails()) {
+
+				detail.setIsActive(false);
+				detail.setUpdatedBy(updatedBy);
+				detail.setUpdatedDate(LocalDateTime.now());
+			}
+		}
+
+		headerRepository.save(header);
+	}
 }

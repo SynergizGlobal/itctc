@@ -6,21 +6,23 @@ import java.util.List;
 
 public class BufferStopResponse {
 
-    private Long bufferStopHeaderId;
+	private Long bufferStopHeaderId;
 
-    private Integer projectId;
+	private Integer projectId;
 
-    private String formNo;
+	private String formNo;
 
-    private String lineName;
+	private String lineName;
 
-    private LocalDate inspectionDate;
+	private LocalDate inspectionDate;
 
-    private String createdBy;
+	private String createdBy;
 
-    private LocalDateTime createdDate;
+	private LocalDateTime createdDate;
 
-    private List<BufferStopDetailResponse> details;
+	private List<BufferStopDetailResponse> details;
+
+	private InspectionWorkflowResponse workflow;
 
 	public Long getBufferStopHeaderId() {
 		return bufferStopHeaderId;
@@ -85,6 +87,13 @@ public class BufferStopResponse {
 	public void setDetails(List<BufferStopDetailResponse> details) {
 		this.details = details;
 	}
-    
-    
+
+	public InspectionWorkflowResponse getWorkflow() {
+		return workflow;
+	}
+
+	public void setWorkflow(InspectionWorkflowResponse workflow) {
+		this.workflow = workflow;
+	}
+
 }

@@ -6,21 +6,23 @@ import java.util.List;
 
 public class TrackEffectiveLengthResponse {
 
-    private Long trackEffectiveLengthHeaderId;
+	private Long trackEffectiveLengthHeaderId;
 
-    private Integer projectId;
+	private Integer projectId;
 
-    private String formNo;
+	private String formNo;
 
-    private String location;
+	private String location;
 
-    private LocalDate inspectionDate;
+	private LocalDate inspectionDate;
 
-    private String createdBy;
+	private String createdBy;
 
-    private LocalDateTime createdDate;
+	private LocalDateTime createdDate;
 
-    private List<TrackEffectiveLengthDetailResponse> details;
+	private List<TrackEffectiveLengthDetailResponse> details;
+
+	private InspectionWorkflowResponse workflow;
 
 	public Long getTrackEffectiveLengthHeaderId() {
 		return trackEffectiveLengthHeaderId;
@@ -85,6 +87,13 @@ public class TrackEffectiveLengthResponse {
 	public void setDetails(List<TrackEffectiveLengthDetailResponse> details) {
 		this.details = details;
 	}
-    
-    
+
+	public InspectionWorkflowResponse getWorkflow() {
+		return workflow;
+	}
+
+	public void setWorkflow(InspectionWorkflowResponse workflow) {
+		this.workflow = workflow;
+	}
+
 }

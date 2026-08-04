@@ -1,9 +1,11 @@
 package com.synergiz.itctc.service.impl;
 
+import com.synergiz.itctc.constants.WorkflowConstants;
 import com.synergiz.itctc.dto.request.FasteningBoltDetailRequest;
 import com.synergiz.itctc.dto.request.FasteningBoltRequest;
 import com.synergiz.itctc.dto.response.FasteningBoltDetailResponse;
 import com.synergiz.itctc.dto.response.FasteningBoltResponse;
+import com.synergiz.itctc.dto.response.InspectionWorkflowResponse;
 import com.synergiz.itctc.entity.FasteningBoltDetail;
 import com.synergiz.itctc.entity.FasteningBoltHeader;
 import com.synergiz.itctc.entity.TrackDirection;
@@ -12,6 +14,8 @@ import com.synergiz.itctc.repository.FasteningBoltDetailRepository;
 import com.synergiz.itctc.repository.FasteningBoltHeaderRepository;
 import com.synergiz.itctc.repository.TrackDirectionRepository;
 import com.synergiz.itctc.service.FasteningBoltService;
+import com.synergiz.itctc.service.InspectionWorkflowService;
+
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -31,12 +35,16 @@ public class FasteningBoltServiceImpl implements FasteningBoltService {
 
 	private final TrackDirectionRepository trackDirectionRepository;
 
+	private final InspectionWorkflowService inspectionWorkflowService;
+
 	public FasteningBoltServiceImpl(FasteningBoltHeaderRepository headerRepository,
-			FasteningBoltDetailRepository detailRepository, TrackDirectionRepository trackDirectionRepository) {
+			FasteningBoltDetailRepository detailRepository, TrackDirectionRepository trackDirectionRepository,
+			InspectionWorkflowService inspectionWorkflowService) {
 
 		this.headerRepository = headerRepository;
 		this.detailRepository = detailRepository;
 		this.trackDirectionRepository = trackDirectionRepository;
+		this.inspectionWorkflowService = inspectionWorkflowService;
 	}
 
 	@Override
@@ -63,8 +71,9 @@ public class FasteningBoltServiceImpl implements FasteningBoltService {
 
 			for (FasteningBoltDetailRequest dto : request.getDetails()) {
 
-				TrackDirection direction = trackDirectionRepository.findById(dto.getTrackDirectionId()).orElseThrow(
-						() -> new ResourceNotFoundException("Invalid Track Direction Id : " + dto.getTrackDirectionId()));
+				TrackDirection direction = trackDirectionRepository.findById(dto.getTrackDirectionId())
+						.orElseThrow(() -> new ResourceNotFoundException(
+								"Invalid Track Direction Id : " + dto.getTrackDirectionId()));
 
 				FasteningBoltDetail detail = new FasteningBoltDetail();
 
@@ -100,8 +109,8 @@ public class FasteningBoltServiceImpl implements FasteningBoltService {
 	@Override
 	public FasteningBoltResponse getFasteningBolt(Long fasteningBoltHeaderId) {
 
-		FasteningBoltHeader header = headerRepository.findById(fasteningBoltHeaderId)
-				.orElseThrow(() -> new ResourceNotFoundException("Fastening Bolt not found with Id : " + fasteningBoltHeaderId));
+		FasteningBoltHeader header = headerRepository.findById(fasteningBoltHeaderId).orElseThrow(
+				() -> new ResourceNotFoundException("Fastening Bolt not found with Id : " + fasteningBoltHeaderId));
 
 		FasteningBoltResponse response = new FasteningBoltResponse();
 
@@ -153,6 +162,18 @@ public class FasteningBoltServiceImpl implements FasteningBoltService {
 		}
 
 		response.setDetails(detailResponses);
+
+		try {
+
+			InspectionWorkflowResponse workflow = inspectionWorkflowService
+					.getWorkflow(WorkflowConstants.FASTENING_BOLT_FORM_ID, header.getFasteningBoltHeaderId());
+
+			response.setWorkflow(workflow);
+
+		} catch (RuntimeException ex) {
+
+			response.setWorkflow(null);
+		}
 
 		return response;
 	}
@@ -220,6 +241,18 @@ public class FasteningBoltServiceImpl implements FasteningBoltService {
 			}
 
 			response.setDetails(detailResponses);
+			
+			try {
+
+				InspectionWorkflowResponse workflow = inspectionWorkflowService
+						.getWorkflow(WorkflowConstants.FASTENING_BOLT_FORM_ID, header.getFasteningBoltHeaderId());
+
+				response.setWorkflow(workflow);
+
+			} catch (RuntimeException ex) {
+
+				response.setWorkflow(null);
+			}
 
 			responseList.add(response);
 		}
@@ -231,8 +264,8 @@ public class FasteningBoltServiceImpl implements FasteningBoltService {
 	@Transactional
 	public Long updateFasteningBolt(Long fasteningBoltHeaderId, FasteningBoltRequest request) {
 
-		FasteningBoltHeader header = headerRepository.findById(fasteningBoltHeaderId)
-				.orElseThrow(() -> new ResourceNotFoundException("Fastening Bolt not found with Id : " + fasteningBoltHeaderId));
+		FasteningBoltHeader header = headerRepository.findById(fasteningBoltHeaderId).orElseThrow(
+				() -> new ResourceNotFoundException("Fastening Bolt not found with Id : " + fasteningBoltHeaderId));
 
 		// Update Header
 
@@ -322,8 +355,8 @@ public class FasteningBoltServiceImpl implements FasteningBoltService {
 	@Transactional
 	public void deleteFasteningBolt(Long fasteningBoltHeaderId, String updatedBy) {
 
-		FasteningBoltHeader header = headerRepository.findById(fasteningBoltHeaderId)
-				.orElseThrow(() -> new ResourceNotFoundException("Fastening Bolt not found with Id : " + fasteningBoltHeaderId));
+		FasteningBoltHeader header = headerRepository.findById(fasteningBoltHeaderId).orElseThrow(
+				() -> new ResourceNotFoundException("Fastening Bolt not found with Id : " + fasteningBoltHeaderId));
 
 		// Soft Delete Header
 

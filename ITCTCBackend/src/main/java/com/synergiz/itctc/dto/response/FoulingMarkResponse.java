@@ -4,26 +4,27 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
 public class FoulingMarkResponse {
 
-    private Long foulingMarkHeaderId;
+	private Long foulingMarkHeaderId;
 
-    private Integer projectId;
+	private Integer projectId;
 
-    private String formNo;
+	private String formNo;
 
-    private String recordNo;
+	private String recordNo;
 
-    private LocalDate inspectionDate;
+	private LocalDate inspectionDate;
 
-    private String lineName;
+	private String lineName;
 
-    private String createdBy;
+	private String createdBy;
 
-    private LocalDateTime createdDate;
+	private LocalDateTime createdDate;
 
-    private List<FoulingMarkDetailResponse> details;
+	private List<FoulingMarkDetailResponse> details;
+
+	private InspectionWorkflowResponse workflow;
 
 	public Long getFoulingMarkHeaderId() {
 		return foulingMarkHeaderId;
@@ -96,6 +97,13 @@ public class FoulingMarkResponse {
 	public void setDetails(List<FoulingMarkDetailResponse> details) {
 		this.details = details;
 	}
-    
-    
+
+	public InspectionWorkflowResponse getWorkflow() {
+		return workflow;
+	}
+
+	public void setWorkflow(InspectionWorkflowResponse workflow) {
+		this.workflow = workflow;
+	}
+
 }

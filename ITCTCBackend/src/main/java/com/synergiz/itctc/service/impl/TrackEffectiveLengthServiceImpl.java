@@ -1,7 +1,9 @@
 package com.synergiz.itctc.service.impl;
 
+import com.synergiz.itctc.constants.WorkflowConstants;
 import com.synergiz.itctc.dto.request.TrackEffectiveLengthDetailRequest;
 import com.synergiz.itctc.dto.request.TrackEffectiveLengthRequest;
+import com.synergiz.itctc.dto.response.InspectionWorkflowResponse;
 import com.synergiz.itctc.dto.response.TrackEffectiveLengthDetailResponse;
 import com.synergiz.itctc.dto.response.TrackEffectiveLengthResponse;
 import com.synergiz.itctc.entity.TrackEffectiveLengthDetail;
@@ -9,6 +11,7 @@ import com.synergiz.itctc.entity.TrackEffectiveLengthHeader;
 import com.synergiz.itctc.exception.ResourceNotFoundException;
 import com.synergiz.itctc.repository.TrackEffectiveLengthDetailRepository;
 import com.synergiz.itctc.repository.TrackEffectiveLengthHeaderRepository;
+import com.synergiz.itctc.service.InspectionWorkflowService;
 import com.synergiz.itctc.service.TrackEffectiveLengthService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -27,11 +30,15 @@ public class TrackEffectiveLengthServiceImpl implements TrackEffectiveLengthServ
 
 	private final TrackEffectiveLengthDetailRepository detailRepository;
 
+	private final InspectionWorkflowService inspectionWorkflowService;
+
 	public TrackEffectiveLengthServiceImpl(TrackEffectiveLengthHeaderRepository headerRepository,
-			TrackEffectiveLengthDetailRepository detailRepository) {
+			TrackEffectiveLengthDetailRepository detailRepository,
+			InspectionWorkflowService inspectionWorkflowService) {
 
 		this.headerRepository = headerRepository;
 		this.detailRepository = detailRepository;
+		this.inspectionWorkflowService = inspectionWorkflowService;
 	}
 
 	@Override
@@ -151,6 +158,18 @@ public class TrackEffectiveLengthServiceImpl implements TrackEffectiveLengthServ
 
 		response.setDetails(detailResponses);
 
+		try {
+
+			InspectionWorkflowResponse workflow = inspectionWorkflowService.getWorkflow(
+					WorkflowConstants.TRACK_EFFECTIVE_LENGTH_FORM_ID, header.getTrackEffectiveLengthHeaderId());
+
+			response.setWorkflow(workflow);
+
+		} catch (RuntimeException ex) {
+
+			response.setWorkflow(null);
+		}
+
 		return response;
 	}
 
@@ -220,6 +239,18 @@ public class TrackEffectiveLengthServiceImpl implements TrackEffectiveLengthServ
 
 			response.setDetails(detailResponses);
 
+			try {
+
+				InspectionWorkflowResponse workflow = inspectionWorkflowService.getWorkflow(
+						WorkflowConstants.TRACK_EFFECTIVE_LENGTH_FORM_ID, header.getTrackEffectiveLengthHeaderId());
+
+				response.setWorkflow(workflow);
+
+			} catch (RuntimeException ex) {
+
+				response.setWorkflow(null);
+			}
+
 			responseList.add(response);
 		}
 
@@ -270,8 +301,8 @@ public class TrackEffectiveLengthServiceImpl implements TrackEffectiveLengthServ
 
 			if (dto.getTrackEffectiveLengthDetailId() != null) {
 
-				detail = detailRepository.findById(dto.getTrackEffectiveLengthDetailId())
-						.orElseThrow(() -> new ResourceNotFoundException("Track Effective Length Detail not found with Id : "
+				detail = detailRepository.findById(dto.getTrackEffectiveLengthDetailId()).orElseThrow(
+						() -> new ResourceNotFoundException("Track Effective Length Detail not found with Id : "
 								+ dto.getTrackEffectiveLengthDetailId()));
 
 				detail.setUpdatedBy(request.getUpdatedBy());

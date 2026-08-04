@@ -1,7 +1,9 @@
 package com.synergiz.itctc.service.impl;
 
+import com.synergiz.itctc.constants.WorkflowConstants;
 import com.synergiz.itctc.dto.request.SyntheticResinInjectionDetailRequest;
 import com.synergiz.itctc.dto.request.SyntheticResinInjectionRequest;
+import com.synergiz.itctc.dto.response.InspectionWorkflowResponse;
 import com.synergiz.itctc.dto.response.SyntheticResinInjectionDetailResponse;
 import com.synergiz.itctc.dto.response.SyntheticResinInjectionResponse;
 import com.synergiz.itctc.entity.SyntheticResinInjectionDetail;
@@ -11,6 +13,7 @@ import com.synergiz.itctc.exception.ResourceNotFoundException;
 import com.synergiz.itctc.repository.SyntheticResinInjectionDetailRepository;
 import com.synergiz.itctc.repository.SyntheticResinInjectionHeaderRepository;
 import com.synergiz.itctc.repository.TrackDirectionRepository;
+import com.synergiz.itctc.service.InspectionWorkflowService;
 import com.synergiz.itctc.service.SyntheticResinInjectionService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -31,13 +34,16 @@ public class SyntheticResinInjectionServiceImpl implements SyntheticResinInjecti
 
 	private final TrackDirectionRepository trackDirectionRepository;
 
+	private final InspectionWorkflowService inspectionWorkflowService;
+
 	public SyntheticResinInjectionServiceImpl(SyntheticResinInjectionHeaderRepository headerRepository,
-			SyntheticResinInjectionDetailRepository detailRepository,
-			TrackDirectionRepository trackDirectionRepository) {
+			SyntheticResinInjectionDetailRepository detailRepository, TrackDirectionRepository trackDirectionRepository,
+			InspectionWorkflowService inspectionWorkflowService) {
 
 		this.headerRepository = headerRepository;
 		this.detailRepository = detailRepository;
 		this.trackDirectionRepository = trackDirectionRepository;
+		this.inspectionWorkflowService = inspectionWorkflowService;
 	}
 
 	@Override
@@ -165,6 +171,18 @@ public class SyntheticResinInjectionServiceImpl implements SyntheticResinInjecti
 
 		response.setDetails(detailResponses);
 
+		try {
+
+			InspectionWorkflowResponse workflow = inspectionWorkflowService.getWorkflow(
+					WorkflowConstants.SYNTHETIC_RESIN_INJECTION_FORM_ID, header.getSyntheticResinInjectionHeaderId());
+
+			response.setWorkflow(workflow);
+
+		} catch (RuntimeException ex) {
+
+			response.setWorkflow(null);
+		}
+
 		return response;
 	}
 
@@ -235,6 +253,18 @@ public class SyntheticResinInjectionServiceImpl implements SyntheticResinInjecti
 			}
 
 			response.setDetails(detailResponses);
+			
+			try {
+
+				InspectionWorkflowResponse workflow = inspectionWorkflowService.getWorkflow(
+						WorkflowConstants.SYNTHETIC_RESIN_INJECTION_FORM_ID, header.getSyntheticResinInjectionHeaderId());
+
+				response.setWorkflow(workflow);
+
+			} catch (RuntimeException ex) {
+
+				response.setWorkflow(null);
+			}
 
 			responseList.add(response);
 		}
@@ -290,8 +320,8 @@ public class SyntheticResinInjectionServiceImpl implements SyntheticResinInjecti
 
 			if (dto.getSyntheticResinInjectionDetailId() != null) {
 
-				detail = detailRepository.findById(dto.getSyntheticResinInjectionDetailId())
-						.orElseThrow(() -> new ResourceNotFoundException("Synthetic Resin Injection Detail not found with Id : "
+				detail = detailRepository.findById(dto.getSyntheticResinInjectionDetailId()).orElseThrow(
+						() -> new ResourceNotFoundException("Synthetic Resin Injection Detail not found with Id : "
 								+ dto.getSyntheticResinInjectionDetailId()));
 
 				detail.setUpdatedBy(request.getUpdatedBy());

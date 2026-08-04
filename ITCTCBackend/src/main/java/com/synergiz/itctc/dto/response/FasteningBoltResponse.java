@@ -21,6 +21,8 @@ public class FasteningBoltResponse {
     private LocalDateTime createdDate;
 
     private List<FasteningBoltDetailResponse> details;
+    
+    private InspectionWorkflowResponse workflow;
 
 	public Long getFasteningBoltHeaderId() {
 		return fasteningBoltHeaderId;
@@ -85,6 +87,16 @@ public class FasteningBoltResponse {
 	public void setDetails(List<FasteningBoltDetailResponse> details) {
 		this.details = details;
 	}
+
+	public InspectionWorkflowResponse getWorkflow() {
+		return workflow;
+	}
+
+	public void setWorkflow(InspectionWorkflowResponse workflow) {
+		this.workflow = workflow;
+	}
+	
+	
     
     
 }
