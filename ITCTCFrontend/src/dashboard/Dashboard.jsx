@@ -16,7 +16,10 @@ const sidebarNav = [
 const formLinks = [
   { path: '/form-c1', code: 'C-1', name: 'Formation Width', type: 'civil' },
   { path: '/form-c7', code: 'C-7', name: 'Civil Measurement', type: 'civil' },
+  { path: '/form-t1', code: 'T-1', name: 'Track Centre Spacing', type: 'track' },
   { path: '/form-t2', code: 'T-2', name: 'Track Irregularity', type: 'track' },
+  { path: '/form-t3', code: 'T-3', name: 'Continuous Welded Rail', type: 'track' },
+  { path: '/form-t4', code: 'T-4', name: 'Vertical Gradient', type: 'track' },
   { path: '/form-t5', code: 'T-5', name: 'Track Geometry', type: 'track' },
   { path: '/form-t7-2', code: 'T-7-2', name: 'Track Alignment', type: 'track' },
   { path: '/form-t8', code: 'T-8', name: 'Track Structure', type: 'track' },
@@ -70,7 +73,10 @@ const weeklyTrend = [
 const formStats = [
   { code: 'C-1', name: 'Formation Width', total: 18, passed: 15, pending: 3, path: '/form-c1' },
   { code: 'C-7', name: 'Civil Measurement', total: 12, passed: 10, pending: 2, path: '/form-c7' },
+  { code: 'T-1', name: 'Track Centre Spacing', total: 20, passed: 18, pending: 2, path: '/form-t1' },
   { code: 'T-2', name: 'Track Irregularity', total: 22, passed: 18, pending: 4, path: '/form-t2' },
+  { code: 'T-3', name: 'Continuous Welded Rail', total: 20, passed: 17, pending: 3, path: '/form-t3' },
+  { code: 'T-4', name: 'Vertical Gradient', total: 20, passed: 18, pending: 2, path: '/form-t4' },
   { code: 'T-5', name: 'Track Geometry', total: 15, passed: 13, pending: 2, path: '/form-t5' },
   { code: 'T-7-2', name: 'Track Alignment', total: 10, passed: 8, pending: 2, path: '/form-t7-2' },
   { code: 'T-8', name: 'Track Structure', total: 14, passed: 11, pending: 3, path: '/form-t8' },
