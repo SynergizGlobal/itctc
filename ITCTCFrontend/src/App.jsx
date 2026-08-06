@@ -27,6 +27,13 @@ import FormT18 from './components/FormT18'
 import FormT19 from './components/FormT19'
 import FormT20 from './components/FormT20'
 import FormT23 from './components/FormT23'
+import FormC2 from './components/FormC2'
+import FormC4 from './components/FormC4'
+import FormC5 from './components/FormC5'
+import FormC6 from './components/FormC6'
+import FormCa22 from './components/FormCa2-2'
+import FormCa27 from './components/FormCa2-7'
+import FormCa513 from './components/FormCa5-13'
 
 import Dashboard from './dashboard/Dashboard'
 
@@ -62,6 +69,13 @@ const compMap = {
   '/form-t21': FormT21,
   '/form-t22': FormT22,
   '/form-t23': FormT23,
+  '/form-c2': FormC2,
+  '/form-c4': FormC4,
+  '/form-c5': FormC5,
+  '/form-c6': FormC6,
+  '/form-ca2-2': FormCa22,
+  '/form-ca2-7': FormCa27,
+  '/form-ca5-13': FormCa513,
 }
 
 export default function App() {
