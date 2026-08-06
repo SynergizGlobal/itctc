@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import useDownloadExcel from '../hooks/useDownloadExcel';
 
-const MEASUREMENT_ROWS = 10;
+const MEASUREMENT_ROWS = 20;
 
 export default function FormT1() {
   const navigate = useNavigate();
