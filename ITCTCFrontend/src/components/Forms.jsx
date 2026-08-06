@@ -15,6 +15,13 @@ import FormT18 from './FormT18';
 import FormT19 from './FormT19';
 import FormT20 from './FormT20';
 import FormT23 from './FormT23';
+import FormC2 from './FormC2';
+import FormC4 from './FormC4';
+import FormC5 from './FormC5';
+import FormC6 from './FormC6';
+import FormCa22 from './FormCa2-2';
+import FormCa27 from './FormCa2-7';
+import FormCa513 from './FormCa5-13';
 import '../dashboard/dashboard.css';
 
 const allForms = [
@@ -34,6 +41,13 @@ const allForms = [
   { code: 'T-19', Comp: FormT19 },
   { code: 'T-20', Comp: FormT20 },
   { code: 'T-23', Comp: FormT23 },
+  { code: 'C-2', Comp: FormC2 },
+  { code: 'C-4', Comp: FormC4 },
+  { code: 'C-5', Comp: FormC5 },
+  { code: 'C-6', Comp: FormC6 },
+  { code: 'Ca-2-2', Comp: FormCa22 },
+  { code: 'Ca-2-7', Comp: FormCa27 },
+  { code: 'Ca-5-13', Comp: FormCa513 },
 ];
 
 export default function Forms() {
