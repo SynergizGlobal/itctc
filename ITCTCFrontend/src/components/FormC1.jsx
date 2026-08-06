@@ -5,6 +5,7 @@ import useDownloadExcel from '../hooks/useDownloadExcel';
 import formC1Diagram from '../assets/images/Form_C-1.png';
 import { useEffect, useState } from 'react';
 import { getAllMeasurements } from '../services/measurementService';
+import WorkflowStatusBadge from "../components/common/WorkflowStatusBadge";
 
 const formC1Columns = [
   'chainageKm', 'chainageSeparator', 'chainageM',
@@ -27,24 +28,24 @@ export default function FormC1() {
 
     loadMeasurements();
 
-}, []);
+  }, []);
 
-const loadMeasurements = async () => {
+  const loadMeasurements = async () => {
 
     try {
 
-        const data = await getAllMeasurements();
+      const data = await getAllMeasurements();
 
-        console.log("Measurements :", data);
+      console.log("Measurements :", data);
 
-        setMeasurements(data);
+      setMeasurements(data);
 
     } catch (error) {
 
-        console.error(error);
+      console.error(error);
 
     }
-};
+  };
 
   const columnHeaders = [
     { label: 'Chainage', colSpan: 3, rowSpan: 2 },
@@ -106,6 +107,7 @@ const loadMeasurements = async () => {
               <th width="102" rowSpan="3">Applied<br />cant<br />value<br />(mm)</th>
               <th colSpan="14">Width value (mm)</th>
               <th width="233" rowSpan="3">Remarks<br />(position of maintenance walkway, etc.)</th>
+              <th width="140" rowSpan="3"> Status</th>
             </tr>
             <tr>
               <td>a</td>
@@ -137,223 +139,227 @@ const loadMeasurements = async () => {
               <td width="61">Measured value</td>
             </tr>
           </thead>
-         <tbody>
-  {measurements.length > 0 ? (
-    measurements.flatMap((measurement) =>
-      measurement.details.map((detail) => (
-        <tr key={detail.measurementDetailId}>
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={measurement.chainageKm ?? ""}
-              readOnly
-            />
-          </td>
+          <tbody>
+            {measurements.length > 0 ? (
+              measurements.flatMap((measurement) =>
+                measurement.details.map((detail) => (
+                  <tr key={detail.measurementDetailId}>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={measurement.chainageKm ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value=""
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value=""
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={measurement.chainageM ?? ""}
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={measurement.chainageM ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={measurement.structureTypeName ?? ""}
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={measurement.structureTypeName ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={
-                measurement.isCurve
-                  ? `Curve R=${measurement.curveRadius}`
-                  : "Straight"
-              }
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={
+                          measurement.isCurve
+                            ? `Curve R=${measurement.curveRadius}`
+                            : "Straight"
+                        }
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={measurement.trackTypeName ?? ""}
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={measurement.trackTypeName ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={measurement.appliedCantValueMm ?? ""}
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={measurement.appliedCantValueMm ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={detail.aMeasured ?? ""}
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={detail.aMeasured ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={detail.x1Calculated ?? ""}
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={detail.x1Calculated ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={detail.aStandard ?? ""}
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={detail.aStandard ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={detail.aMeasuredTotal ?? ""}
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={detail.aMeasuredTotal ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={detail.bMeasured ?? ""}
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={detail.bMeasured ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={detail.bPrimeMeasured ?? ""}
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={detail.bPrimeMeasured ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={detail.bStandard ?? ""}
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={detail.bStandard ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={detail.bTotalMeasured ?? ""}
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={detail.bTotalMeasured ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={detail.cMeasured ?? ""}
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={detail.cMeasured ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={detail.x2Calculated ?? ""}
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={detail.x2Calculated ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={detail.cStandard ?? ""}
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={detail.cStandard ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={detail.cTotalMeasured ?? ""}
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={detail.cTotalMeasured ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={detail.dStandard ?? ""}
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={detail.dStandard ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={detail.dMeasured ?? ""}
-              readOnly
-            />
-          </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={detail.dMeasured ?? ""}
+                        readOnly
+                      />
+                    </td>
 
-          <td>
-            <input
-              type="text"
-              className="form-control form-control-sm table-input"
-              value={measurement.remarks ?? ""}
-              readOnly
-            />
-          </td>
-        </tr>
-      ))
-    )
-  ) : (
-    <tr>
-      <td colSpan="22" className="text-center">
-        No Records Found
-      </td>
-    </tr>
-  )}
-</tbody>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm table-input"
+                        value={measurement.remarks ?? ""}
+                        readOnly
+                      />
+                    </td>
+
+                    <td className="text-center align-middle">
+                      <WorkflowStatusBadge workflow={measurement.workflow} />
+                    </td>
+                  </tr>
+                ))
+              )
+            ) : (
+              <tr>
+                <td colSpan="23" className="text-center">
+                  No Records Found
+                </td>
+              </tr>
+            )}
+          </tbody>
         </table>
       </div>
     </div>
