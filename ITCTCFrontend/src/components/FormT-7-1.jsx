@@ -7,7 +7,7 @@ import { getAllCamMeasurements } from '../services/camMeasurementService';
 import t71a from '../assets/images/T-7-1-A.png';
 import t71b from '../assets/images/T-7-1-B.png';
 
-function ImageDropZone({ height = '140px', label, defaultImage }) {
+function ImageDropZone({ height = '140px', defaultImage }) {
   const [image, setImage] = useState(defaultImage || null);
   const [dragOver, setDragOver] = useState(false);
   const handleDrop = (e) => { e.preventDefault(); setDragOver(false); const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) { const reader = new FileReader(); reader.onload = (ev) => setImage(ev.target.result); reader.readAsDataURL(file); } };
@@ -15,11 +15,8 @@ function ImageDropZone({ height = '140px', label, defaultImage }) {
   const handleDragLeave = () => setDragOver(false);
   const handleClick = () => { const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*'; input.onchange = (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => setImage(ev.target.result); reader.readAsDataURL(file); } }; input.click(); };
   return (
-    <div>
-      {label && <div style={{ fontSize: '9px', fontWeight: 700, color: '#212121', marginBottom: '2px', textAlign: 'center' }}>{label}</div>}
-      <div onClick={handleClick} onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave} style={{ width: '100%', height, border: `2px dashed ${dragOver ? '#0d6efd' : '#ccc'}`, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: dragOver ? '#eaf4ff' : image ? `url(${image}) center/cover no-repeat` : 'transparent', color: '#999', fontSize: '10px', transition: 'all 0.2s' }}>
-        {!image && 'Drop image'}
-      </div>
+    <div onClick={handleClick} onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave} style={{ width: '100%', height, border: `2px dashed ${dragOver ? '#0d6efd' : '#ccc'}`, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: dragOver ? '#eaf4ff' : 'transparent', color: '#999', fontSize: '10px', transition: 'all 0.2s', overflow: 'hidden', position: 'relative' }}>
+      {image ? <img src={image} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} /> : 'Drop image'}
     </div>
   );
 }
@@ -136,11 +133,11 @@ export default function FormT71() {
                         fontSize: "10px"
                       }}
                     >
-                      <ImageDropZone height="140px" label="T-7-1-A" defaultImage={t71a} />
+                      <ImageDropZone height="160px" defaultImage={t71a} />
 
-                      <div style={{ height: "8px" }} />
+                      <div style={{ height: "10px" }} />
 
-                      <ImageDropZone height="110px" label="T-7-1-B" defaultImage={t71b} />
+                      <ImageDropZone height="130px" defaultImage={t71b} />
 
                     </td>
                   )}
@@ -209,11 +206,11 @@ export default function FormT71() {
                         fontSize: "10px"
                       }}
                     >
-                      <ImageDropZone height="140px" label="T-7-1-A" defaultImage={t71a} />
+                      <ImageDropZone height="160px" defaultImage={t71a} />
 
-                      <div style={{ height: "8px" }} />
+                      <div style={{ height: "10px" }} />
 
-                      <ImageDropZone height="110px" label="T-7-1-B" defaultImage={t71b} />
+                      <ImageDropZone height="130px" defaultImage={t71b} />
 
                     </td>
 
