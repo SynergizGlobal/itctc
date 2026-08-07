@@ -5,7 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import useDownloadExcel from '../hooks/useDownloadExcel';
 import { getAllCamMeasurements } from '../services/camMeasurementService';
 
-function ImageDropZone({ height = '55px' }) {
+function ImageDropZone({ height = '55px', label }) {
   const [image, setImage] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const handleDrop = (e) => { e.preventDefault(); setDragOver(false); const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) { const reader = new FileReader(); reader.onload = (ev) => setImage(ev.target.result); reader.readAsDataURL(file); } };
@@ -13,8 +13,11 @@ function ImageDropZone({ height = '55px' }) {
   const handleDragLeave = () => setDragOver(false);
   const handleClick = () => { const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*'; input.onchange = (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => setImage(ev.target.result); reader.readAsDataURL(file); } }; input.click(); };
   return (
-    <div onClick={handleClick} onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave} style={{ width: '100%', height, border: `2px dashed ${dragOver ? '#0d6efd' : '#ccc'}`, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: dragOver ? '#eaf4ff' : image ? `url(${image}) center/cover no-repeat` : 'transparent', color: '#999', fontSize: '10px', transition: 'all 0.2s' }}>
-      {!image && 'Drop image'}
+    <div>
+      {label && <div style={{ fontSize: '9px', fontWeight: 700, color: '#212121', marginBottom: '2px', textAlign: 'center' }}>{label}</div>}
+      <div onClick={handleClick} onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave} style={{ width: '100%', height, border: `2px dashed ${dragOver ? '#0d6efd' : '#ccc'}`, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: dragOver ? '#eaf4ff' : image ? `url(${image}) center/cover no-repeat` : 'transparent', color: '#999', fontSize: '10px', transition: 'all 0.2s' }}>
+        {!image && 'Drop image'}
+      </div>
     </div>
   );
 }
@@ -131,11 +134,11 @@ export default function FormT71() {
                         fontSize: "10px"
                       }}
                     >
-                      <ImageDropZone height="55px" />
+                      <ImageDropZone height="55px" label="T-7-1-A" />
 
                       <div style={{ height: "4px" }} />
 
-                      <ImageDropZone height="35px" />
+                      <ImageDropZone height="35px" label="T-7-1-B" />
 
                     </td>
                   )}
@@ -204,11 +207,11 @@ export default function FormT71() {
                         fontSize: "10px"
                       }}
                     >
-                      <ImageDropZone height="55px" />
+                      <ImageDropZone height="55px" label="T-7-1-A" />
 
                       <div style={{ height: "4px" }} />
 
-                      <ImageDropZone height="35px" />
+                      <ImageDropZone height="35px" label="T-7-1-B" />
 
                     </td>
 
