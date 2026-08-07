@@ -23,21 +23,34 @@ export default function FormT121() {
         </div>
       </div>
 
-      <div style={{ overflow: 'visible', marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
-        <table className="table table-bordered table-striped table-sm align-middle form-table tolerance-table export-table compact-table mb-0" border="1" width="200">
-          <thead>
+      <div className="table-responsive mb-3" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <table className="table table-borderless table-sm align-middle mb-0 compact-table" style={{ fontSize: '9px', width: '240px' }}>
+          <tbody>
             <tr>
-               <th width="30" className="no-bg" style={{ textAlign: 'right', padding: '1px', fontSize: '8px' }}>TH</th>
-              <th width="55" className="no-bg" style={{ textAlign: 'right', padding: '1px', fontSize: '8px' }}>Gauge</th>
-              <th width="55" style={{ textAlign: 'right', padding: '1px', fontSize: '8px' }}>Cross level</th>
-              <th width="55" style={{ textAlign: 'right', padding: '1px', fontSize: '8px' }}>Lateral alignment</th>
-              <th width="55" className="no-bg" style={{ textAlign: 'right', padding: '1px', fontSize: '8px' }}>Longitudinal alignment</th>
+              <td style={{ padding: '1px', fontWeight: 700, borderBottom: '1px solid #000' }}>Tolerance</td>
+              <td style={{ padding: '1px', borderBottom: '1px solid #000' }}>&nbsp;</td>
             </tr>
-          </thead>
+            <tr>
+              <td style={{ padding: '1px' }}>Gauge</td>
+              <td className="text-end" style={{ padding: '1px' }}>± 1 mm</td>
+            </tr>
+            <tr>
+              <td style={{ padding: '1px' }}>Cross level</td>
+              <td className="text-end" style={{ padding: '1px' }}>± 1 mm</td>
+            </tr>
+            <tr>
+              <td style={{ padding: '1px' }}>Longitudinal alignment</td>
+              <td className="text-end" style={{ padding: '1px' }}>± 2 mm / 10 m</td>
+            </tr>
+            <tr>
+              <td style={{ padding: '1px' }}>Lateral alignment</td>
+              <td className="text-end" style={{ padding: '1px' }}>± 2 mm / 10 m</td>
+            </tr>
+          </tbody>
         </table>
       </div>
 
-      <div style={{ overflow: 'visible' }}>
+      <div className="table-responsive">
         <table className="table table-bordered table-striped table-sm align-middle form-table export-table compact-table mb-0" border="1" width="420">
           <thead>
             <tr>
