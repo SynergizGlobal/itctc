@@ -4,9 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import useDownloadExcel from '../hooks/useDownloadExcel';
 import { getAllCamMeasurements } from '../services/camMeasurementService';
+import t71a from '../assets/images/T-7-1-A.png';
+import t71b from '../assets/images/T-7-1-B.png';
 
-function ImageDropZone({ height = '55px', label }) {
-  const [image, setImage] = useState(null);
+function ImageDropZone({ height = '55px', label, defaultImage }) {
+  const [image, setImage] = useState(defaultImage || null);
   const [dragOver, setDragOver] = useState(false);
   const handleDrop = (e) => { e.preventDefault(); setDragOver(false); const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) { const reader = new FileReader(); reader.onload = (ev) => setImage(ev.target.result); reader.readAsDataURL(file); } };
   const handleDragOver = (e) => { e.preventDefault(); setDragOver(true); };
@@ -134,11 +136,11 @@ export default function FormT71() {
                         fontSize: "10px"
                       }}
                     >
-                      <ImageDropZone height="55px" label="T-7-1-A" />
+                      <ImageDropZone height="55px" label="T-7-1-A" defaultImage={t71a} />
 
                       <div style={{ height: "4px" }} />
 
-                      <ImageDropZone height="35px" label="T-7-1-B" />
+                      <ImageDropZone height="35px" label="T-7-1-B" defaultImage={t71b} />
 
                     </td>
                   )}
@@ -207,11 +209,11 @@ export default function FormT71() {
                         fontSize: "10px"
                       }}
                     >
-                      <ImageDropZone height="55px" label="T-7-1-A" />
+                      <ImageDropZone height="55px" label="T-7-1-A" defaultImage={t71a} />
 
                       <div style={{ height: "4px" }} />
 
-                      <ImageDropZone height="35px" label="T-7-1-B" />
+                      <ImageDropZone height="35px" label="T-7-1-B" defaultImage={t71b} />
 
                     </td>
 
