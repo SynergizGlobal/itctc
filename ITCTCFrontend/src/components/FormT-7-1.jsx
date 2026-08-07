@@ -7,7 +7,7 @@ import { getAllCamMeasurements } from '../services/camMeasurementService';
 import t71a from '../assets/images/T-7-1-A.png';
 import t71b from '../assets/images/T-7-1-B.png';
 
-function ImageDropZone({ height = '140px', defaultImage }) {
+function ImageDropZone({ height = '220px', defaultImage }) {
   const [image, setImage] = useState(defaultImage || null);
   const [dragOver, setDragOver] = useState(false);
   const handleDrop = (e) => { e.preventDefault(); setDragOver(false); const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) { const reader = new FileReader(); reader.onload = (ev) => setImage(ev.target.result); reader.readAsDataURL(file); } };
@@ -88,7 +88,7 @@ export default function FormT71() {
               <td colSpan={9} rowSpan={2} style={{ whiteSpace: 'nowrap', borderBottom: '2px solid #000' }}>CAM injection thickness</td>
               <td colSpan={2} rowSpan={2} style={{ borderBottom: '2px solid #000' }}>Gap</td>
               <td colSpan={2} rowSpan={2}>Reference pin condition</td>
-              <td rowSpan={3}>Remarks</td>
+               <td rowSpan={3} width="280">Remarks</td>
             </tr>
             <tr>
               <td height="76" colSpan={2}>If it exceeds <span style={{ color: 'red' }}>60 mm</span>,<br />it is indicated in ( ).</td>
@@ -133,11 +133,11 @@ export default function FormT71() {
                         fontSize: "10px"
                       }}
                     >
-                      <ImageDropZone height="160px" defaultImage={t71a} />
+                      <ImageDropZone height="220px" defaultImage={t71a} />
 
-                      <div style={{ height: "10px" }} />
+                      <div style={{ height: "12px" }} />
 
-                      <ImageDropZone height="130px" defaultImage={t71b} />
+                      <ImageDropZone height="180px" defaultImage={t71b} />
 
                     </td>
                   )}
@@ -206,11 +206,11 @@ export default function FormT71() {
                         fontSize: "10px"
                       }}
                     >
-                      <ImageDropZone height="160px" defaultImage={t71a} />
+                      <ImageDropZone height="220px" defaultImage={t71a} />
 
-                      <div style={{ height: "10px" }} />
+                      <div style={{ height: "12px" }} />
 
-                      <ImageDropZone height="130px" defaultImage={t71b} />
+                      <ImageDropZone height="180px" defaultImage={t71b} />
 
                     </td>
 
