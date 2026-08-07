@@ -10,7 +10,7 @@ export default function FormT121() {
 
   return (
     <div className="container-fluid py-3">
-      <style>{`.compact-table td { padding: 6px 4px !important; font-size: 10px; line-height: 1.3; } .compact-table { font-size: 10px; } .compact-table thead tr:first-child th, .compact-table thead tr:first-child td { padding: 6px 4px !important; } .compact-table th { background: none !important; background-color: transparent !important; } .diagonal-cell { position: relative; overflow: hidden; } .diagonal-cell::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom right, transparent calc(50% - 1px), #000 50%, transparent calc(50% + 1px)); pointer-events: none; } .no-bg { background: none !important; background-color: transparent !important; }`}</style>
+      <style>{`.compact-table td { padding: 4px 3px !important; font-size: 9px; line-height: 1.2; } .compact-table { font-size: 9px; } .compact-table thead tr:first-child th, .compact-table thead tr:first-child td { padding: 4px 3px !important; } .compact-table th { background: none !important; background-color: transparent !important; } .diagonal-cell { position: relative; overflow: hidden; } .diagonal-cell::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom right, transparent calc(50% - 1px), #000 50%, transparent calc(50% + 1px)); pointer-events: none; } .no-bg { background: none !important; background-color: transparent !important; }`}</style>
       <div className="panel-heading d-flex align-items-center justify-content-between mb-3">
         <button type="button" onClick={() => navigate(-1)} title="Back" style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer' }}><ArrowLeft aria-hidden="true" /></button>
         <h1 className="h6 mb-0">Form T-12-1</h1>
@@ -24,32 +24,32 @@ export default function FormT121() {
       </div>
 
       <div style={{ overflow: 'visible', marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
-        <table className="table table-bordered table-striped table-sm align-middle form-table tolerance-table export-table compact-table mb-0" border="1" width="320">
+        <table className="table table-bordered table-striped table-sm align-middle form-table tolerance-table export-table compact-table mb-0" border="1" width="200">
           <thead>
             <tr>
-              <th width="50" className="no-bg" style={{ textAlign: 'right' }}>Tolerance</th>
-              <th width="140" className="no-bg" style={{ textAlign: 'right' }}>Gauge</th>
-              <th width="140" style={{ textAlign: 'right' }}>Cross level</th>
-              <th width="140" style={{ textAlign: 'right' }}>Lateral alignment</th>
-              <th width="140" className="no-bg" style={{ textAlign: 'right' }}>Longitudinal alignment</th>
+               <th width="30" className="no-bg" style={{ textAlign: 'right', padding: '1px', fontSize: '8px' }}>TH</th>
+              <th width="55" className="no-bg" style={{ textAlign: 'right', padding: '1px', fontSize: '8px' }}>Gauge</th>
+              <th width="55" style={{ textAlign: 'right', padding: '1px', fontSize: '8px' }}>Cross level</th>
+              <th width="55" style={{ textAlign: 'right', padding: '1px', fontSize: '8px' }}>Lateral alignment</th>
+              <th width="55" className="no-bg" style={{ textAlign: 'right', padding: '1px', fontSize: '8px' }}>Longitudinal alignment</th>
             </tr>
           </thead>
         </table>
       </div>
 
       <div style={{ overflow: 'visible' }}>
-        <table className="table table-bordered table-striped table-sm align-middle form-table export-table compact-table mb-0" border="1" width="706">
+        <table className="table table-bordered table-striped table-sm align-middle form-table export-table compact-table mb-0" border="1" width="420">
           <thead>
             <tr>
               <th colSpan={2} scope="col"><div align="center">Measurement item</div></th>
-              <th width="38" scope="col">(1)</th>
-              <th width="35" scope="col">(2)</th>
-              <th width="42" scope="col">(3)</th>
-              <th width="42" scope="col">(4)</th>
-              <th width="34" scope="col">(5)</th>
-              <th width="40" scope="col">(6)</th>
-              <th width="42" scope="col">(7)</th>
-              <th width="291" scope="col">Remarks</th>
+              <th width="30" scope="col">(1)</th>
+              <th width="28" scope="col">(2)</th>
+              <th width="34" scope="col">(3)</th>
+              <th width="34" scope="col">(4)</th>
+              <th width="28" scope="col">(5)</th>
+              <th width="32" scope="col">(6)</th>
+              <th width="34" scope="col">(7)</th>
+              <th width="100" scope="col">Remarks</th>
             </tr>
           </thead>
           <tbody>
