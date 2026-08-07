@@ -5,44 +5,6 @@ import useDownloadExcel from '../hooks/useDownloadExcel';
 
 const MEASUREMENT_ROWS = 20;
 
-const gradients = [
-  { pct: 0.0, ratio: 'Level' },
-  { pct: 0.2, ratio: '1 in 500' },
-  { pct: 0.4, ratio: '1 in 250' },
-  { pct: 0.5, ratio: '1 in 200' },
-  { pct: 0.4, ratio: '1 in 250' },
-  { pct: 0.2, ratio: '1 in 500' },
-  { pct: 0.0, ratio: 'Level' },
-  { pct: -0.2, ratio: '1 in 500' },
-  { pct: -0.4, ratio: '1 in 250' },
-  { pct: -0.5, ratio: '1 in 200' },
-  { pct: -0.4, ratio: '1 in 250' },
-  { pct: -0.2, ratio: '1 in 500' },
-  { pct: 0.0, ratio: 'Level' },
-  { pct: 0.3, ratio: '1 in 333' },
-  { pct: 0.6, ratio: '1 in 167' },
-  { pct: 0.5, ratio: '1 in 200' },
-  { pct: 0.3, ratio: '1 in 333' },
-  { pct: 0.0, ratio: 'Level' },
-  { pct: -0.3, ratio: '1 in 333' },
-  { pct: -0.6, ratio: '1 in 167' },
-];
-
-function measurementRow(index) {
-  const g = gradients[index];
-  return [
-    String(index + 1).padStart(2, '0'),
-    '1',
-    String(100 + index * 25),
-    '1',
-    String(100 + index * 25 + 25),
-    '25',
-    g.pct.toFixed(2),
-    g.ratio,
-    '',
-  ];
-}
-
 export default function FormT4() {
   const navigate = useNavigate();
   useStickyHeaders();
@@ -54,52 +16,52 @@ export default function FormT4() {
 <button type="button" onClick={() => navigate(-1)} title="Back" style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer' }}><ArrowLeft aria-hidden="true" /></button>
         <h1 className="h6 mb-0">Form T-4</h1>
         <span className="title-main text-center flex-grow-1 mx-3">Measurement record of Vertical Gradient</span>
-        <span>No. <input type="text" defaultValue="T4-001" className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
-        <span className="ms-2">Date: <input type="text" defaultValue="17/07/2026" className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
+        <span>No. <input type="text" className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
+        <span className="ms-2">Date: <input type="text" className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
         <div className="form-export-actions">
           <button type="button" onClick={() => window.print()} title="Download as PDF"><i className="fa-solid fa-file-pdf" /></button>
           <button type="button" onClick={() => downloadExcel('Form-T-4.xls')} title="Download as Excel"><i className="fa-solid fa-file-excel" /></button>
         </div>
       </div>
+      <style>{'.compact-table td { padding: 2px 1px !important; font-size: 10px; line-height: 1.3; border: 1px solid #000 !important; } .compact-table { font-size: 10px; } .compact-table th { background: none !important; background-color: transparent !important; padding: 6px 4px !important; font-size: 11px; }'}</style>
 
       <div style={{ overflow: 'auto' }}>
-        <table className="table table-bordered table-striped table-sm align-middle form-table export-table mb-0" border="1">
-          <thead>
-            <tr>
-              <th className="vertical-text" width="50" rowSpan="2">SL No.</th>
-              <th colSpan="2">From Chainage</th>
-              <th colSpan="2">To Chainage</th>
-              <th width="100" rowSpan="2">Length<br />(m)</th>
-              <th width="110" rowSpan="2">Gradient<br />(%)</th>
-              <th width="110" rowSpan="2">Gradient<br />(1 in ...)</th>
-              <th width="200" rowSpan="2">Remarks</th>
-            </tr>
-            <tr>
-              <td width="70">km</td>
-              <td width="90">m</td>
-              <td width="70">km</td>
-              <td width="90">m</td>
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({ length: MEASUREMENT_ROWS }, (_, i) => {
-              const row = measurementRow(i);
-              return (
-                <tr key={i}>
-                  <td className="text-center">{row[0]}</td>
-                  <td className="text-center">{row[1]}</td>
-                  <td className="text-center">{row[2]}</td>
-                  <td className="text-center">{row[3]}</td>
-                  <td className="text-center">{row[4]}</td>
-                  <td className="text-center">{row[5]}</td>
-                  <td className="text-center">{row[6]}</td>
-                  <td className="text-center">{row[7]}</td>
-                  <td>{row[8] || '\u00a0'}</td>
+        <div className="container-fluid py-3">
+          <div className="mb-1" style={{ fontSize: '10px', lineHeight: '1.5', marginLeft: '20px' }}>Up / Down</div>
+          <div className="table-responsive">
+            <table width="100%" border="1" className="table table-bordered align-middle form-table export-table compact-table mb-0" style={{ borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  <th rowSpan={2} style={{ width: '9%' }}>Measuring point</th>
+                  <th colSpan={3}>Chainage</th>
+                  <th style={{ width: '10%' }}>Design Value (mm)</th>
+                  <th style={{ width: '12%' }}>Measured value (mm)</th>
+                  <th style={{ width: '10%' }}>Difference (mm)</th>
+                  <th style={{ width: '12%' }}>&nbsp;</th>
+                  <th rowSpan={2} style={{ width: '20%' }}>Remarks</th>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                <tr>
+                  <td style={{ width: '10%' }}>km</td>
+                  <td style={{ width: '10%' }}>m</td>
+                  <td style={{ width: '10%' }}>Cm</td>
+                  <td style={{ width: '10%' }}>(A)</td>
+                  <td style={{ width: '12%' }}>(B)</td>
+                  <td style={{ width: '10%' }}>(B) - (A)</td>
+                  <td style={{ width: '12%' }}>Levelling value</td>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.from({ length: MEASUREMENT_ROWS }, (_, i) => (
+                  <tr key={i} style={{ height: '35px' }}>
+                    {Array.from({ length: 9 }, (_, c) => (
+                      <td key={c} style={{ height: '35px' }}>&nbsp;</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );

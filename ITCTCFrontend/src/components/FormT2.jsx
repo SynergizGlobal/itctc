@@ -145,8 +145,10 @@ export default function FormT2() {
         </div>
       </div>
 
+      <style>{'.compact-table td { padding: 6px 4px !important; font-size: 10px; line-height: 1.3; } .compact-table { font-size: 10px; } .compact-table thead tr:first-child th, .compact-table thead tr:first-child td { padding: 6px 4px !important; } .compact-table th { background: none !important; background-color: transparent !important; }'}</style>
+
       <div style={{ overflow: 'auto', marginBottom: '1rem' }}>
-        <table className="table table-bordered table-striped table-sm align-middle form-table tolerance-table export-table mb-0" style={{ marginLeft: '128px' }} border="1">
+        <table className="table table-bordered table-striped table-sm align-middle form-table tolerance-table export-table compact-table mb-0" style={{ marginLeft: '128px' }} border="1">
           <thead>
             <tr>
               <th width="105" rowSpan="2">Tolerances</th>
@@ -176,7 +178,7 @@ export default function FormT2() {
       </div>
 
       <div style={{ overflow: 'auto' }}>
-        <table className="table table-striped table-bordered table-sm align-middle form-table measurement-table export-table mb-0" border="1">
+        <table className="table table-striped table-bordered table-sm align-middle form-table measurement-table export-table compact-table mb-0" border="1">
           <thead>
             <tr>
               <th className="vertical-text diagram-text" width="57" rowSpan="3">Vertical curve diagram</th>

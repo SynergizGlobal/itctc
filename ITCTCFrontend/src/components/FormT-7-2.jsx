@@ -43,7 +43,7 @@ export default function FormT72() {
 
   return (
     <div className="container-fluid py-3">
-      <style>{`.tolerance-table th:last-child, .tolerance-table td:last-child { border: none !important; background: none !important; }`}</style>
+      <style>{`.tolerance-table th:last-child, .tolerance-table td:last-child { border: none !important; background: none !important; } .compact-table td { padding: 6px 4px !important; font-size: 10px; line-height: 1.3; } .compact-table { font-size: 10px; } .compact-table thead tr:first-child th, .compact-table thead tr:first-child td { padding: 6px 4px !important; } .compact-table th { background: none !important; background-color: transparent !important; }`}</style>
       <div className="panel-heading d-flex align-items-center justify-content-between mb-3">
         <button type="button" onClick={() => navigate(-1)} title="Back" style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer' }}><ArrowLeft aria-hidden="true" /></button>
         <h1 className="h6 mb-0">Form T-7-2</h1>
@@ -61,7 +61,7 @@ export default function FormT72() {
       </div>
 
       <div style={{ overflow: 'visible', marginBottom: '1rem' }}>
-        <table className="table table-bordered table-striped table-sm align-middle form-table tolerance-table export-table mb-0" border="1">
+        <table className="table table-bordered table-striped table-sm align-middle form-table tolerance-table export-table compact-table mb-0" border="1">
           <thead>
             <tr>
               <th width="50">Tolerances</th>
@@ -75,7 +75,7 @@ export default function FormT72() {
       </div>
 
       <div style={{ overflow: 'visible' }}>
-        <table className="table table-striped table-bordered table-sm align-middle form-table measurement-table export-table mb-0" border="1">
+        <table className="table table-striped table-bordered table-sm align-middle form-table measurement-table export-table compact-table mb-0" border="1">
           <thead>
             <tr>
               <th width="57" rowSpan={3}>Up /<br />Down</th>
@@ -178,15 +178,6 @@ export default function FormT72() {
                         fontSize: "10px"
                       }}
                     >
-                      <div
-                        style={{
-                          marginBottom: "4px",
-                          textAlign: "center"
-                        }}
-                      >
-                        RC anchor measurement range
-                      </div>
-
                       <ImageDropZone height="55px" />
 
                       <div style={{ height: "4px" }} />

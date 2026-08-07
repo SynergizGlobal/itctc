@@ -32,7 +32,7 @@ export default function FormT5() {
 
   return (
     <div className="container-fluid py-3 form-t5">
-      <style>{`.form-t5 table.form-table thead tr th.empty-th, .form-t5 table.form-table tbody td:not(.keep-blue) { background: none !important; } .form-t5 .keep-blue { background-color: #cfe2ff !important; }`}</style>
+      <style>{`.form-t5 table.form-table thead tr th.empty-th, .form-t5 table.form-table tbody td:not(.keep-blue) { background: none !important; } .form-t5 .keep-blue { background-color: #cfe2ff !important; } .compact-table td { padding: 6px 4px !important; font-size: 10px; line-height: 1.3; } .compact-table { font-size: 10px; } .compact-table thead tr:first-child th, .compact-table thead tr:first-child td { padding: 6px 4px !important; } .compact-table th { background: none !important; background-color: transparent !important; }`}</style>
       <div className="panel-heading d-flex align-items-center justify-content-between mb-3">
 <button type="button" onClick={() => navigate(-1)} title="Back" style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer' }}><ArrowLeft aria-hidden="true" /></button>
         <h1 className="h6 mb-0">Form T-5</h1>
@@ -47,7 +47,7 @@ export default function FormT5() {
 
       <div className="d-flex gap-3 align-items-start">
         <div className="flex-grow-1" style={{ overflowX: 'auto', overflowY: 'hidden' }}>
-          <table className="table table-bordered table-sm align-middle form-table export-table mb-0" border="1">
+          <table className="table table-bordered table-sm align-middle form-table export-table compact-table mb-0" border="1" style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
                 <th colSpan="3" scope="col" className="empty-th"></th>

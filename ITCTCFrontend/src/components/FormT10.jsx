@@ -56,6 +56,7 @@ export default function FormT10() {
   const renderTable = (key) => (
     <div style={{ overflow: 'auto', minWidth: 0 }} key={key}>
       <table
+        border="1"
         className="table table-bordered align-middle form-table export-table compact-table mb-0"
         style={{ width: "100%", borderCollapse: "collapse" }}
       >

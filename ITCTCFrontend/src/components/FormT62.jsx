@@ -2,23 +2,269 @@ import useStickyHeaders from '../hooks/useStickyHeaders';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import useDownloadExcel from '../hooks/useDownloadExcel';
+import t61aImage from '../assets/images/T-6-1-A.png';
+import t61bImage from '../assets/images/T-6-1-B.png';
 
-const MEASUREMENT_ROWS = 18;
-
-const torqueValues = [140, 138, 142, 139, 141, 137, 143, 140, 139, 141, 138, 142, 140, 139, 141, 137, 142, 140];
-const gaugeValues = [1435, 1434, 1435, 1436, 1435, 1435, 1434, 1435, 1436, 1435, 1434, 1435, 1436, 1435, 1435, 1434, 1435, 1436];
-
-function measurementRow(index) {
-  return [
-    String(index + 1).padStart(2, '0'),
-    '1',
-    String(100 + index * 25),
-    `F${index + 1}`,
-    gaugeValues[index],
-    torqueValues[index],
-    '',
-  ];
-}
+const TABLE_HTML = `
+<table width="1009" border="1" class="table table-bordered align-middle form-table export-table compact-table mb-0">
+  <tr>
+    <th width="65" rowspan="2" scope="col"><div align="center">Origin side<br>
+      Anchor<br>
+    number</div></th>
+    <th width="44" rowspan="2" scope="col"><div align="center">Up /<br>
+    Down</div></th>
+    <th colspan="3" scope="col"><div align="center">Chainage</div></th>
+    <th width="37" rowspan="2" scope="col"><div align="center">left /<br>
+    Right</div></th>
+    <th width="52" rowspan="2" scope="col"><div align="center">Outside,<br>
+    Inside</div></th>
+    <th width="61" rowspan="2" scope="col"><div align="center">Type of<br>
+      fastening<br>
+      and bol<br>
+    </div></th>
+    <th width="60" rowspan="2" scope="col"><div align="center">Bolt oil<br>
+    condition</div></th>
+    <th width="60" rowspan="2" scope="col"><div align="center">Spring<br>
+    condition<br>
+    (Less than<br>
+    0.2 mm）<br>
+    </div></th>
+    <th width="59" rowspan="2" scope="col"><div align="center">Type of<br>
+    Fastener</div></th>
+    <th colspan="8" scope="col"><div align="center">Measurement position and measured value (Nm)</div></th>
+    <th width="70" rowspan="2" scope="col"><div align="center">Remarks<br>
+    </div></th>
+  </tr>
+  <tr>
+    <td height="27" colspan="3" align="center" style="background-color: #cfe2ff !important;"><div align="center">km &nbsp;&nbsp;&nbsp;&nbsp;m &nbsp; cm</div></td>
+    <td width="19" align="center" style="background-color: #cfe2ff !important;"><div align="center">(1)</div></td>
+    <td width="19" align="center" style="background-color: #cfe2ff !important;"><div align="center">(2)</div></td>
+    <td width="19" align="center" style="background-color: #cfe2ff !important;"><div align="center">(3)</div></td>
+    <td width="70" align="center" style="background-color: #cfe2ff !important;"><div align="center">(4)</div></td>
+    <td width="14" align="center" style="background-color: #cfe2ff !important;"><div align="center">(5)</div></td>
+    <td width="19" align="center" style="background-color: #cfe2ff !important;"><div align="center">(6)</div></td>
+    <td width="19" align="center" style="background-color: #cfe2ff !important;"><div align="center">(7)</div></td>
+    <td width="19" align="center" style="background-color: #cfe2ff !important;"><div align="center">(8)</div></td>
+  </tr>
+  <tr>
+    <td rowspan="8">&nbsp;</td>
+    <td rowspan="8">&nbsp;</td>
+    <td width="28" rowspan="16">&nbsp;</td>
+    <td width="23" rowspan="16">&nbsp;</td>
+    <td width="26" rowspan="16">&nbsp;</td>
+    <td rowspan="4" class="vertical-text">Left</td>
+    <td rowspan="2" class="vertical-text">Outside</td>
+    <td rowspan="8" class="vertical-text">Hexagonal</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td rowspan="8">&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td rowspan="8"><img src="${t61aImage}" style="max-width: 120px; max-height: 140px; width: auto; height: auto;" /><br /><img src="${t61aImage}" style="max-width: 120px; max-height: 140px; width: auto; height: auto;" /><div style="font-size: 8px; line-height: 1.2; text-align: center; margin-top: 2px;">(Upper row of measurements: A1, middle row: A2, lower row: A3)</div></td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td rowspan="2" class="vertical-text">Inside</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td rowspan="4" class="vertical-text">Right</td>
+    <td rowspan="2" class="vertical-text">Outside</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td rowspan="2" class="vertical-text">Inside</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td rowspan="8">&nbsp;</td>
+    <td rowspan="8">&nbsp;</td>
+    <td rowspan="4" class="vertical-text">Left</td>
+    <td rowspan="2" class="vertical-text">Outside</td>
+    <td rowspan="8" class="vertical-text">Hexagonal</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td rowspan="8">&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td rowspan="8"><img src="${t61bImage}" style="max-width: 120px; max-height: 140px; width: auto; height: auto;" /><br /><img src="${t61bImage}" style="max-width: 120px; max-height: 140px; width: auto; height: auto;" /><div style="font-size: 8px; line-height: 1.2; text-align: center; margin-top: 2px;">(Upper row of measurements: A1, middle row: A2, lower row: A3)</div></td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td rowspan="2" class="vertical-text">Inside</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td rowspan="4" class="vertical-text">Right</td>
+    <td rowspan="2" class="vertical-text">Outside</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td rowspan="2" class="vertical-text">Inside</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+`;
 
 export default function FormT62() {
   const navigate = useNavigate();
@@ -28,50 +274,40 @@ export default function FormT62() {
   return (
     <div className="container-fluid py-3">
       <div className="panel-heading d-flex align-items-center justify-content-between mb-3">
-<button type="button" onClick={() => navigate(-1)} title="Back" style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer' }}><ArrowLeft aria-hidden="true" /></button>
+        <button type="button" onClick={() => navigate(-1)} title="Back" style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer' }}><ArrowLeft aria-hidden="true" /></button>
         <h1 className="h6 mb-0">Form T-6-2</h1>
-        <span className="title-main text-center flex-grow-1 mx-3">Measurement record of Rail Fasteners for Slab Track (Directly-laid type 4)</span>
-        <span>No. <input type="text" defaultValue="T62-001" className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
-        <span className="ms-2">Date: <input type="text" defaultValue="17/07/2026" className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
+        <span className="title-main text-center flex-grow-1 mx-3" style={{ fontSize: '16px' }}>Measurement record of Rail Fasteners for Slab Track (Directly-laid type 4)</span>
+        <span>No. <input type="text" className="d-inline-block" style={{ width: '60px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} /></span>
+        <span className="ms-2">Date: <input type="text" className="d-inline-block" style={{ width: '100px', border: 'none', borderBottom: '1px solid #000', textAlign: 'center', background: 'transparent', outline: 'none' }} placeholder="/ /" /></span>
         <div className="form-export-actions">
           <button type="button" onClick={() => window.print()} title="Download as PDF"><i className="fa-solid fa-file-pdf" /></button>
           <button type="button" onClick={() => downloadExcel('Form-T-6-2.xls')} title="Download as Excel"><i className="fa-solid fa-file-excel" /></button>
         </div>
       </div>
+      <style>{'.compact-table td { padding: 2px 1px !important; font-size: 10px; line-height: 1.3; } .compact-table { font-size: 10px; } .compact-table thead tr:first-child th, .compact-table thead tr:first-child td { padding: 0 1px !important; } th, thead tr:last-child td { background-color: #cfe2ff !important; }'}</style>
 
-      <div style={{ overflow: 'auto' }}>
-        <table className="table table-bordered table-striped table-sm align-middle form-table export-table mb-0" border="1">
+      <div className="table-responsive" style={{ display: 'flex', justifyContent: 'center' }}>
+        <table className="table table-bordered align-middle form-table export-table compact-table mb-0" border="1" style={{ width: 'auto', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
-              <th className="vertical-text" width="50" rowSpan="2">SL No.</th>
-              <th colSpan="2">Chainage</th>
-              <th width="90" rowSpan="2">Fastener No.</th>
-              <th width="130" rowSpan="2">Gauge<br />(mm)</th>
-              <th width="140" rowSpan="2">Tightening Torque<br />(N&middot;m)</th>
-              <th width="200" rowSpan="2">Remarks</th>
-            </tr>
-            <tr>
-              <td width="70">km</td>
-              <td width="90">m</td>
+              <th scope="col" className="text-center">Type of Bolt</th>
+              <th scope="col" className="text-center">Fastener (DIRECTLY-LAID TYPE４)</th>
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: MEASUREMENT_ROWS }, (_, i) => {
-              const row = measurementRow(i);
-              return (
-                <tr key={i}>
-                  <td className="text-center">{row[0]}</td>
-                  <td className="text-center">{row[1]}</td>
-                  <td className="text-center">{row[2]}</td>
-                  <td className="text-center">{row[3]}</td>
-                  <td className="text-center">{row[4]}</td>
-                  <td className="text-center">{row[5]}</td>
-                  <td>{row[6] || '\u00a0'}</td>
-                </tr>
-              );
-            })}
+            <tr>
+              <td className="text-center">Standard value</td>
+              <td className="text-center" style={{ color: 'red' }}>58.8 Nm</td>
+            </tr>
+            <tr>
+              <td className="text-center">Tolerances</td>
+              <td className="text-center" style={{ color: 'red' }}>49.0 - 68.6</td>
+            </tr>
           </tbody>
         </table>
+      </div>
+      <div className="table-responsive">
+        <div className="form-table export-table" dangerouslySetInnerHTML={{ __html: TABLE_HTML }} />
       </div>
     </div>
   );
