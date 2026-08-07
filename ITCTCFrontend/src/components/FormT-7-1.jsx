@@ -7,7 +7,7 @@ import { getAllCamMeasurements } from '../services/camMeasurementService';
 import t71a from '../assets/images/T-7-1-A.png';
 import t71b from '../assets/images/T-7-1-B.png';
 
-function ImageDropZone({ height = '120px', label, defaultImage }) {
+function ImageDropZone({ height = '140px', label, defaultImage }) {
   const [image, setImage] = useState(defaultImage || null);
   const [dragOver, setDragOver] = useState(false);
   const handleDrop = (e) => { e.preventDefault(); setDragOver(false); const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) { const reader = new FileReader(); reader.onload = (ev) => setImage(ev.target.result); reader.readAsDataURL(file); } };
@@ -122,25 +122,25 @@ export default function FormT71() {
           <tbody>
 
             {camMeasurements.length === 0 ? (
-              Array.from({ length: 10 }, (_, r) => (
+              Array.from({ length: 14 }, (_, r) => (
                 <tr key={`empty-${r}`}>
                   {Array.from({ length: 22 }, (_, c) => (
                     <td key={c}>&nbsp;</td>
                   ))}
                   {r === 0 && (
                     <td
-                      rowSpan={10}
+                      rowSpan={14}
                       style={{
                         padding: "2px",
                         verticalAlign: "top",
                         fontSize: "10px"
                       }}
                     >
-                      <ImageDropZone height="120px" label="T-7-1-A" defaultImage={t71a} />
+                      <ImageDropZone height="140px" label="T-7-1-A" defaultImage={t71a} />
 
-                      <div style={{ height: "6px" }} />
+                      <div style={{ height: "8px" }} />
 
-                      <ImageDropZone height="90px" label="T-7-1-B" defaultImage={t71b} />
+                      <ImageDropZone height="110px" label="T-7-1-B" defaultImage={t71b} />
 
                     </td>
                   )}
@@ -209,11 +209,11 @@ export default function FormT71() {
                         fontSize: "10px"
                       }}
                     >
-                      <ImageDropZone height="120px" label="T-7-1-A" defaultImage={t71a} />
+                      <ImageDropZone height="140px" label="T-7-1-A" defaultImage={t71a} />
 
-                      <div style={{ height: "6px" }} />
+                      <div style={{ height: "8px" }} />
 
-                      <ImageDropZone height="90px" label="T-7-1-B" defaultImage={t71b} />
+                      <ImageDropZone height="110px" label="T-7-1-B" defaultImage={t71b} />
 
                     </td>
 
