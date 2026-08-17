@@ -31,7 +31,7 @@ public class C2FormationWidthTunnelServiceImpl implements C2FormationWidthTunnel
 	private final C2FormationWidthTunnelHeaderRepository headerRepository;
 
 	private final C2FormationWidthTunnelDetailRepository detailRepository;
- 
+
 	private final InspectionWorkflowService inspectionWorkflowService;
 
 	public C2FormationWidthTunnelServiceImpl(C2FormationWidthTunnelHeaderRepository headerRepository,
@@ -113,12 +113,17 @@ public class C2FormationWidthTunnelServiceImpl implements C2FormationWidthTunnel
 	// =========================================================
 
 	@Override
+	@Transactional
 	public C2FormationWidthTunnelResponse updateC2FormationWidthTunnel(Long c2FormationWidthTunnelId,
 			C2FormationWidthTunnelRequest request) {
 
 		C2FormationWidthTunnelHeader header = headerRepository.findById(c2FormationWidthTunnelId)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"C2 Formation Width Tunnel not found with Id : " + c2FormationWidthTunnelId));
+
+		// =====================================================
+		// CHECK HEADER ACTIVE
+		// =====================================================
 
 		if (!Boolean.TRUE.equals(header.getIsActive())) {
 
@@ -152,14 +157,16 @@ public class C2FormationWidthTunnelServiceImpl implements C2FormationWidthTunnel
 
 			for (C2FormationWidthTunnelDetail existingDetail : header.getDetails()) {
 
+				if (!Boolean.TRUE.equals(existingDetail.getIsActive())) {
+					continue;
+				}
+
 				Long existingDetailId = existingDetail.getC2FormationWidthTunnelDetailId();
 
 				if (!requestDetailIds.contains(existingDetailId)) {
 
 					existingDetail.setIsActive(false);
-
 					existingDetail.setUpdatedBy(request.getUpdatedBy());
-
 					existingDetail.setUpdatedDate(LocalDateTime.now());
 				}
 			}
@@ -173,7 +180,7 @@ public class C2FormationWidthTunnelServiceImpl implements C2FormationWidthTunnel
 
 			for (C2FormationWidthTunnelDetailRequest dto : request.getDetails()) {
 
-				C2FormationWidthTunnelDetail detail;
+				C2FormationWidthTunnelDetail detail = null;
 
 				// =================================================
 				// UPDATE EXISTING DETAIL
@@ -181,13 +188,32 @@ public class C2FormationWidthTunnelServiceImpl implements C2FormationWidthTunnel
 
 				if (dto.getC2FormationWidthTunnelDetailId() != null) {
 
-					detail = detailRepository.findById(dto.getC2FormationWidthTunnelDetailId()).orElseThrow(
-							() -> new ResourceNotFoundException("C2 Formation Width Tunnel Detail not found with Id : "
-									+ dto.getC2FormationWidthTunnelDetailId()));
+					Long detailId = dto.getC2FormationWidthTunnelDetailId();
 
+					// Find detail from current header
+					if (header.getDetails() != null) {
+
+						for (C2FormationWidthTunnelDetail existingDetail : header.getDetails()) {
+
+							if (detailId.equals(existingDetail.getC2FormationWidthTunnelDetailId())) {
+
+								detail = existingDetail;
+								break;
+							}
+						}
+					}
+
+					// Detail does not belong to this header
+					if (detail == null) {
+
+						throw new ResourceNotFoundException("C2 Formation Width Tunnel Detail not found "
+								+ "for Header Id : " + c2FormationWidthTunnelId + " and Detail Id : " + detailId);
+					}
+
+					// Update audit fields
 					detail.setUpdatedBy(request.getUpdatedBy());
-
 					detail.setUpdatedDate(LocalDateTime.now());
+					detail.setIsActive(true);
 				}
 
 				// =================================================
@@ -200,11 +226,11 @@ public class C2FormationWidthTunnelServiceImpl implements C2FormationWidthTunnel
 
 					detail.setC2FormationWidthTunnelHeader(header);
 
+					detail.setIsActive(true);
+
 					detail.setCreatedBy(request.getUpdatedBy());
 
 					detail.setCreatedDate(LocalDateTime.now());
-
-					detail.setIsActive(true);
 
 					header.getDetails().add(detail);
 				}
@@ -214,20 +240,17 @@ public class C2FormationWidthTunnelServiceImpl implements C2FormationWidthTunnel
 				// =================================================
 
 				mapRequestToDetail(dto, detail);
-
-				detail.setIsActive(true);
 			}
 		}
 
 		// =====================================================
-		// SAVE HEADER
+		// SAVE
 		// =====================================================
 
 		C2FormationWidthTunnelHeader savedHeader = headerRepository.save(header);
 
 		return mapToResponse(savedHeader);
 	}
-
 	// =========================================================
 	// DELETE - SOFT DELETE
 	// =========================================================
