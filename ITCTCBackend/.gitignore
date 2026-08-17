@@ -18,8 +18,7 @@ target/
 # Eclipse Workspace
 .metadata/
 
-# Application Configuration
-src/main/resources/application.properties
+
 
 # Logs
 logs/
