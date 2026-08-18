@@ -46,7 +46,7 @@ export default function Login() {
               <i className="fa-solid fa-train-subway" />
             </div>
             <div className="login-brand-text">
-              <h1>ITCTC</h1>
+              <h1>ITC-CT</h1>
               <p>Inspection Tracking & Compliance</p>
             </div>
           </div>

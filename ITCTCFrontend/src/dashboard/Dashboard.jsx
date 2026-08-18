@@ -154,7 +154,7 @@ export default function Dashboard() {
       <aside className={`railway-sidebar ${sidebarOpen ? 'is-open' : ''}`}>
         <div className="sidebar-brand">
           <div className="sidebar-brand-text">
-            <strong>ITCTC</strong>
+            <strong>ITC-CT</strong>
             <small>Inspection Portal</small>
           </div>
         </div>
