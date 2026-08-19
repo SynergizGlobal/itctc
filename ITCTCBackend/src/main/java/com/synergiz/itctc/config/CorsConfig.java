@@ -18,9 +18,13 @@ public class CorsConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // React Application URL
+     // Allowed origins: local dev server + the deployed VM (same-origin
+        // requests from the bundled frontend don't strictly need this, but
+        // it's here for any browser-based calls made across origins, e.g.
+        // testing the API from a different host/port than 8081 itself)
         configuration.setAllowedOrigins(List.of(
-                "http://localhost:5173"
+                "http://localhost:5173",
+                "http://20.193.168.130:8081"
         ));
 
         // Allowed HTTP Methods

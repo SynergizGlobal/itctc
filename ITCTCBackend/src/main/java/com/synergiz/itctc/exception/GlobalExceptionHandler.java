@@ -1,15 +1,57 @@
 package com.synergiz.itctc.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    /**
+     * Handles requests for a "static resource" that doesn't exist -
+     * this is exactly what happens when a browser directly visits (or
+     * refreshes on) a React Router route like /login or /dashboard,
+     * since Spring Boot has no real file with that name.
+     *
+     * If the missing path is NOT under /api, forward it to index.html
+     * so React Router can render the correct page client-side.
+     * If it IS under /api, return a proper JSON 404 instead.
+     *
+     * This must come before the generic Exception.class handler below -
+     * Spring Boot automatically prefers the more specific handler, so
+     * this one intercepts NoResourceFoundException first.
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public void handleNoResourceFound(
+            NoResourceFoundException ex,
+            HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
+
+        String path = request.getRequestURI();
+
+        if (!path.startsWith("/api")) {
+            try {
+                request.getRequestDispatcher("/index.html").forward(request, response);
+            } catch (Exception forwardEx) {
+                response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            }
+            return;
+        }
+
+        response.setStatus(HttpStatus.NOT_FOUND.value());
+        response.setContentType("application/json");
+        response.getWriter().write(
+                "{\"success\":false,\"status\":404,\"message\":\"Resource not found\",\"path\":\""
+                        + path + "\"}"
+        );
+    }
 
     /**
      * 400 - Bad Request
@@ -105,8 +147,8 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    
-    
+
+
     /**
      * 400 - Invalid Workflow Status
      */

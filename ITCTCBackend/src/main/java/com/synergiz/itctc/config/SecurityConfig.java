@@ -48,7 +48,7 @@ public class SecurityConfig {
 
         return provider;
     }
-
+  
     /**
      * Authentication Manager
      */
@@ -79,6 +79,15 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**")
                 .permitAll()
+                .requestMatchers(
+                        "/",
+                        "/index.html",
+                        "/dashboard",
+                        "/login",
+                        "/profile",
+                        "/assets/**",
+                        "/favicon.ico"  
+                ).permitAll()
 
                 .anyRequest().authenticated())
 
