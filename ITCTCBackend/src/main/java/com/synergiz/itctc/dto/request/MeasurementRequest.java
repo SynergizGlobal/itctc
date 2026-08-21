@@ -1,13 +1,37 @@
 package com.synergiz.itctc.dto.request;
 
-
 import java.math.BigDecimal;
 import java.util.List;
 
-
 public class MeasurementRequest {
 
-    public Integer getProjectId() {
+	private Integer projectId;
+
+	private BigDecimal chainageKm;
+
+	private BigDecimal chainageM;
+
+	private Integer structureTypeId;
+
+	private Integer trackTypeId;
+
+	private Boolean isCurve;
+
+	private BigDecimal curveRadius;
+
+	private BigDecimal appliedCantValueMm;
+
+	private String remarks;
+
+	private String createdBy;
+
+	private List<MeasurementDetailRequest> details;
+
+	private InspectionFormCaptureRequest inspectionFormCapture;
+
+	private List<InspectionFileRequest> attachments;
+
+	public Integer getProjectId() {
 		return projectId;
 	}
 
@@ -95,26 +119,20 @@ public class MeasurementRequest {
 		this.details = details;
 	}
 
-	private Integer projectId;
+	public InspectionFormCaptureRequest getInspectionFormCapture() {
+		return inspectionFormCapture;
+	}
 
-    private BigDecimal chainageKm;
+	public void setInspectionFormCapture(InspectionFormCaptureRequest inspectionFormCapture) {
+		this.inspectionFormCapture = inspectionFormCapture;
+	}
 
-    private BigDecimal chainageM;
+	public List<InspectionFileRequest> getAttachments() {
+		return attachments;
+	}
 
-    private Integer structureTypeId;
-
-    private Integer trackTypeId;
-
-    private Boolean isCurve;
-
-    private BigDecimal curveRadius;
-
-    private BigDecimal appliedCantValueMm;
-
-    private String remarks;
-
-    private String createdBy;
-
-    private List<MeasurementDetailRequest> details;
+	public void setAttachments(List<InspectionFileRequest> attachments) {
+		this.attachments = attachments;
+	}
 
 }

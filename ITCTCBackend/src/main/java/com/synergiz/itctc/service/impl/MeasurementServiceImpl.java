@@ -6,8 +6,11 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.synergiz.itctc.constants.WorkflowConstants;
+import com.synergiz.itctc.dto.request.InspectionFileRequest;
+import com.synergiz.itctc.dto.request.InspectionFormCaptureRequest;
 import com.synergiz.itctc.dto.request.MeasurementDetailRequest;
 import com.synergiz.itctc.dto.request.MeasurementRequest;
 import com.synergiz.itctc.dto.request.MeasurementUpdateRequest;
@@ -22,6 +25,8 @@ import com.synergiz.itctc.exception.ResourceNotFoundException;
 import com.synergiz.itctc.repository.MeasurementHeaderRepository;
 import com.synergiz.itctc.repository.StructureTypeRepository;
 import com.synergiz.itctc.repository.TrackTypeRepository;
+import com.synergiz.itctc.service.InspectionFileService;
+import com.synergiz.itctc.service.InspectionFormCaptureService;
 import com.synergiz.itctc.service.InspectionWorkflowService;
 import com.synergiz.itctc.service.MeasurementService;
 
@@ -33,15 +38,20 @@ public class MeasurementServiceImpl implements MeasurementService {
 	private final StructureTypeRepository structureTypeRepository;
 	private final TrackTypeRepository trackTypeRepository;
 	private final InspectionWorkflowService inspectionWorkflowService;
+	private final InspectionFormCaptureService inspectionFormCaptureService;
+	private final InspectionFileService inspectionFileService;
 
 	public MeasurementServiceImpl(MeasurementHeaderRepository measurementHeaderRepository,
 			StructureTypeRepository structureTypeRepository, TrackTypeRepository trackTypeRepository,
-			InspectionWorkflowService inspectionWorkflowService) {
+			InspectionWorkflowService inspectionWorkflowService,
+			InspectionFormCaptureService inspectionFormCaptureService, InspectionFileService inspectionFileService) {
 
 		this.measurementHeaderRepository = measurementHeaderRepository;
 		this.structureTypeRepository = structureTypeRepository;
 		this.trackTypeRepository = trackTypeRepository;
 		this.inspectionWorkflowService = inspectionWorkflowService;
+		this.inspectionFormCaptureService = inspectionFormCaptureService;
+		this.inspectionFileService = inspectionFileService;
 	}
 
 	@Override
@@ -283,7 +293,7 @@ public class MeasurementServiceImpl implements MeasurementService {
 	}
 
 	@Override
-	public Long saveMeasurement(MeasurementRequest request) {
+	public Long saveMeasurement(MeasurementRequest request, MultipartFile selfie, List<MultipartFile> attachments) {
 
 		StructureType structureType = structureTypeRepository.findById(request.getStructureTypeId())
 				.orElseThrow(() -> new ResourceNotFoundException("Invalid Structure Type Id"));
@@ -343,6 +353,53 @@ public class MeasurementServiceImpl implements MeasurementService {
 		header.setDetails(details);
 
 		MeasurementHeader savedHeader = measurementHeaderRepository.save(header);
+
+		// =========================================
+		// Save Data in InspectionFormCapture
+		// =========================================
+		Long referenceId = savedHeader.getMeasurementId();
+		String formCode = WorkflowConstants.MEASUREMENT_FORM_CODE;
+
+		// =====================================================
+		// SAVE SELFIE
+		// =====================================================
+
+		if (selfie != null && !selfie.isEmpty()) {
+
+			InspectionFormCaptureRequest captureRequest = new InspectionFormCaptureRequest();
+
+			captureRequest.setInspectionFormId(WorkflowConstants.MEASUREMENT_FORM_ID);
+
+			captureRequest.setReferenceId(referenceId);
+
+			inspectionFormCaptureService.saveInspectionFormCapture(captureRequest, selfie, formCode);
+		}
+
+		// =====================================================
+		// SAVE ATTACHMENTS
+		// =====================================================
+
+		if (attachments != null && !attachments.isEmpty()) {
+
+			int attachmentNumber = 1;
+
+			for (MultipartFile file : attachments) {
+
+				if (file == null || file.isEmpty()) {
+					continue;
+				}
+
+				InspectionFileRequest fileRequest = new InspectionFileRequest();
+
+				fileRequest.setInspectionFormId(WorkflowConstants.MEASUREMENT_FORM_ID);
+
+				fileRequest.setReferenceId(referenceId);
+
+				inspectionFileService.saveInspectionFile(fileRequest, file, attachmentNumber, formCode);
+
+				attachmentNumber++;
+			}
+		}
 
 		return savedHeader.getMeasurementId();
 	}

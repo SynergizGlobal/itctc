@@ -59,5 +59,12 @@ public final class WorkflowConstants {
 	public static final Integer C0_ELEVATION_CLEARANCE_FORM_ID = 11; // C-0
 	public static final Integer C2_FORMATION_WIDTH_TUNNEL_FORM_ID = 12; // C-2
 	public static final Integer C4_STRUCTURE_GAUGE_FORM_ID = 13; // C-4
+	
+	
+    // =========================================================
+    // FORM CODES
+    // =========================================================
+
+    public static final String MEASUREMENT_FORM_CODE = "C001";
 
 }

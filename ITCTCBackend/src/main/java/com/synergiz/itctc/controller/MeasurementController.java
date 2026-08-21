@@ -11,57 +11,61 @@ import com.synergiz.itctc.dto.request.MeasurementUpdateRequest;
 import com.synergiz.itctc.dto.response.MeasurementResponse;
 import com.synergiz.itctc.service.MeasurementService;
 
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
+
 @RestController
 @RequestMapping("/api/measurements")
 //@CrossOrigin(origins = "*")
 public class MeasurementController {
 
-    private final MeasurementService measurementService;
+	private final MeasurementService measurementService;
 
-    public MeasurementController(MeasurementService measurementService) {
-        this.measurementService = measurementService;
-    }
+	public MeasurementController(MeasurementService measurementService) {
+		this.measurementService = measurementService;
+	}
 
-    @PostMapping
-    public ResponseEntity<Long> saveMeasurement(@RequestBody MeasurementRequest request) {
+	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<Long> saveMeasurement(@RequestPart("request") MeasurementRequest request,
+			@RequestPart(value = "selfie", required = false) MultipartFile selfie,
+			@RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) {
 
-        Long measurementId = measurementService.saveMeasurement(request);
+		Long measurementId = measurementService.saveMeasurement(request, selfie, attachments);
 
-        return new ResponseEntity<>(measurementId, HttpStatus.CREATED);
-    }
-    
-    @GetMapping("/{measurementId}")
-    public ResponseEntity<MeasurementResponse> getMeasurement(
-            @PathVariable Long measurementId) {
+		return new ResponseEntity<>(measurementId, HttpStatus.CREATED);
+	}
 
-        MeasurementResponse response = measurementService.getMeasurement(measurementId);
+	@GetMapping("/{measurementId}")
+	public ResponseEntity<MeasurementResponse> getMeasurement(@PathVariable Long measurementId) {
 
-        return ResponseEntity.ok(response);
-    }
-    
-    @GetMapping("/all")
-    public ResponseEntity<List<MeasurementResponse>> getAllMeasurements() {
+		MeasurementResponse response = measurementService.getMeasurement(measurementId);
 
-        List<MeasurementResponse> measurements = measurementService.getAllMeasurements();
+		return ResponseEntity.ok(response);
+	}
 
-        return ResponseEntity.ok(measurements);
-    }
-    
-    @PutMapping("/{measurementId}")
-    public ResponseEntity<Long> updateMeasurement(
-            @PathVariable Long measurementId,
-            @RequestBody MeasurementUpdateRequest request) {
+	@GetMapping("/all")
+	public ResponseEntity<List<MeasurementResponse>> getAllMeasurements() {
 
-        Long updatedId = measurementService.updateMeasurement(measurementId, request);
+		List<MeasurementResponse> measurements = measurementService.getAllMeasurements();
 
-        return ResponseEntity.ok(updatedId);
-    }
-    
-    @DeleteMapping("/{measurementId}")
-    public ResponseEntity<Long> deleteMeasurement(@PathVariable Long measurementId) {
+		return ResponseEntity.ok(measurements);
+	}
 
-        Long deletedId = measurementService.deleteMeasurement(measurementId);
+	@PutMapping("/{measurementId}")
+	public ResponseEntity<Long> updateMeasurement(@PathVariable Long measurementId,
+			@RequestBody MeasurementUpdateRequest request) {
 
-        return ResponseEntity.ok(deletedId);
-    }
+		Long updatedId = measurementService.updateMeasurement(measurementId, request);
+
+		return ResponseEntity.ok(updatedId);
+	}
+
+	@DeleteMapping("/{measurementId}")
+	public ResponseEntity<Long> deleteMeasurement(@PathVariable Long measurementId) {
+
+		Long deletedId = measurementService.deleteMeasurement(measurementId);
+
+		return ResponseEntity.ok(deletedId);
+	}
 }
