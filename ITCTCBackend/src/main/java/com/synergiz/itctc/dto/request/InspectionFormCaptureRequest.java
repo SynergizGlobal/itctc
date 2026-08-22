@@ -5,99 +5,120 @@ import java.time.LocalDateTime;
 
 public class InspectionFormCaptureRequest {
 
-    // =========================================================
-    // FORM REFERENCE
-    // =========================================================
+	// =========================================================
+	// FORM REFERENCE
+	// =========================================================
 
-    private Integer inspectionFormId;
+	private Integer inspectionFormId;
 
-    private Long referenceId;
+	private Long referenceId;
 
-    // =========================================================
-    // LOCATION
-    // =========================================================
+	// =========================================================
+	// LOCATION
+	// =========================================================
 
-    private BigDecimal latitude;
+	private BigDecimal latitude;
 
-    private BigDecimal longitude;
+	private BigDecimal longitude;
 
-    private String locationAddress;
+	private String locationAddress;
 
-    private LocalDateTime locationCapturedAt;
+	private LocalDateTime locationCapturedAt;
 
-    // =========================================================
-    // SELFIE
-    // =========================================================
+	// =========================================================
+	// SELFIE
+	// =========================================================
 
-    private String selfieFileName;
+	private String selfieFileName;
 
-    private String selfieContentType;
+	private String selfieContentType;
 
-    // =========================================================
-    // Getters / Setters
-    // =========================================================
+	private String createdBy;
 
-    public Integer getInspectionFormId() {
-        return inspectionFormId;
-    }
+	private String updatedBy;
 
-    public void setInspectionFormId(Integer inspectionFormId) {
-        this.inspectionFormId = inspectionFormId;
-    }
+	// =========================================================
+	// Getters / Setters
+	// =========================================================
 
-    public Long getReferenceId() {
-        return referenceId;
-    }
+	public Integer getInspectionFormId() {
+		return inspectionFormId;
+	}
 
-    public void setReferenceId(Long referenceId) {
-        this.referenceId = referenceId;
-    }
+	public void setInspectionFormId(Integer inspectionFormId) {
+		this.inspectionFormId = inspectionFormId;
+	}
 
-    public BigDecimal getLatitude() {
-        return latitude;
-    }
+	public Long getReferenceId() {
+		return referenceId;
+	}
 
-    public void setLatitude(BigDecimal latitude) {
-        this.latitude = latitude;
-    }
+	public void setReferenceId(Long referenceId) {
+		this.referenceId = referenceId;
+	}
 
-    public BigDecimal getLongitude() {
-        return longitude;
-    }
+	public BigDecimal getLatitude() {
+		return latitude;
+	}
 
-    public void setLongitude(BigDecimal longitude) {
-        this.longitude = longitude;
-    }
+	public void setLatitude(BigDecimal latitude) {
+		this.latitude = latitude;
+	}
 
-    public String getLocationAddress() {
-        return locationAddress;
-    }
+	public BigDecimal getLongitude() {
+		return longitude;
+	}
 
-    public void setLocationAddress(String locationAddress) {
-        this.locationAddress = locationAddress;
-    }
+	public void setLongitude(BigDecimal longitude) {
+		this.longitude = longitude;
+	}
 
-    public LocalDateTime getLocationCapturedAt() {
-        return locationCapturedAt;
-    }
+	public String getLocationAddress() {
+		return locationAddress;
+	}
 
-    public void setLocationCapturedAt(LocalDateTime locationCapturedAt) {
-        this.locationCapturedAt = locationCapturedAt;
-    }
+	public void setLocationAddress(String locationAddress) {
+		this.locationAddress = locationAddress;
+	}
 
-    public String getSelfieFileName() {
-        return selfieFileName;
-    }
+	public LocalDateTime getLocationCapturedAt() {
+		return locationCapturedAt;
+	}
 
-    public void setSelfieFileName(String selfieFileName) {
-        this.selfieFileName = selfieFileName;
-    }
+	public void setLocationCapturedAt(LocalDateTime locationCapturedAt) {
+		this.locationCapturedAt = locationCapturedAt;
+	}
 
-    public String getSelfieContentType() {
-        return selfieContentType;
-    }
+	public String getSelfieFileName() {
+		return selfieFileName;
+	}
 
-    public void setSelfieContentType(String selfieContentType) {
-        this.selfieContentType = selfieContentType;
-    }
+	public void setSelfieFileName(String selfieFileName) {
+		this.selfieFileName = selfieFileName;
+	}
+
+	public String getSelfieContentType() {
+		return selfieContentType;
+	}
+
+	public void setSelfieContentType(String selfieContentType) {
+		this.selfieContentType = selfieContentType;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public String getUpdatedBy() {
+		return updatedBy;
+	}
+
+	public void setUpdatedBy(String updatedBy) {
+		this.updatedBy = updatedBy;
+	}
+
 }

@@ -16,7 +16,8 @@ public interface MeasurementService {
 
 	List<MeasurementResponse> getAllMeasurements();
 
-	Long updateMeasurement(Long measurementId, MeasurementUpdateRequest request);
+	Long updateMeasurement(Long measurementId, MeasurementUpdateRequest request, MultipartFile selfie,
+			List<MultipartFile> attachments);
 
 	Long deleteMeasurement(Long measurementId);
 

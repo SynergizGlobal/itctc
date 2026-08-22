@@ -66,5 +66,6 @@ public final class WorkflowConstants {
     // =========================================================
 
     public static final String MEASUREMENT_FORM_CODE = "C001";
+    public static final String C0_ELEVATION_CLEARANCE_FORM_CODE = "C000";
 
 }

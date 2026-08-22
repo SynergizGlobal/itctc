@@ -52,11 +52,16 @@ public class MeasurementController {
 		return ResponseEntity.ok(measurements);
 	}
 
-	@PutMapping("/{measurementId}")
+	@PutMapping(value = "/{measurementId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Long> updateMeasurement(@PathVariable Long measurementId,
-			@RequestBody MeasurementUpdateRequest request) {
 
-		Long updatedId = measurementService.updateMeasurement(measurementId, request);
+			@RequestPart("request") MeasurementUpdateRequest request,
+
+			@RequestPart(value = "selfie", required = false) MultipartFile selfie,
+
+			@RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) {
+
+		Long updatedId = measurementService.updateMeasurement(measurementId, request, selfie, attachments);
 
 		return ResponseEntity.ok(updatedId);
 	}

@@ -12,12 +12,62 @@ import jakarta.persistence.*;
 
 public class MeasurementHeader {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "MeasurementId")
-    private Long measurementId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "MeasurementId")
+	private Long measurementId;
 
-    public Long getMeasurementId() {
+	@Column(name = "ProjectId")
+	private Integer projectId;
+
+	@Column(name = "ChainageKm")
+	private BigDecimal chainageKm;
+
+	@Column(name = "ChainageM")
+	private BigDecimal chainageM;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "StructureTypeId")
+	private StructureType structureType;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "TrackTypeId")
+	private TrackType trackType;
+
+	@Column(name = "IsCurve")
+	private Boolean isCurve;
+
+	@Column(name = "CurveRadius")
+	private BigDecimal curveRadius;
+
+	@Column(name = "AppliedCantValueMm")
+	private BigDecimal appliedCantValueMm;
+
+	@Column(name = "Remarks")
+	private String remarks;
+
+	@Column(name = "IsActive")
+	private Boolean isActive = true;
+
+	@Column(name = "CreatedBy")
+	private String createdBy;
+
+	@Column(name = "CreatedDate")
+	private LocalDateTime createdDate;
+
+	@Column(name = "UpdatedBy")
+	private String updatedBy;
+
+	@Column(name = "UpdatedDate")
+	private LocalDateTime updatedDate;
+
+	@OneToMany(mappedBy = "measurementHeader", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<MeasurementDetail> details = new ArrayList<>();
+
+	@Column(name = "unique_form_id", length = 50)
+	private String uniqueFormId;
+
+	public Long getMeasurementId() {
 		return measurementId;
 	}
 
@@ -145,55 +195,12 @@ public class MeasurementHeader {
 		this.details = details;
 	}
 
-	@Column(name = "ProjectId")
-    private Integer projectId;
+	public String getUniqueFormId() {
+		return uniqueFormId;
+	}
 
-    @Column(name = "ChainageKm")
-    private BigDecimal chainageKm;
-
-    @Column(name = "ChainageM")
-    private BigDecimal chainageM;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "StructureTypeId")
-    private StructureType structureType;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TrackTypeId")
-    private TrackType trackType;
-
-    @Column(name = "IsCurve")
-    private Boolean isCurve;
-
-    @Column(name = "CurveRadius")
-    private BigDecimal curveRadius;
-
-    @Column(name = "AppliedCantValueMm")
-    private BigDecimal appliedCantValueMm;
-
-    @Column(name = "Remarks")
-    private String remarks;
-
-    @Column(name = "IsActive")
-    private Boolean isActive = true;
-
-    @Column(name = "CreatedBy")
-    private String createdBy;
-
-    @Column(name = "CreatedDate")
-    private LocalDateTime createdDate;
-
-    @Column(name = "UpdatedBy")
-    private String updatedBy;
-
-    @Column(name = "UpdatedDate")
-    private LocalDateTime updatedDate;
-
-    @OneToMany(
-            mappedBy = "measurementHeader",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private List<MeasurementDetail> details = new ArrayList<>();
+	public void setUniqueFormId(String uniqueFormId) {
+		this.uniqueFormId = uniqueFormId;
+	}
 
 }

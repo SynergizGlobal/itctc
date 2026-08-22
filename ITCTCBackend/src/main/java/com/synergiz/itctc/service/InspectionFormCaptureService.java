@@ -11,5 +11,7 @@ public interface InspectionFormCaptureService {
 	InspectionFormCaptureResponse saveInspectionFormCapture(InspectionFormCaptureRequest request,MultipartFile selfie,String formCode);
 
 	InspectionFormCaptureResponse updateInspectionFormCapture(Integer inspectionFormId, Long referenceId,
-			InspectionFormCaptureRequest request);
+			InspectionFormCaptureRequest request, MultipartFile selfie, String formCode);
+	
+	
 }

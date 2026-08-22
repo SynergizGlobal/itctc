@@ -1,6 +1,7 @@
 package com.synergiz.itctc.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,6 +83,7 @@ public class InspectionFileServiceImpl implements InspectionFileService {
 		// =====================================================
 
 		entity.setIsActive(true);
+		entity.setCreatedBy(request.getCreatedBy());
 		entity.setCreatedDate(LocalDateTime.now());
 
 		// =====================================================
@@ -91,40 +93,6 @@ public class InspectionFileServiceImpl implements InspectionFileService {
 		InspectionFile savedEntity = inspectionFileRepository.save(entity);
 
 		return mapToResponse(savedEntity);
-	}
-
-	// =========================================================
-	// UPDATE
-	// =========================================================
-
-	@Override
-	public InspectionFileResponse updateInspectionFile(Long inspectionFileId, InspectionFileRequest request) {
-
-		InspectionFile entity = inspectionFileRepository.findById(inspectionFileId)
-				.orElseThrow(() -> new RuntimeException("Inspection file not found for id: " + inspectionFileId));
-
-		// =====================================================
-		// FILE
-		// =====================================================
-
-		entity.setFileName(request.getFileName());
-
-		entity.setContentType(request.getContentType());
-
-		// =====================================================
-		// AUDIT
-		// =====================================================
-
-		entity.setUpdatedDate(LocalDateTime.now());
-
-		// If updatedBy is available from request/security context,
-		// set it here.
-
-		// entity.setUpdatedBy(...);
-
-		InspectionFile updatedEntity = inspectionFileRepository.save(entity);
-
-		return mapToResponse(updatedEntity);
 	}
 
 	// =========================================================
@@ -156,5 +124,44 @@ public class InspectionFileServiceImpl implements InspectionFileService {
 		response.setUpdatedDate(entity.getUpdatedDate());
 
 		return response;
+	}
+
+	@Override
+	public void addInspectionFiles(Integer inspectionFormId, Long referenceId, List<MultipartFile> attachments,
+			String createdBy, String formCode) {
+
+		// =====================================================
+		// FIND EXISTING ATTACHMENTS
+		// =====================================================
+
+		List<InspectionFile> existingFiles = inspectionFileRepository
+				.findByInspectionFormIdAndReferenceIdAndIsActiveTrue(inspectionFormId, referenceId);
+
+		// =====================================================
+		// NEXT ATTACHMENT NUMBER
+		// =====================================================
+
+		int attachmentNumber = existingFiles.size() + 1;
+
+		// =====================================================
+		// SAVE NEW ATTACHMENTS
+		// =====================================================
+
+		for (MultipartFile file : attachments) {
+
+			if (file == null || file.isEmpty()) {
+				continue;
+			}
+
+			InspectionFileRequest fileRequest = new InspectionFileRequest();
+
+			fileRequest.setInspectionFormId(inspectionFormId);
+			fileRequest.setReferenceId(referenceId);
+			fileRequest.setCreatedBy(createdBy);
+
+			saveInspectionFile(fileRequest, file, attachmentNumber, formCode);
+
+			attachmentNumber++;
+		}
 	}
 }

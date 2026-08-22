@@ -6,37 +6,39 @@ import java.util.List;
 
 public class MeasurementResponse {
 
-    private Long measurementId;
+	private Long measurementId;
 
-    private Integer projectId;
+	private Integer projectId;
 
-    private BigDecimal chainageKm;
+	private BigDecimal chainageKm;
 
 	private BigDecimal chainageM;
 
-    private Integer structureTypeId;
+	private Integer structureTypeId;
 
-    private String structureTypeName;
+	private String structureTypeName;
 
-    private Integer trackTypeId;
+	private Integer trackTypeId;
 
-    private String trackTypeName;
+	private String trackTypeName;
 
-    private Boolean isCurve;
+	private Boolean isCurve;
 
-    private BigDecimal curveRadius;
+	private BigDecimal curveRadius;
 
-    private BigDecimal appliedCantValueMm;
+	private BigDecimal appliedCantValueMm;
 
-    private String remarks;
+	private String remarks;
 
-    private LocalDateTime createdDate;
+	private LocalDateTime createdDate;
 
-    private List<MeasurementDetailResponse> details;
-    
-    private InspectionWorkflowResponse workflow;
-    
-    public Long getMeasurementId() {
+	private List<MeasurementDetailResponse> details;
+
+	private InspectionWorkflowResponse workflow;
+
+	private String uniqueFormNumber;
+
+	public Long getMeasurementId() {
 		return measurementId;
 	}
 
@@ -155,7 +157,13 @@ public class MeasurementResponse {
 	public void setWorkflow(InspectionWorkflowResponse workflow) {
 		this.workflow = workflow;
 	}
-	
-	
+
+	public String getUniqueFormNumber() {
+		return uniqueFormNumber;
+	}
+
+	public void setUniqueFormNumber(String uniqueFormNumber) {
+		this.uniqueFormNumber = uniqueFormNumber;
+	}
 
 }

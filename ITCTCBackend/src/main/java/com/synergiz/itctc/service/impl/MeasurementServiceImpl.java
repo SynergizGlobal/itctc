@@ -123,6 +123,8 @@ public class MeasurementServiceImpl implements MeasurementService {
 			response.setWorkflow(null);
 		}
 
+		response.setUniqueFormNumber(header.getUniqueFormId());
+
 		return response;
 	}
 
@@ -154,6 +156,7 @@ public class MeasurementServiceImpl implements MeasurementService {
 			response.setAppliedCantValueMm(header.getAppliedCantValueMm());
 			response.setRemarks(header.getRemarks());
 			response.setCreatedDate(header.getCreatedDate());
+			response.setUniqueFormNumber(header.getUniqueFormId());
 
 			List<MeasurementDetailResponse> detailResponses = new ArrayList<>();
 
@@ -205,7 +208,8 @@ public class MeasurementServiceImpl implements MeasurementService {
 
 	@Override
 	@Transactional
-	public Long updateMeasurement(Long measurementId, MeasurementUpdateRequest request) {
+	public Long updateMeasurement(Long measurementId, MeasurementUpdateRequest request, MultipartFile selfie,
+			List<MultipartFile> attachments) {
 
 		MeasurementHeader header = measurementHeaderRepository.findById(measurementId)
 				.orElseThrow(() -> new ResourceNotFoundException("Measurement not found with Id : " + measurementId));
@@ -264,6 +268,26 @@ public class MeasurementServiceImpl implements MeasurementService {
 				// Add directly to the managed collection
 				header.getDetails().add(detail);
 			}
+		}
+
+		if (request.getInspectionFormCapture() != null) {
+
+			InspectionFormCaptureRequest captureRequest = request.getInspectionFormCapture();
+
+			captureRequest.setUpdatedBy(request.getUpdatedBy());
+
+			inspectionFormCaptureService.updateInspectionFormCapture(WorkflowConstants.MEASUREMENT_FORM_ID,
+					measurementId, captureRequest, selfie, WorkflowConstants.MEASUREMENT_FORM_CODE);
+		}
+
+		// =====================================================
+		// SAVE ATTACHMENTS
+		// =====================================================
+
+		if (attachments != null && !attachments.isEmpty()) {
+
+			inspectionFileService.addInspectionFiles(WorkflowConstants.MEASUREMENT_FORM_ID, measurementId, attachments,
+					request.getUpdatedBy(), WorkflowConstants.MEASUREMENT_FORM_CODE);
 		}
 
 		MeasurementHeader updatedHeader = measurementHeaderRepository.save(header);
@@ -354,11 +378,13 @@ public class MeasurementServiceImpl implements MeasurementService {
 
 		MeasurementHeader savedHeader = measurementHeaderRepository.save(header);
 
-		// =========================================
-		// Save Data in InspectionFormCapture
-		// =========================================
 		Long referenceId = savedHeader.getMeasurementId();
 		String formCode = WorkflowConstants.MEASUREMENT_FORM_CODE;
+
+		String uniqueFormId = formCode + "-" + referenceId;
+
+		savedHeader.setUniqueFormId(uniqueFormId);
+		measurementHeaderRepository.save(savedHeader);
 
 		// =====================================================
 		// SAVE SELFIE
@@ -368,9 +394,37 @@ public class MeasurementServiceImpl implements MeasurementService {
 
 			InspectionFormCaptureRequest captureRequest = new InspectionFormCaptureRequest();
 
+			// =========================================================
+			// FORM REFERENCE
+			// =========================================================
+
 			captureRequest.setInspectionFormId(WorkflowConstants.MEASUREMENT_FORM_ID);
 
 			captureRequest.setReferenceId(referenceId);
+
+			captureRequest.setCreatedBy(request.getCreatedBy());
+
+			// =========================================================
+			// LOCATION
+			// =========================================================
+
+			if (request.getInspectionFormCapture() != null) {
+
+				InspectionFormCaptureRequest existingCapture = request.getInspectionFormCapture();
+
+				captureRequest.setLatitude(existingCapture.getLatitude());
+
+				captureRequest.setLongitude(existingCapture.getLongitude());
+
+				captureRequest.setLocationAddress(existingCapture.getLocationAddress());
+
+				captureRequest.setLocationCapturedAt(existingCapture.getLocationCapturedAt());
+
+			}
+
+			// =========================================================
+			// SAVE CAPTURE + SELFIE
+			// =========================================================
 
 			inspectionFormCaptureService.saveInspectionFormCapture(captureRequest, selfie, formCode);
 		}
@@ -395,9 +449,12 @@ public class MeasurementServiceImpl implements MeasurementService {
 
 				fileRequest.setReferenceId(referenceId);
 
+				fileRequest.setCreatedBy(request.getCreatedBy());
+
 				inspectionFileService.saveInspectionFile(fileRequest, file, attachmentNumber, formCode);
 
 				attachmentNumber++;
+
 			}
 		}
 

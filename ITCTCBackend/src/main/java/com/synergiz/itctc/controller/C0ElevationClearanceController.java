@@ -10,6 +10,10 @@ import com.synergiz.itctc.dto.request.C0ElevationClearanceRequest;
 import com.synergiz.itctc.dto.response.C0ElevationClearanceResponse;
 import com.synergiz.itctc.service.C0ElevationClearanceService;
 
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
+
 @RestController
 @RequestMapping("/api/c0-elevation-clearance")
 public class C0ElevationClearanceController {
@@ -25,11 +29,16 @@ public class C0ElevationClearanceController {
 	// CREATE
 	// =====================================================
 
-	@PostMapping
+	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<C0ElevationClearanceResponse> saveC0ElevationClearance(
-			@RequestBody C0ElevationClearanceRequest request) {
+			@RequestPart("request") C0ElevationClearanceRequest request,
 
-		C0ElevationClearanceResponse response = c0ElevationClearanceService.saveC0ElevationClearance(request);
+			@RequestPart(value = "selfie", required = false) MultipartFile selfie,
+
+			@RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) {
+
+		C0ElevationClearanceResponse response = c0ElevationClearanceService.saveC0ElevationClearance(request, selfie,
+				attachments);
 
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
@@ -40,11 +49,9 @@ public class C0ElevationClearanceController {
 
 	@GetMapping("/{c0ElevationClearanceId}")
 	public ResponseEntity<C0ElevationClearanceResponse> getC0ElevationClearance(
-	        @PathVariable Long c0ElevationClearanceId) {
+			@PathVariable Long c0ElevationClearanceId) {
 
-	    return ResponseEntity.ok(
-	            c0ElevationClearanceService
-	                    .getC0ElevationClearance(c0ElevationClearanceId));
+		return ResponseEntity.ok(c0ElevationClearanceService.getC0ElevationClearance(c0ElevationClearanceId));
 	}
 
 	// =====================================================

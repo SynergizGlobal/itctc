@@ -5,108 +5,129 @@ import java.util.List;
 
 public class MeasurementUpdateRequest {
 
-    private Integer projectId;
-    private BigDecimal chainageKm;
-    private BigDecimal chainageM;
+	private Integer projectId;
+	private BigDecimal chainageKm;
+	private BigDecimal chainageM;
 
-    private Integer structureTypeId;
-    private Integer trackTypeId;
+	private Integer structureTypeId;
+	private Integer trackTypeId;
 
-    private Boolean isCurve;
-    private BigDecimal curveRadius;
-    private BigDecimal appliedCantValueMm;
+	private Boolean isCurve;
+	private BigDecimal curveRadius;
+	private BigDecimal appliedCantValueMm;
 
-    private String remarks;
+	private String remarks;
 
-    private String updatedBy;
+	private String updatedBy;
 
-    private List<MeasurementDetailRequest> details;
+	private List<MeasurementDetailRequest> details;
 
-    public Integer getProjectId() {
-        return projectId;
-    }
+	private InspectionFormCaptureRequest inspectionFormCapture;
 
-    public void setProjectId(Integer projectId) {
-        this.projectId = projectId;
-    }
+	private List<InspectionFileRequest> attachments;
 
-    public BigDecimal getChainageKm() {
-        return chainageKm;
-    }
+	public Integer getProjectId() {
+		return projectId;
+	}
 
-    public void setChainageKm(BigDecimal chainageKm) {
-        this.chainageKm = chainageKm;
-    }
+	public void setProjectId(Integer projectId) {
+		this.projectId = projectId;
+	}
 
-    public BigDecimal getChainageM() {
-        return chainageM;
-    }
+	public BigDecimal getChainageKm() {
+		return chainageKm;
+	}
 
-    public void setChainageM(BigDecimal chainageM) {
-        this.chainageM = chainageM;
-    }
+	public void setChainageKm(BigDecimal chainageKm) {
+		this.chainageKm = chainageKm;
+	}
 
-    public Integer getStructureTypeId() {
-        return structureTypeId;
-    }
+	public BigDecimal getChainageM() {
+		return chainageM;
+	}
 
-    public void setStructureTypeId(Integer structureTypeId) {
-        this.structureTypeId = structureTypeId;
-    }
+	public void setChainageM(BigDecimal chainageM) {
+		this.chainageM = chainageM;
+	}
 
-    public Integer getTrackTypeId() {
-        return trackTypeId;
-    }
+	public Integer getStructureTypeId() {
+		return structureTypeId;
+	}
 
-    public void setTrackTypeId(Integer trackTypeId) {
-        this.trackTypeId = trackTypeId;
-    }
+	public void setStructureTypeId(Integer structureTypeId) {
+		this.structureTypeId = structureTypeId;
+	}
 
-    public Boolean getIsCurve() {
-        return isCurve;
-    }
+	public Integer getTrackTypeId() {
+		return trackTypeId;
+	}
 
-    public void setIsCurve(Boolean isCurve) {
-        this.isCurve = isCurve;
-    }
+	public void setTrackTypeId(Integer trackTypeId) {
+		this.trackTypeId = trackTypeId;
+	}
 
-    public BigDecimal getCurveRadius() {
-        return curveRadius;
-    }
+	public Boolean getIsCurve() {
+		return isCurve;
+	}
 
-    public void setCurveRadius(BigDecimal curveRadius) {
-        this.curveRadius = curveRadius;
-    }
+	public void setIsCurve(Boolean isCurve) {
+		this.isCurve = isCurve;
+	}
 
-    public BigDecimal getAppliedCantValueMm() {
-        return appliedCantValueMm;
-    }
+	public BigDecimal getCurveRadius() {
+		return curveRadius;
+	}
 
-    public void setAppliedCantValueMm(BigDecimal appliedCantValueMm) {
-        this.appliedCantValueMm = appliedCantValueMm;
-    }
+	public void setCurveRadius(BigDecimal curveRadius) {
+		this.curveRadius = curveRadius;
+	}
 
-    public String getRemarks() {
-        return remarks;
-    }
+	public BigDecimal getAppliedCantValueMm() {
+		return appliedCantValueMm;
+	}
 
-    public void setRemarks(String remarks) {
-        this.remarks = remarks;
-    }
+	public void setAppliedCantValueMm(BigDecimal appliedCantValueMm) {
+		this.appliedCantValueMm = appliedCantValueMm;
+	}
 
-    public String getUpdatedBy() {
-        return updatedBy;
-    }
+	public String getRemarks() {
+		return remarks;
+	}
 
-    public void setUpdatedBy(String updatedBy) {
-        this.updatedBy = updatedBy;
-    }
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
+	}
 
-    public List<MeasurementDetailRequest> getDetails() {
-        return details;
-    }
+	public String getUpdatedBy() {
+		return updatedBy;
+	}
 
-    public void setDetails(List<MeasurementDetailRequest> details) {
-        this.details = details;
-    }
+	public void setUpdatedBy(String updatedBy) {
+		this.updatedBy = updatedBy;
+	}
+
+	public List<MeasurementDetailRequest> getDetails() {
+		return details;
+	}
+
+	public void setDetails(List<MeasurementDetailRequest> details) {
+		this.details = details;
+	}
+
+	public InspectionFormCaptureRequest getInspectionFormCapture() {
+		return inspectionFormCapture;
+	}
+
+	public void setInspectionFormCapture(InspectionFormCaptureRequest inspectionFormCapture) {
+		this.inspectionFormCapture = inspectionFormCapture;
+	}
+
+	public List<InspectionFileRequest> getAttachments() {
+		return attachments;
+	}
+
+	public void setAttachments(List<InspectionFileRequest> attachments) {
+		this.attachments = attachments;
+	}
+
 }

@@ -10,10 +10,13 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.synergiz.itctc.constants.WorkflowConstants;
 import com.synergiz.itctc.dto.request.C0ElevationClearanceDetailRequest;
 import com.synergiz.itctc.dto.request.C0ElevationClearanceRequest;
+import com.synergiz.itctc.dto.request.InspectionFileRequest;
+import com.synergiz.itctc.dto.request.InspectionFormCaptureRequest;
 import com.synergiz.itctc.dto.response.C0ElevationClearanceDetailResponse;
 import com.synergiz.itctc.dto.response.C0ElevationClearanceResponse;
 import com.synergiz.itctc.dto.response.InspectionWorkflowResponse;
@@ -23,6 +26,8 @@ import com.synergiz.itctc.exception.ResourceNotFoundException;
 import com.synergiz.itctc.repository.C0ElevationClearanceDetailRepository;
 import com.synergiz.itctc.repository.C0ElevationClearanceHeaderRepository;
 import com.synergiz.itctc.service.C0ElevationClearanceService;
+import com.synergiz.itctc.service.InspectionFileService;
+import com.synergiz.itctc.service.InspectionFormCaptureService;
 import com.synergiz.itctc.service.InspectionWorkflowService;
 
 @Service
@@ -30,20 +35,21 @@ import com.synergiz.itctc.service.InspectionWorkflowService;
 public class C0ElevationClearanceServiceImpl implements C0ElevationClearanceService {
 
 	private final C0ElevationClearanceHeaderRepository c0ElevationClearanceHeaderRepository;
-
 	private final C0ElevationClearanceDetailRepository c0ElevationClearanceDetailRepository;
-
 	private final InspectionWorkflowService inspectionWorkflowService;
+	private final InspectionFormCaptureService inspectionFormCaptureService;
+	private final InspectionFileService inspectionFileService;
 
 	public C0ElevationClearanceServiceImpl(C0ElevationClearanceHeaderRepository c0ElevationClearanceHeaderRepository,
 			C0ElevationClearanceDetailRepository c0ElevationClearanceDetailRepository,
-			InspectionWorkflowService inspectionWorkflowService) {
+			InspectionWorkflowService inspectionWorkflowService,
+			InspectionFormCaptureService inspectionFormCaptureService, InspectionFileService inspectionFileService) {
 
 		this.c0ElevationClearanceHeaderRepository = c0ElevationClearanceHeaderRepository;
-
 		this.c0ElevationClearanceDetailRepository = c0ElevationClearanceDetailRepository;
-
 		this.inspectionWorkflowService = inspectionWorkflowService;
+		this.inspectionFormCaptureService = inspectionFormCaptureService;
+		this.inspectionFileService = inspectionFileService;
 	}
 
 	// =========================================================
@@ -51,7 +57,8 @@ public class C0ElevationClearanceServiceImpl implements C0ElevationClearanceServ
 	// =========================================================
 
 	@Override
-	public C0ElevationClearanceResponse saveC0ElevationClearance(C0ElevationClearanceRequest request) {
+	public C0ElevationClearanceResponse saveC0ElevationClearance(C0ElevationClearanceRequest request,
+			MultipartFile selfie, List<MultipartFile> attachments) {
 
 		C0ElevationClearanceHeader header = new C0ElevationClearanceHeader();
 
@@ -59,6 +66,7 @@ public class C0ElevationClearanceServiceImpl implements C0ElevationClearanceServ
 
 		header.setIsActive(true);
 		header.setCreatedDate(LocalDateTime.now());
+		header.setCreatedBy(request.getCreatedBy());
 
 		List<C0ElevationClearanceDetail> details = createDetails(request.getDetails(), header);
 
@@ -67,6 +75,77 @@ public class C0ElevationClearanceServiceImpl implements C0ElevationClearanceServ
 		calculateMinMax(header, details);
 
 		C0ElevationClearanceHeader savedHeader = c0ElevationClearanceHeaderRepository.save(header);
+
+		// =====================================================
+		// SAVE UNIQUE FORM NUMBER
+		// =====================================================
+
+		Long referenceId = savedHeader.getC0ElevationClearanceId();
+		String uniqueFormNumber = WorkflowConstants.C0_ELEVATION_CLEARANCE_FORM_CODE + "-" + referenceId;
+
+		savedHeader.setUniqueFormId(uniqueFormNumber);
+
+		savedHeader = c0ElevationClearanceHeaderRepository.save(savedHeader);
+
+		// =====================================================
+		// SAVE CAPTURE + OPTIONAL SELFIE
+		// =====================================================
+
+		if (request.getInspectionFormCapture() != null || (selfie != null && !selfie.isEmpty())) {
+
+			InspectionFormCaptureRequest captureRequest = new InspectionFormCaptureRequest();
+
+			captureRequest.setInspectionFormId(WorkflowConstants.C0_ELEVATION_CLEARANCE_FORM_ID);
+
+			captureRequest.setReferenceId(referenceId);
+
+			captureRequest.setCreatedBy(request.getCreatedBy());
+
+			if (request.getInspectionFormCapture() != null) {
+
+				InspectionFormCaptureRequest existingCapture = request.getInspectionFormCapture();
+
+				captureRequest.setLatitude(existingCapture.getLatitude());
+
+				captureRequest.setLongitude(existingCapture.getLongitude());
+
+				captureRequest.setLocationAddress(existingCapture.getLocationAddress());
+
+				captureRequest.setLocationCapturedAt(existingCapture.getLocationCapturedAt());
+			}
+
+			inspectionFormCaptureService.saveInspectionFormCapture(captureRequest, selfie,
+					WorkflowConstants.C0_ELEVATION_CLEARANCE_FORM_CODE);
+		}
+
+		// =====================================================
+		// SAVE ATTACHMENT
+		// =====================================================
+
+		if (attachments != null && !attachments.isEmpty()) {
+
+			int attachmentNumber = 1;
+
+			for (MultipartFile file : attachments) {
+
+				if (file == null || file.isEmpty()) {
+					continue;
+				}
+
+				InspectionFileRequest fileRequest = new InspectionFileRequest();
+
+				fileRequest.setInspectionFormId(WorkflowConstants.C0_ELEVATION_CLEARANCE_FORM_ID);
+
+				fileRequest.setReferenceId(referenceId);
+
+				fileRequest.setCreatedBy(request.getCreatedBy());
+
+				inspectionFileService.saveInspectionFile(fileRequest, file, attachmentNumber,
+						WorkflowConstants.C0_ELEVATION_CLEARANCE_FORM_CODE);
+
+				attachmentNumber++;
+			}
+		}
 
 		return mapToResponse(savedHeader);
 	}
@@ -315,6 +394,7 @@ public class C0ElevationClearanceServiceImpl implements C0ElevationClearanceServ
 		header.setClearanceToleranceTo(request.getClearanceToleranceTo());
 
 		header.setRemarks(request.getRemarks());
+
 	}
 
 	// =========================================================
@@ -455,6 +535,8 @@ public class C0ElevationClearanceServiceImpl implements C0ElevationClearanceServ
 
 		response.setUpdatedBy(header.getUpdatedBy());
 		response.setUpdatedDate(header.getUpdatedDate());
+		
+		response.setUniqueFormNumber(header.getUniqueFormId());
 
 		// Details
 		List<C0ElevationClearanceDetailResponse> detailResponses = new ArrayList<>();

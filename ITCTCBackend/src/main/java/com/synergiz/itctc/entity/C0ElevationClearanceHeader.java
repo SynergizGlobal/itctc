@@ -90,6 +90,9 @@ public class C0ElevationClearanceHeader {
 	@OneToMany(mappedBy = "c0ElevationClearanceHeader", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<C0ElevationClearanceDetail> details = new ArrayList<>();
 
+	@Column(name = "unique_form_id", length = 50)
+	private String uniqueFormId;
+
 	public Long getC0ElevationClearanceId() {
 		return c0ElevationClearanceId;
 	}
@@ -288,6 +291,14 @@ public class C0ElevationClearanceHeader {
 
 	public void setDetails(List<C0ElevationClearanceDetail> details) {
 		this.details = details;
+	}
+
+	public String getUniqueFormId() {
+		return uniqueFormId;
+	}
+
+	public void setUniqueFormId(String uniqueFormId) {
+		this.uniqueFormId = uniqueFormId;
 	}
 
 }

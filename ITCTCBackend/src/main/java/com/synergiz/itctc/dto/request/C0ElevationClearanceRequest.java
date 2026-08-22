@@ -46,12 +46,17 @@ public class C0ElevationClearanceRequest {
 
 	private String remarks;
 	private String updatedBy;
+	private String createdBy;
 
 	// ===========================
 	// Details
 	// ===========================
 
 	private List<C0ElevationClearanceDetailRequest> details;
+
+	private InspectionFormCaptureRequest inspectionFormCapture;
+
+	private List<InspectionFileRequest> attachments;
 
 	public C0ElevationClearanceRequest() {
 	}
@@ -183,4 +188,29 @@ public class C0ElevationClearanceRequest {
 	public void setDetails(List<C0ElevationClearanceDetailRequest> details) {
 		this.details = details;
 	}
+
+	public InspectionFormCaptureRequest getInspectionFormCapture() {
+		return inspectionFormCapture;
+	}
+
+	public void setInspectionFormCapture(InspectionFormCaptureRequest inspectionFormCapture) {
+		this.inspectionFormCapture = inspectionFormCapture;
+	}
+
+	public List<InspectionFileRequest> getAttachments() {
+		return attachments;
+	}
+
+	public void setAttachments(List<InspectionFileRequest> attachments) {
+		this.attachments = attachments;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
 }

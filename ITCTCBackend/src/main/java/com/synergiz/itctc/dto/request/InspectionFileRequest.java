@@ -18,6 +18,10 @@ public class InspectionFileRequest {
 
 	private String contentType;
 
+	private String createdBy;
+
+	private String updateBy;
+
 	// =========================================================
 	// Getters / Setters
 	// =========================================================
@@ -53,4 +57,21 @@ public class InspectionFileRequest {
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
 	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public String getUpdateBy() {
+		return updateBy;
+	}
+
+	public void setUpdateBy(String updateBy) {
+		this.updateBy = updateBy;
+	}
+
 }

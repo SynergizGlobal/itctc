@@ -88,6 +88,7 @@ public class InspectionFormCaptureServiceImpl implements InspectionFormCaptureSe
 		// =====================================================
 
 		entity.setIsActive(true);
+		entity.setCreatedBy(request.getCreatedBy());
 		entity.setCreatedDate(LocalDateTime.now());
 
 		// =====================================================
@@ -104,7 +105,11 @@ public class InspectionFormCaptureServiceImpl implements InspectionFormCaptureSe
 	// =========================================================
 	@Override
 	public InspectionFormCaptureResponse updateInspectionFormCapture(Integer inspectionFormId, Long referenceId,
-			InspectionFormCaptureRequest request) {
+			InspectionFormCaptureRequest request, MultipartFile selfie, String formCode) {
+
+		// =====================================================
+		// FIND EXISTING CAPTURE
+		// =====================================================
 
 		InspectionFormCapture entity = inspectionFormCaptureRepository
 				.findByInspectionFormIdAndReferenceIdAndIsActiveTrue(inspectionFormId, referenceId)
@@ -116,33 +121,40 @@ public class InspectionFormCaptureServiceImpl implements InspectionFormCaptureSe
 		// =====================================================
 
 		entity.setLatitude(request.getLatitude());
-
 		entity.setLongitude(request.getLongitude());
-
 		entity.setLocationAddress(request.getLocationAddress());
-
 		entity.setLocationCapturedAt(request.getLocationCapturedAt());
 
 		// =====================================================
 		// SELFIE
 		// =====================================================
 
-		entity.setSelfieFileName(request.getSelfieFileName());
+		if (selfie != null && !selfie.isEmpty()) {
 
-		entity.setSelfieContentType(request.getSelfieContentType());
+			// Save the physical selfie file
+			String selfieFileName = inspectionFileStorageService.saveSelfie(selfie, formCode, referenceId);
+
+			// Update DB with newly stored file information
+			entity.setSelfieFileName(selfieFileName);
+			entity.setSelfieContentType(selfie.getContentType());
+		}
 
 		// =====================================================
 		// AUDIT
 		// =====================================================
 
 		entity.setUpdatedDate(LocalDateTime.now());
+		entity.setUpdatedBy(request.getUpdatedBy());
 
-		// If updatedBy is available from request/security context,
-		// set it here.
-
-		// entity.setUpdatedBy(...);
+		// =====================================================
+		// SAVE
+		// =====================================================
 
 		InspectionFormCapture updatedEntity = inspectionFormCaptureRepository.save(entity);
+
+		// =====================================================
+		// RESPONSE
+		// =====================================================
 
 		return mapToResponse(updatedEntity);
 	}
